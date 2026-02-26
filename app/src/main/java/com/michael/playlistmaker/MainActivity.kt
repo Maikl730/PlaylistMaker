@@ -1,5 +1,6 @@
 package com.michael.playlistmaker
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.View.OnClickListener
@@ -16,7 +17,13 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         setContentView(R.layout.activity_main)
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
 
         val searchButton = findViewById<Button>(R.id.search_button)
         val mediaButton = findViewById<Button>(R.id.media_button)
@@ -24,13 +31,18 @@ class MainActivity : AppCompatActivity() {
 
         val searchClickListener: View.OnClickListener = object : View.OnClickListener {
             override fun onClick(v: View?) {
-                Toast.makeText(this@MainActivity,"Кнопка поиска",Toast.LENGTH_LONG).show()
+                val searchIntent = Intent(this@MainActivity,SearchActivity::class.java)
+                startActivity(searchIntent)
             }
         }
 
         searchButton.setOnClickListener(searchClickListener)
-        mediaButton.setOnClickListener { Toast.makeText(this,"Медиатека",Toast.LENGTH_LONG).show()}
-        settingsButton.setOnClickListener { Toast.makeText(this,"Настройки",Toast.LENGTH_LONG).show() }
+        mediaButton.setOnClickListener {
+            val mediaIntent = Intent(this@MainActivity,MediatekaActivity::class.java)
+            startActivity(mediaIntent)}
+        settingsButton.setOnClickListener {
+            val settingsIntent = Intent(this@MainActivity,SettingsActivity::class.java)
+            startActivity(settingsIntent) }
     }
 
 
