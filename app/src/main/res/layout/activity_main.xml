@@ -1,19 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
+    android:orientation="vertical"
+    android:background="@color/blue"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    android:paddingHorizontal="16dp">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="@color/blue">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/app_name"
+            android:layout_gravity="center_vertical"
+            android:textColor="@color/white"
+            android:textSize="@dimen/big_text"
+            android:textStyle="normal" />
+    </FrameLayout>
+
+    <Button
+        android:id="@+id/search_button"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:backgroundTint="@color/white"
+        android:text="@string/search"
+        android:textColor="@color/YPblack"
+        android:textSize="@dimen/big_text"
+        app:cornerRadius="@dimen/corner_radius_buttons"
+        app:icon="@drawable/search"
+        app:iconGravity="textStart"
+        app:iconPadding="8dp"
+        app:iconTint="@color/YPblack"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="8dp"
+        tools:ignore="InvalidId" />
+
+    <Button
+        android:id="@+id/media_button"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:backgroundTint="@color/white"
+        android:text="@string/mediateka"
+        android:textColor="@color/YPblack"
+        android:textSize="@dimen/big_text"
+        app:cornerRadius="@dimen/corner_radius_buttons"
+        app:icon="@drawable/library"
+        app:iconGravity="textStart"
+        app:iconPadding="8dp"
+        app:iconTint="@color/YPblack"
+        android:layout_marginVertical="8dp"/>
+
+    <Button
+        android:id="@+id/settings_button"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:backgroundTint="@color/white"
+        android:text="@string/settings"
+        android:textColor="@color/YPblack"
+        android:textSize="@dimen/big_text"
+        app:cornerRadius="@dimen/corner_radius_buttons"
+        app:icon="@drawable/settings"
+        app:iconGravity="textStart"
+        app:iconPadding="8dp"
+        app:iconTint="@color/YPblack"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="24dp"/>
+
+</LinearLayout>
