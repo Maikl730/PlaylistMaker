@@ -9,22 +9,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity"
-    android:paddingHorizontal="16dp">
+    android:paddingHorizontal="@dimen/main_padding">
 
 
-    <FrameLayout
+    <com.google.android.material.appbar.MaterialToolbar
         android:layout_width="match_parent"
         android:layout_height="48dp"
+        app:title="@string/app_name"
+        app:titleTextColor="@color/white"
+        app:titleCentered="false"
         android:background="@color/blue">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/app_name"
-            android:layout_gravity="center_vertical"
-            android:textColor="@color/white"
-            android:textSize="@dimen/big_text"
-            android:textStyle="normal" />
-    </FrameLayout>
+    </com.google.android.material.appbar.MaterialToolbar>
 
     <Button
         android:id="@+id/search_button"

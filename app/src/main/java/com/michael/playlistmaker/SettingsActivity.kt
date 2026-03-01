@@ -2,7 +2,9 @@ package com.michael.playlistmaker
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Button
 import android.widget.ImageButton
+import android.widget.Toolbar
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -19,10 +21,9 @@ class SettingsActivity : AppCompatActivity() {
             insets
         }
 
-        val backButton = findViewById<ImageButton>(R.id.back_button)
-        backButton.setOnClickListener{
-            val mainIntent = Intent(this@SettingsActivity , MainActivity::class.java)
-            startActivity(mainIntent)
+        val backButton = findViewById<Toolbar>(R.id.tool_bar)
+        backButton.setNavigationOnClickListener{
+            finish()
         }
     }
 }
