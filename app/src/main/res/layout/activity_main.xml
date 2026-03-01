@@ -22,6 +22,7 @@
     </com.google.android.material.appbar.MaterialToolbar>
 
     <Button
+
         android:id="@+id/search_button"
         android:layout_width="match_parent"
         android:layout_height="0dp"
