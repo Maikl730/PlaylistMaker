@@ -14,6 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:title="@string/settings"
+        app:titleTextAppearance="@style/Toolbar.TitleText"
         app:titleTextColor="@color/YPblack"
         android:background="@color/white"
         android:padding="4dp"
@@ -21,7 +22,7 @@
 
     </com.google.android.material.appbar.MaterialToolbar>
 
-    <com.google.android.material.switchmaterial.SwitchMaterial
+    <Switch
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
@@ -35,6 +36,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:drawableEnd="@drawable/share"
+        app:drawableTint="@color/icon_grey"
         android:paddingHorizontal="16dp"
         android:paddingVertical="20dp"
         android:text="@string/share"
@@ -45,6 +47,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:drawableEnd="@drawable/support"
+        app:drawableTint="@color/icon_grey"
         android:paddingHorizontal="16dp"
         android:paddingVertical="20dp"
         android:text="@string/write_support"
@@ -55,7 +58,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:drawableEnd="@drawable/arrow_forward"
-        android:paddingHorizontal="16dp"
+        app:drawableTint="@color/icon_grey"
+        android:paddingRight="24dp"
+        android:paddingLeft="16dp"
         android:paddingVertical="20dp"
         android:text="@string/user_declaration"
         android:textColor="@color/YPblack"

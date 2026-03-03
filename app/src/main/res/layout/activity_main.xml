@@ -12,31 +12,30 @@
     android:paddingHorizontal="@dimen/main_padding">
 
 
-    <com.google.android.material.appbar.MaterialToolbar
+    <TextView
         android:layout_width="match_parent"
-        android:layout_height="48dp"
-        app:title="@string/app_name"
-        app:titleTextColor="@color/white"
-        app:titleCentered="false"
-        android:background="@color/blue">
-    </com.google.android.material.appbar.MaterialToolbar>
-
+        android:layout_height="wrap_content"
+        android:textColor="@color/white"
+        android:textSize="@dimen/big_text"
+        android:text="@string/app_name"
+        android:layout_marginTop="14dp"/>
     <Button
-
         android:id="@+id/search_button"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:backgroundTint="@color/white"
+        android:textAllCaps="false"
         android:text="@string/search"
         android:textColor="@color/YPblack"
+        android:textStyle="bold"
         android:textSize="@dimen/big_text"
         app:cornerRadius="@dimen/corner_radius_buttons"
         app:icon="@drawable/search"
         app:iconGravity="textStart"
         app:iconPadding="8dp"
         app:iconTint="@color/YPblack"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="36dp"
         android:layout_marginBottom="8dp"
         tools:ignore="InvalidId" />
 
@@ -46,9 +45,11 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:backgroundTint="@color/white"
+        android:textAllCaps="false"
         android:text="@string/mediateka"
         android:textColor="@color/YPblack"
         android:textSize="@dimen/big_text"
+        android:textStyle="bold"
         app:cornerRadius="@dimen/corner_radius_buttons"
         app:icon="@drawable/library"
         app:iconGravity="textStart"
@@ -62,9 +63,11 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:backgroundTint="@color/white"
+        android:textAllCaps="false"
         android:text="@string/settings"
         android:textColor="@color/YPblack"
         android:textSize="@dimen/big_text"
+        android:textStyle="bold"
         app:cornerRadius="@dimen/corner_radius_buttons"
         app:icon="@drawable/settings"
         app:iconGravity="textStart"
