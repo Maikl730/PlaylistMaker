@@ -17,7 +17,6 @@
         app:titleTextAppearance="@style/Toolbar.TitleText"
         android:padding="4dp"
         app:navigationIcon="@drawable/arrow_back">
-
     </com.google.android.material.appbar.MaterialToolbar>
 
     <Switch
@@ -28,18 +27,21 @@
         android:text="@string/dark_theme" />
 
     <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/share_button"
         style="@style/SettingsVariant"
         android:drawableEnd="@drawable/share"
         android:paddingHorizontal="16dp"
         android:text="@string/share" />
 
     <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/support_button"
         style="@style/SettingsVariant"
         android:drawableEnd="@drawable/support"
         android:paddingHorizontal="16dp"
         android:text="@string/write_support" />
 
     <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/declaration_button"
         style="@style/SettingsVariant"
         android:drawableEnd="@drawable/arrow_forward"
         android:paddingRight="24dp"

@@ -32,6 +32,10 @@
     <style name="MainScreenDayNight">
         <item name="android:background">@color/YPblack</item>
     </style>
+    <style name="EditTextSearch">
+        <item name="android:drawableTint">@color/YPblack</item>
+        <item name="android:textColorHint">@color/YPblack</item>
+    </style>
 </resources>
 
 

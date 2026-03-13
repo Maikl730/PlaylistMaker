@@ -7,4 +7,10 @@
     <string name="settings">Настройки</string>
     <string name="search">Поиск</string>
     <string name="mediateka">Медиатека</string>
+    <string name="lll">https://developer.android.com/training/sharing/send?hl=ru</string>
+    <string name="link_to_practikum">https://practicum.yandex.ru/android-developer/?from=catalog</string>
+    <string name="title_to_support">Сообщение разработчикам и разработчицам приложения Playlist Maker</string>
+    <string name="message_to_support">Спасибо разработчикам и разработчицам за крутое приложение!</string>
+    <string name="student_mail">Sapog730@yandex.ru</string>
+    <string name="link_to_offerta">https://yandex.ru/legal/practicum_offer/ru/</string>
 </resources>
