@@ -24,11 +24,13 @@
         android:gravity="center_vertical"
         android:paddingHorizontal="16dp"
         android:layout_marginTop="24dp"
+        android:paddingVertical="@dimen/setting_variant_padding_vertical"
         android:text="@string/dark_theme" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/share_button"
         style="@style/SettingsVariant"
+        android:paddingVertical="@dimen/setting_variant_padding_vertical"
         android:drawableEnd="@drawable/share"
         android:paddingHorizontal="16dp"
         android:text="@string/share" />
@@ -36,6 +38,7 @@
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/support_button"
         style="@style/SettingsVariant"
+        android:paddingVertical="@dimen/setting_variant_padding_vertical"
         android:drawableEnd="@drawable/support"
         android:paddingHorizontal="16dp"
         android:text="@string/write_support" />
@@ -45,6 +48,7 @@
         style="@style/SettingsVariant"
         android:drawableEnd="@drawable/arrow_forward"
         android:paddingRight="24dp"
+        android:paddingVertical="@dimen/setting_variant_padding_vertical"
         android:paddingLeft="16dp"
         android:text="@string/user_declaration" />
 

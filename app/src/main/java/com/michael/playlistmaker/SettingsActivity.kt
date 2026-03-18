@@ -35,9 +35,8 @@ class SettingsActivity : AppCompatActivity() {
         val declarationButton = findViewById<TextView>(R.id.declaration_button)
 
         val shareIntent = Intent().apply {
-            action = Intent.ACTION_SENDTO
+            action = Intent.ACTION_SEND
             setType("text/plain")
-            data = Uri.parse("sms:")
             putExtra(Intent.EXTRA_TEXT, resources.getString(R.string.link_to_practikum))
         }
 

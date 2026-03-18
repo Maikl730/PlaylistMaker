@@ -12,6 +12,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isVisible
 import com.google.android.material.appbar.MaterialToolbar
 
 class SearchActivity : AppCompatActivity() {
@@ -62,7 +63,7 @@ class SearchActivity : AppCompatActivity() {
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
 
-                cancelText.visibility = clearButtonVisibility(s)
+                cancelText.isVisible = clearButtonVisibility(s)
                 searchText=s.toString()
 
 
@@ -75,13 +76,14 @@ class SearchActivity : AppCompatActivity() {
         }
 
         searchLine.addTextChangedListener(textWatcherForSearch)
+
     }
 
-    private fun clearButtonVisibility(s: CharSequence?): Int {
+    private fun clearButtonVisibility(s: CharSequence?): Boolean {
         return if (s.isNullOrEmpty()) {
-            View.GONE
+            false
         } else {
-            View.VISIBLE
+            true
         }
     }
 
