@@ -4,4 +4,5 @@
     <dimen name="small_text">16sp</dimen>
     <dimen name="corner_radius_buttons">16dp</dimen>
     <dimen name="main_padding">16dp</dimen>
+    <dimen name="setting_variant_padding_vertical">20dp</dimen>
 </resources>

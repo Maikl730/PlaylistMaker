@@ -6,65 +6,51 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/white"
     android:id="@+id/main">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/tool_bar"
+        style="@style/Toolbar.TitleText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:title="@string/settings"
         app:titleTextAppearance="@style/Toolbar.TitleText"
-        app:titleTextColor="@color/YPblack"
-        android:background="@color/white"
         android:padding="4dp"
         app:navigationIcon="@drawable/arrow_back">
-
     </com.google.android.material.appbar.MaterialToolbar>
 
     <Switch
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        style="@style/SettingsVariant"
         android:gravity="center_vertical"
         android:paddingHorizontal="16dp"
-        android:paddingVertical="20dp"
         android:layout_marginTop="24dp"
-        android:text="@string/dark_theme"
-        android:textSize="@dimen/small_text" />
+        android:paddingVertical="@dimen/setting_variant_padding_vertical"
+        android:text="@string/dark_theme" />
 
     <com.google.android.material.textview.MaterialTextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:id="@+id/share_button"
+        style="@style/SettingsVariant"
+        android:paddingVertical="@dimen/setting_variant_padding_vertical"
         android:drawableEnd="@drawable/share"
-        app:drawableTint="@color/icon_grey"
         android:paddingHorizontal="16dp"
-        android:paddingVertical="20dp"
-        android:text="@string/share"
-        android:textColor="@color/YPblack"
-        android:textSize="@dimen/small_text" />
+        android:text="@string/share" />
 
     <com.google.android.material.textview.MaterialTextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:id="@+id/support_button"
+        style="@style/SettingsVariant"
+        android:paddingVertical="@dimen/setting_variant_padding_vertical"
         android:drawableEnd="@drawable/support"
-        app:drawableTint="@color/icon_grey"
         android:paddingHorizontal="16dp"
-        android:paddingVertical="20dp"
-        android:text="@string/write_support"
-        android:textColor="@color/YPblack"
-        android:textSize="@dimen/small_text" />
+        android:text="@string/write_support" />
 
     <com.google.android.material.textview.MaterialTextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:id="@+id/declaration_button"
+        style="@style/SettingsVariant"
         android:drawableEnd="@drawable/arrow_forward"
-        app:drawableTint="@color/icon_grey"
         android:paddingRight="24dp"
+        android:paddingVertical="@dimen/setting_variant_padding_vertical"
         android:paddingLeft="16dp"
-        android:paddingVertical="20dp"
-        android:text="@string/user_declaration"
-        android:textColor="@color/YPblack"
-        android:textSize="@dimen/small_text" />
+        android:text="@string/user_declaration" />
 
 
 </LinearLayout>
