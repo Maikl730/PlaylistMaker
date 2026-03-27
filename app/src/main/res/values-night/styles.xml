@@ -38,6 +38,13 @@
         <item name="background">@color/white</item>
         <item name="android:textColor">@color/YPblack</item>
     </style>
+    <style name="TrackCardNameTrack">
+        <item name="android:textColor">@color/white</item>
+    </style>
+    <style name="TrackCardNameBandAndTime">
+        <item name="android:textColor">@color/white</item>
+        <item name="drawableTint">@color/white</item>
+    </style>
 </resources>
 
 
