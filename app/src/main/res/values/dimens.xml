@@ -2,6 +2,7 @@
 <resources>
     <dimen name="big_text">22sp</dimen>
     <dimen name="small_text">16sp</dimen>
+    <dimen name="smallest_text">11sp</dimen>
     <dimen name="corner_radius_buttons">16dp</dimen>
     <dimen name="main_padding">16dp</dimen>
     <dimen name="setting_variant_padding_vertical">20dp</dimen>
