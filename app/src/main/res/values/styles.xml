@@ -31,12 +31,21 @@
     <style name="MainScreenDayNight">
         <item name="android:background">@color/blue</item>
     </style>
+    <style name="EditTextSearch">
+    <item name="android:drawableTint">@color/yp_text_grey</item>
+    <item name="android:textColorHint">@color/yp_text_grey</item>
+    <item name="backgroundTint">@color/yp_light_grey</item>
+        <item name="android:textColor">@color/YPblack</item>
+    </style>
     <style name="TrackCardNameTrack">
         <item name="android:textColor">@color/YPblack</item>
     </style>
     <style name="TrackCardNameBandAndTime">
         <item name="android:textColor">@color/yp_text_grey</item>
         <item name="drawableTint">@color/yp_text_grey</item>
+    </style>
+    <style name="BackgroundSearchAct">
+        <item name="android:background">@color/white</item>
     </style>
 </resources>
 
