@@ -106,7 +106,7 @@ class SearchActivity : AppCompatActivity() {
         return if (s.isNullOrEmpty()) {
             false
         } else {
-            true
+             true
         }
     }
 }
