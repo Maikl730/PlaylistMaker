@@ -47,6 +47,13 @@
     <style name="BackgroundSearchAct">
         <item name="android:background">@color/white</item>
     </style>
+    <style name="PlaceholderText">
+        <item name="android:textColor">@color/YPblack</item>
+    </style>
+    <style name="RefreshButton">
+        <item name="android:backgroundTint">@color/YPblack</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
 </resources>
 
 

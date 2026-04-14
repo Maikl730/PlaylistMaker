@@ -4,12 +4,14 @@ import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
-import android.view.RoundedCorner
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
+import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
@@ -23,7 +25,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.google.android.material.appbar.MaterialToolbar
-import com.google.android.material.internal.ViewUtils.dpToPx
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.create
+import retrofit2.http.GET
+import retrofit2.http.Query
 
 class SearchActivity : AppCompatActivity() {
 
@@ -38,6 +47,14 @@ class SearchActivity : AppCompatActivity() {
             Track("Sweet Child O'Mine","Guns N' Roses","5:03","https://is5-ssl.mzstatic.com/image/thumb/Music125/v4/a0/4d/c4/a04dc484-03cc-02aa-fa82-5334fcb4bc16/18UMGIM24878.rgb.jpg/100x100bb.jpg "))
 
     }
+
+    private val retrofit = Retrofit.Builder()
+        .baseUrl("https://itunes.apple.com")
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+
+    private var newTracks = mutableListOf<Track>()
+    private val itunes = retrofit.create<ItunesApiService>()
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
@@ -59,12 +76,30 @@ class SearchActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        //newTracks = tracks.toMutableList()
         val backButton = findViewById<MaterialToolbar>(R.id.tool_bar)
         val cancelText = findViewById<TextView>(R.id.clear)
         val searchLine = findViewById<EditText>(R.id.search_line)
         val recyclerTrack:RecyclerView = findViewById(R.id.recycle_tracks)
+        val placeholderImage = findViewById<ImageView>(R.id.image_placeholder)
+        val placetextFirst = findViewById<TextView>(R.id.placetext_first)
+        val placetextSecond = findViewById<TextView>(R.id.placetext_second)
+        val researchButton = findViewById<Button>(R.id.research_button)
+        val adapterR = TrackAdapter(newTracks)
 
-        recyclerTrack.adapter = TrackAdapter(tracks)
+
+
+        searchLine.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                var setf = searchMusic(searchLine.text.toString())
+                Log.d("MyLog",setf.toString())
+                adapterR.notifyDataSetChanged()
+                true
+            }
+            false
+        }
+
+        recyclerTrack.adapter = adapterR
         recyclerTrack.layoutManager = LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false)
 
         backButton.setNavigationOnClickListener{
@@ -102,6 +137,66 @@ class SearchActivity : AppCompatActivity() {
 
 
 
+    private fun searchMusic(text:String){
+        itunes.search(text).enqueue(object : Callback<List<Track>>{
+            override fun onResponse(call: Call<List<Track>>, response: Response<List<Track>>) {
+                // Получили ответ от сервера
+                if (response.isSuccessful) {
+                    // Наш запрос был удачным, получаем наши объекты
+                    val tracks = response.body().orEmpty()
+                    newTracks = tracks.toMutableList()
+                    Log.d("MyLog","Ready")
+                } else {
+                    // Сервер отклонил наш запрос с ошибкой
+                    val errorJson = response.errorBody()?.string()
+                    showPlaceholderNoFound()
+                    Log.d("MyLog","Error")
+
+                }
+            }
+
+            override fun onFailure(call: Call<List<Track>>, t: Throwable) {
+                // Не смогли присоединиться к серверу
+                // Выводим ошибку в лог, что-то пошло не так
+                t.printStackTrace()
+                showPlaceholderNoConnection()
+                Log.d("MyLog","Fail")
+            }
+        })
+    }
+
+    private fun showPlaceholderNoFound() {
+        val placeholderImage = findViewById<ImageView>(R.id.image_placeholder)
+        val placetextFirst = findViewById<TextView>(R.id.placetext_first)
+        val placetextSecond = findViewById<TextView>(R.id.placetext_second)
+        val researchButton = findViewById<Button>(R.id.research_button)
+
+        placeholderImage.setImageResource(R.drawable.nothingfound)
+        placeholderImage.isVisible = true
+        placetextFirst.isVisible = true
+        placetextSecond.isVisible = false
+        researchButton.isVisible = true
+
+        placetextFirst.setText(R.string.no_find_search)
+    }
+
+    private fun showPlaceholderNoConnection() {
+        val placeholderImage = findViewById<ImageView>(R.id.image_placeholder)
+        val placetextFirst = findViewById<TextView>(R.id.placetext_first)
+        val placetextSecond = findViewById<TextView>(R.id.placetext_second)
+        val researchButton = findViewById<Button>(R.id.research_button)
+
+        placeholderImage.setImageResource(R.drawable.noconnection)
+        placeholderImage.isVisible = true
+        placetextFirst.isVisible = true
+        placetextSecond.isVisible = true
+        researchButton.isVisible = true
+
+        placetextFirst.setText(R.string.no_connection_search)
+        placetextSecond.setText(R.string.no_connection_search2)
+
+    }
+
     private fun clearButtonVisibility(s: CharSequence?): Boolean {
         return if (s.isNullOrEmpty()) {
             false
@@ -110,6 +205,7 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 }
+
 
 data class Track(val trackName: String,
                  val artistName: String,
@@ -156,4 +252,12 @@ class TrackAdapter(private val tracks:List<Track> ):RecyclerView.Adapter<TracksV
         holder.bind(tracks[position])
     }
 
+}
+
+interface ItunesApiService{
+
+    @GET("/search?entity=song")
+    fun search(
+        @Query("term") text: String
+    ): Call<List<Track>>
 }
