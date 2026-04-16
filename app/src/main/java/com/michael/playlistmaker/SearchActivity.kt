@@ -15,6 +15,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -91,9 +92,36 @@ class SearchActivity : AppCompatActivity() {
 
         searchLine.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                var setf = searchMusic(searchLine.text.toString())
-                Log.d("MyLog",setf.toString())
-                adapterR.notifyDataSetChanged()
+                itunes.search(searchLine.text.toString()).enqueue(object : Callback<SongResponse>{
+                    override fun onResponse(call: Call<SongResponse>, response: Response<SongResponse>) {
+                        // Получили ответ от сервера
+                        if (response.code() == 200) {
+                            newTracks.clear()
+                            if (response.body()?.results?.isNotEmpty() == true) {
+                                newTracks.addAll(response.body()?.results!!)
+                                adapterR.notifyDataSetChanged()
+                            }
+                            if (newTracks.isEmpty()) {
+                               showPlaceholderNoFound()
+                            } else {
+
+                            }
+                        } else {
+                            Log.d("MyLog",response.code().toString())
+                        }
+                    }
+
+                    override fun onFailure(call: Call<SongResponse>, t: Throwable) {
+                        // Не смогли присоединиться к серверу
+                        // Выводим ошибку в лог, что-то пошло не так
+                        t.printStackTrace()
+                        showPlaceholderNoConnection()
+                        Log.d("MyLog","Fail")
+                    }
+                })
+
+
+
                 true
             }
             false
@@ -138,31 +166,7 @@ class SearchActivity : AppCompatActivity() {
 
 
     private fun searchMusic(text:String){
-        itunes.search(text).enqueue(object : Callback<List<Track>>{
-            override fun onResponse(call: Call<List<Track>>, response: Response<List<Track>>) {
-                // Получили ответ от сервера
-                if (response.isSuccessful) {
-                    // Наш запрос был удачным, получаем наши объекты
-                    val tracks = response.body().orEmpty()
-                    newTracks = tracks.toMutableList()
-                    Log.d("MyLog","Ready")
-                } else {
-                    // Сервер отклонил наш запрос с ошибкой
-                    val errorJson = response.errorBody()?.string()
-                    showPlaceholderNoFound()
-                    Log.d("MyLog","Error")
 
-                }
-            }
-
-            override fun onFailure(call: Call<List<Track>>, t: Throwable) {
-                // Не смогли присоединиться к серверу
-                // Выводим ошибку в лог, что-то пошло не так
-                t.printStackTrace()
-                showPlaceholderNoConnection()
-                Log.d("MyLog","Fail")
-            }
-        })
     }
 
     private fun showPlaceholderNoFound() {
@@ -170,7 +174,9 @@ class SearchActivity : AppCompatActivity() {
         val placetextFirst = findViewById<TextView>(R.id.placetext_first)
         val placetextSecond = findViewById<TextView>(R.id.placetext_second)
         val researchButton = findViewById<Button>(R.id.research_button)
+        val recyclerTrack:RecyclerView = findViewById(R.id.recycle_tracks)
 
+        recyclerTrack.isVisible = false
         placeholderImage.setImageResource(R.drawable.nothingfound)
         placeholderImage.isVisible = true
         placetextFirst.isVisible = true
@@ -185,12 +191,14 @@ class SearchActivity : AppCompatActivity() {
         val placetextFirst = findViewById<TextView>(R.id.placetext_first)
         val placetextSecond = findViewById<TextView>(R.id.placetext_second)
         val researchButton = findViewById<Button>(R.id.research_button)
+        val recyclerTrack:RecyclerView = findViewById(R.id.recycle_tracks)
 
         placeholderImage.setImageResource(R.drawable.noconnection)
         placeholderImage.isVisible = true
         placetextFirst.isVisible = true
         placetextSecond.isVisible = true
         researchButton.isVisible = true
+        recyclerTrack.isVisible = false
 
         placetextFirst.setText(R.string.no_connection_search)
         placetextSecond.setText(R.string.no_connection_search2)
@@ -255,9 +263,11 @@ class TrackAdapter(private val tracks:List<Track> ):RecyclerView.Adapter<TracksV
 }
 
 interface ItunesApiService{
-
     @GET("/search?entity=song")
     fun search(
         @Query("term") text: String
-    ): Call<List<Track>>
+    ): Call<SongResponse>
 }
+
+class SongResponse(val results:List<Track>)
+
