@@ -34,6 +34,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
 import retrofit2.http.GET
 import retrofit2.http.Query
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class SearchActivity : AppCompatActivity() {
 
@@ -82,46 +84,18 @@ class SearchActivity : AppCompatActivity() {
         val cancelText = findViewById<TextView>(R.id.clear)
         val searchLine = findViewById<EditText>(R.id.search_line)
         val recyclerTrack:RecyclerView = findViewById(R.id.recycle_tracks)
-        val placeholderImage = findViewById<ImageView>(R.id.image_placeholder)
-        val placetextFirst = findViewById<TextView>(R.id.placetext_first)
-        val placetextSecond = findViewById<TextView>(R.id.placetext_second)
-        val researchButton = findViewById<Button>(R.id.research_button)
+        val researchButton: Button = findViewById(R.id.research_button)
+
         val adapterR = TrackAdapter(newTracks)
 
 
+        researchButton.setOnClickListener {
+            searchMusic(searchLine.text.toString(),recyclerTrack,adapterR)
+        }
 
         searchLine.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                itunes.search(searchLine.text.toString()).enqueue(object : Callback<SongResponse>{
-                    override fun onResponse(call: Call<SongResponse>, response: Response<SongResponse>) {
-                        // Получили ответ от сервера
-                        if (response.code() == 200) {
-                            newTracks.clear()
-                            if (response.body()?.results?.isNotEmpty() == true) {
-                                newTracks.addAll(response.body()?.results!!)
-                                adapterR.notifyDataSetChanged()
-                            }
-                            if (newTracks.isEmpty()) {
-                               showPlaceholderNoFound()
-                            } else {
-
-                            }
-                        } else {
-                            Log.d("MyLog",response.code().toString())
-                        }
-                    }
-
-                    override fun onFailure(call: Call<SongResponse>, t: Throwable) {
-                        // Не смогли присоединиться к серверу
-                        // Выводим ошибку в лог, что-то пошло не так
-                        t.printStackTrace()
-                        showPlaceholderNoConnection()
-                        Log.d("MyLog","Fail")
-                    }
-                })
-
-
-
+                searchMusic(searchLine.text.toString(),recyclerTrack,adapterR)
                 true
             }
             false
@@ -165,8 +139,37 @@ class SearchActivity : AppCompatActivity() {
 
 
 
-    private fun searchMusic(text:String){
+    private fun searchMusic(text:String,recycle:RecyclerView, adapter:TrackAdapter){
 
+        itunes.search(text).enqueue(object : Callback<SongResponse>{
+            override fun onResponse(call: Call<SongResponse>, response: Response<SongResponse>) {
+                // Получили ответ от сервера
+                if (response.code() == 200) {
+                    newTracks.clear()
+                    if (response.body()?.results?.isNotEmpty() == true) {
+                        newTracks.addAll(response.body()?.results!!)
+                        adapter.notifyDataSetChanged()
+                        recycle.isVisible = true
+                    }
+                    if (newTracks.isEmpty()) {
+                        showPlaceholderNoFound()
+                    } else {
+                       // showPlaceholderNoFound()
+                    }
+                } else {
+                    Log.d("MyLog",response.code().toString())
+                    showPlaceholderNoConnection()
+                }
+            }
+
+            override fun onFailure(call: Call<SongResponse>, t: Throwable) {
+                // Не смогли присоединиться к серверу
+                // Выводим ошибку в лог, что-то пошло не так
+                t.printStackTrace()
+                showPlaceholderNoConnection()
+                Log.d("MyLog","Fail")
+            }
+        })
     }
 
     private fun showPlaceholderNoFound() {
@@ -217,7 +220,7 @@ class SearchActivity : AppCompatActivity() {
 
 data class Track(val trackName: String,
                  val artistName: String,
-                 val trackTime: String,
+                 val trackTimeMillis: String,
                  val artworkUrl100: String)
 
 class TracksViewHolder(itemView:View):RecyclerView.ViewHolder(itemView){
@@ -227,9 +230,11 @@ class TracksViewHolder(itemView:View):RecyclerView.ViewHolder(itemView){
     private val trackImage:ImageView = itemView.findViewById(R.id.track_image)
 
     fun bind(model:Track){
+        val time:Long = if (model.trackTimeMillis.isNullOrEmpty()){201900L}else{model.trackTimeMillis.toLong()}
+        Log.d("MyLog",time.toString())
         trackName.text = model.trackName
         trackBand.text = model.artistName
-        trackLong.text = model.trackTime
+        trackLong.text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(time) //model.trackTime
         Glide.with(itemView)
             .load(model.artworkUrl100)
             .fitCenter()
