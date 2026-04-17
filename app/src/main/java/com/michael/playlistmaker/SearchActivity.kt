@@ -112,6 +112,8 @@ class SearchActivity : AppCompatActivity() {
             searchLine.setText("")
             val inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
             inputMethodManager?.hideSoftInputFromWindow(searchLine.windowToken, 0)
+            newTracks.clear()
+            adapterR.notifyDataSetChanged()
         }
 
         val textWatcherForSearch = object : TextWatcher {
