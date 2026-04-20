@@ -58,6 +58,7 @@ class SearchActivity : AppCompatActivity() {
 
     private var newTracks = mutableListOf<Track>()
     private val itunes = retrofit.create<ItunesApiService>()
+    private var lastSearch:String =""
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
@@ -79,7 +80,7 @@ class SearchActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        //newTracks = tracks.toMutableList()
+
         val backButton = findViewById<MaterialToolbar>(R.id.tool_bar)
         val cancelText = findViewById<TextView>(R.id.clear)
         val searchLine = findViewById<EditText>(R.id.search_line)
@@ -90,12 +91,13 @@ class SearchActivity : AppCompatActivity() {
 
 
         researchButton.setOnClickListener {
-            searchMusic(searchLine.text.toString(),recyclerTrack,adapterR)
+            searchMusic(lastSearch,recyclerTrack,adapterR)
         }
 
         searchLine.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 searchMusic(searchLine.text.toString(),recyclerTrack,adapterR)
+                lastSearch=searchLine.text.toString()
                 true
             }
             false
