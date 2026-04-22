@@ -52,6 +52,10 @@ class SearchActivity : AppCompatActivity() {
 
     }
 
+    lateinit var placeholderImage:ImageView
+    lateinit var placetextFirst:TextView
+    lateinit var placetextSecond:TextView
+    lateinit var researchButton:Button
 
     private val retrofit = Retrofit.Builder()
         .baseUrl("https://itunes.apple.com")
@@ -82,6 +86,12 @@ class SearchActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+
+        placeholderImage = findViewById<ImageView>(R.id.image_placeholder)
+        placetextFirst = findViewById<TextView>(R.id.placetext_first)
+        placetextSecond = findViewById<TextView>(R.id.placetext_second)
+        researchButton = findViewById<Button>(R.id.research_button)
 
 
         val backButton = findViewById<MaterialToolbar>(R.id.tool_bar)
@@ -181,11 +191,6 @@ class SearchActivity : AppCompatActivity() {
 
     private fun showPlaceholderNoFound(recycle:RecyclerView) {
 
-        val placeholderImage = findViewById<ImageView>(R.id.image_placeholder)
-        val placetextFirst = findViewById<TextView>(R.id.placetext_first)
-        val placetextSecond = findViewById<TextView>(R.id.placetext_second)
-        val researchButton = findViewById<Button>(R.id.research_button)
-
         recycle.isVisible = false
         placeholderImage.setImageResource(R.drawable.nothingfound)
         placeholderImage.isVisible = true
@@ -197,11 +202,6 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun showPlaceholderNoConnection(recycle: RecyclerView) {
-
-        val placeholderImage = findViewById<ImageView>(R.id.image_placeholder)
-        val placetextFirst = findViewById<TextView>(R.id.placetext_first)
-        val placetextSecond = findViewById<TextView>(R.id.placetext_second)
-        val researchButton = findViewById<Button>(R.id.research_button)
 
 
         placeholderImage.setImageResource(R.drawable.noconnection)
