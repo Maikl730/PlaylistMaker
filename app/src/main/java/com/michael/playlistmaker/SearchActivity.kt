@@ -49,13 +49,9 @@ class SearchActivity : AppCompatActivity() {
             Track("Whole Lotta Love","Led Zeppelin","5:33","https://is2-ssl.mzstatic.com/image/thumb/Music62/v4/7e/17/e3/7e17e33f-2efa-2a36-e916-7f808576cf6b/mzm.fyigqcbs.jpg/100x100bb.jpg"),
             Track("Sweet Child O'Mine","Guns N' Roses","5:03","https://is5-ssl.mzstatic.com/image/thumb/Music125/v4/a0/4d/c4/a04dc484-03cc-02aa-fa82-5334fcb4bc16/18UMGIM24878.rgb.jpg/100x100bb.jpg ")
         )
+
     }
 
-    private val placeholderImage = findViewById<ImageView>(R.id.image_placeholder)
-    private val placetextFirst = findViewById<TextView>(R.id.placetext_first)
-    private val placetextSecond = findViewById<TextView>(R.id.placetext_second)
-    private val researchButton = findViewById<Button>(R.id.research_button)
-    private val recyclerTrack:RecyclerView = findViewById(R.id.recycle_tracks)
 
     private val retrofit = Retrofit.Builder()
         .baseUrl("https://itunes.apple.com")
@@ -87,11 +83,12 @@ class SearchActivity : AppCompatActivity() {
             insets
         }
 
+
         val backButton = findViewById<MaterialToolbar>(R.id.tool_bar)
         val cancelText = findViewById<TextView>(R.id.clear)
         val searchLine = findViewById<EditText>(R.id.search_line)
-        //val recyclerTrack:RecyclerView = findViewById(R.id.recycle_tracks)
-        //val researchButton: Button = findViewById(R.id.research_button)
+        val recyclerTrack:RecyclerView = findViewById(R.id.recycle_tracks)
+        val researchButton: Button = findViewById(R.id.research_button)
 
         val adapterR = TrackAdapter(newTracks)
 
@@ -146,7 +143,9 @@ class SearchActivity : AppCompatActivity() {
 
 
 
-    private fun searchMusic(text:String,recycle:RecyclerView, adapter:TrackAdapter){
+    private fun searchMusic(text:String,
+                            recycle:RecyclerView,
+                            adapter:TrackAdapter){
 
         itunes.search(text).enqueue(object : Callback<SongResponse>{
             override fun onResponse(call: Call<SongResponse>, response: Response<SongResponse>) {
@@ -160,13 +159,13 @@ class SearchActivity : AppCompatActivity() {
                         recycle.isVisible = true
                     }
                     if (newTracks.isEmpty()) {
-                        showPlaceholderNoFound()
+                        showPlaceholderNoFound(recycle)
                     } else {
 
                     }
                 } else {
                     Log.d("MyLog",response.code().toString())
-                    showPlaceholderNoConnection()
+                    showPlaceholderNoConnection(recycle)
                 }
             }
 
@@ -174,15 +173,20 @@ class SearchActivity : AppCompatActivity() {
                 // Не смогли присоединиться к серверу
                 // Выводим ошибку в лог, что-то пошло не так
                 t.printStackTrace()
-                showPlaceholderNoConnection()
+                showPlaceholderNoConnection(recycle)
                 Log.d("MyLog","Fail")
             }
         })
     }
 
-    private fun showPlaceholderNoFound() {
+    private fun showPlaceholderNoFound(recycle:RecyclerView) {
 
-        recyclerTrack.isVisible = false
+        val placeholderImage = findViewById<ImageView>(R.id.image_placeholder)
+        val placetextFirst = findViewById<TextView>(R.id.placetext_first)
+        val placetextSecond = findViewById<TextView>(R.id.placetext_second)
+        val researchButton = findViewById<Button>(R.id.research_button)
+
+        recycle.isVisible = false
         placeholderImage.setImageResource(R.drawable.nothingfound)
         placeholderImage.isVisible = true
         placetextFirst.isVisible = true
@@ -192,14 +196,20 @@ class SearchActivity : AppCompatActivity() {
         placetextFirst.setText(R.string.no_find_search)
     }
 
-    private fun showPlaceholderNoConnection() {
+    private fun showPlaceholderNoConnection(recycle: RecyclerView) {
+
+        val placeholderImage = findViewById<ImageView>(R.id.image_placeholder)
+        val placetextFirst = findViewById<TextView>(R.id.placetext_first)
+        val placetextSecond = findViewById<TextView>(R.id.placetext_second)
+        val researchButton = findViewById<Button>(R.id.research_button)
+
 
         placeholderImage.setImageResource(R.drawable.noconnection)
         placeholderImage.isVisible = true
         placetextFirst.isVisible = true
         placetextSecond.isVisible = true
         researchButton.isVisible = true
-        recyclerTrack.isVisible = false
+        recycle.isVisible = false
 
         placetextFirst.setText(R.string.no_connection_search)
         placetextSecond.setText(R.string.no_connection_search2)
