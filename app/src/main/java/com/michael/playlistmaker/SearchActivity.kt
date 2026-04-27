@@ -4,15 +4,18 @@ import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
-import android.view.RoundedCorner
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
+import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -23,7 +26,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.google.android.material.appbar.MaterialToolbar
-import com.google.android.material.internal.ViewUtils.dpToPx
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.create
+import retrofit2.http.GET
+import retrofit2.http.Query
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class SearchActivity : AppCompatActivity() {
 
@@ -35,9 +47,24 @@ class SearchActivity : AppCompatActivity() {
             Track("Billie Jean","Michael Jackson","4:35","https://is5-ssl.mzstatic.com/image/thumb/Music125/v4/3d/9d/38/3d9d3811-71f0-3a0e-1ada-3004e56ff852/827969428726.jpg/100x100bb.jpg"),
             Track("Stayin' Alive","Bee Gees","4:10","https://is4-ssl.mzstatic.com/image/thumb/Music115/v4/1f/80/1f/1f801fc1-8c0f-ea3e-d3e5-387c6619619e/16UMGIM86640.rgb.jpg/100x100bb.jpg"),
             Track("Whole Lotta Love","Led Zeppelin","5:33","https://is2-ssl.mzstatic.com/image/thumb/Music62/v4/7e/17/e3/7e17e33f-2efa-2a36-e916-7f808576cf6b/mzm.fyigqcbs.jpg/100x100bb.jpg"),
-            Track("Sweet Child O'Mine","Guns N' Roses","5:03","https://is5-ssl.mzstatic.com/image/thumb/Music125/v4/a0/4d/c4/a04dc484-03cc-02aa-fa82-5334fcb4bc16/18UMGIM24878.rgb.jpg/100x100bb.jpg "))
+            Track("Sweet Child O'Mine","Guns N' Roses","5:03","https://is5-ssl.mzstatic.com/image/thumb/Music125/v4/a0/4d/c4/a04dc484-03cc-02aa-fa82-5334fcb4bc16/18UMGIM24878.rgb.jpg/100x100bb.jpg ")
+        )
 
     }
+
+    lateinit var placeholderImage:ImageView
+    lateinit var placetextFirst:TextView
+    lateinit var placetextSecond:TextView
+    lateinit var researchButton:Button
+
+    private val retrofit = Retrofit.Builder()
+        .baseUrl("https://itunes.apple.com")
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+
+    private var newTracks = mutableListOf<Track>()
+    private val itunes = retrofit.create<ItunesApiService>()
+    private var lastSearch:String =""
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
@@ -59,12 +86,37 @@ class SearchActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+
+        placeholderImage = findViewById<ImageView>(R.id.image_placeholder)
+        placetextFirst = findViewById<TextView>(R.id.placetext_first)
+        placetextSecond = findViewById<TextView>(R.id.placetext_second)
+        researchButton = findViewById<Button>(R.id.research_button)
+
+
         val backButton = findViewById<MaterialToolbar>(R.id.tool_bar)
         val cancelText = findViewById<TextView>(R.id.clear)
         val searchLine = findViewById<EditText>(R.id.search_line)
         val recyclerTrack:RecyclerView = findViewById(R.id.recycle_tracks)
+        val researchButton: Button = findViewById(R.id.research_button)
 
-        recyclerTrack.adapter = TrackAdapter(tracks)
+        val adapterR = TrackAdapter(newTracks)
+
+
+        researchButton.setOnClickListener {
+            searchMusic(lastSearch,recyclerTrack,adapterR)
+        }
+
+        searchLine.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                searchMusic(searchLine.text.toString(),recyclerTrack,adapterR)
+                lastSearch=searchLine.text.toString()
+                true
+            }
+            false
+        }
+
+        recyclerTrack.adapter = adapterR
         recyclerTrack.layoutManager = LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false)
 
         backButton.setNavigationOnClickListener{
@@ -75,6 +127,8 @@ class SearchActivity : AppCompatActivity() {
             searchLine.setText("")
             val inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
             inputMethodManager?.hideSoftInputFromWindow(searchLine.windowToken, 0)
+            newTracks.clear()
+            adapterR.notifyDataSetChanged()
         }
 
         val textWatcherForSearch = object : TextWatcher {
@@ -93,27 +147,88 @@ class SearchActivity : AppCompatActivity() {
             override fun afterTextChanged(s: Editable?) {
 
             }
-
         }
-
         searchLine.addTextChangedListener(textWatcherForSearch)
-
     }
 
 
+
+    private fun searchMusic(text:String,
+                            recycle:RecyclerView,
+                            adapter:TrackAdapter){
+
+        itunes.search(text).enqueue(object : Callback<SongResponse>{
+            override fun onResponse(call: Call<SongResponse>, response: Response<SongResponse>) {
+                // Получили ответ от сервера
+                if (response.isSuccessful) {
+                    newTracks.clear()
+                    if (response.body()?.results?.isNotEmpty() == true) {
+                        val forNewTrack:List<Track> = response.body()?.results!!
+                        newTracks.addAll(forNewTrack)
+                        adapter.notifyDataSetChanged()
+                        recycle.isVisible = true
+                    }
+                    if (newTracks.isEmpty()) {
+                        showPlaceholderNoFound(recycle)
+                    } else {
+
+                    }
+                } else {
+                    Log.d("MyLog",response.code().toString())
+                    showPlaceholderNoConnection(recycle)
+                }
+            }
+
+            override fun onFailure(call: Call<SongResponse>, t: Throwable) {
+                // Не смогли присоединиться к серверу
+                // Выводим ошибку в лог, что-то пошло не так
+                t.printStackTrace()
+                showPlaceholderNoConnection(recycle)
+                Log.d("MyLog","Fail")
+            }
+        })
+    }
+
+    private fun showPlaceholderNoFound(recycle:RecyclerView) {
+
+        recycle.isVisible = false
+        placeholderImage.setImageResource(R.drawable.nothingfound)
+        placeholderImage.isVisible = true
+        placetextFirst.isVisible = true
+        placetextSecond.isVisible = false
+        researchButton.isVisible = false
+
+        placetextFirst.setText(R.string.no_find_search)
+    }
+
+    private fun showPlaceholderNoConnection(recycle: RecyclerView) {
+
+
+        placeholderImage.setImageResource(R.drawable.noconnection)
+        placeholderImage.isVisible = true
+        placetextFirst.isVisible = true
+        placetextSecond.isVisible = true
+        researchButton.isVisible = true
+        recycle.isVisible = false
+
+        placetextFirst.setText(R.string.no_connection_search)
+        placetextSecond.setText(R.string.no_connection_search2)
+
+    }
 
     private fun clearButtonVisibility(s: CharSequence?): Boolean {
         return if (s.isNullOrEmpty()) {
             false
         } else {
-            true
+              true
         }
     }
 }
 
+
 data class Track(val trackName: String,
                  val artistName: String,
-                 val trackTime: String,
+                 val trackTimeMillis: String,
                  val artworkUrl100: String)
 
 class TracksViewHolder(itemView:View):RecyclerView.ViewHolder(itemView){
@@ -123,9 +238,11 @@ class TracksViewHolder(itemView:View):RecyclerView.ViewHolder(itemView){
     private val trackImage:ImageView = itemView.findViewById(R.id.track_image)
 
     fun bind(model:Track){
+        val time:Long = if (model.trackTimeMillis.isNullOrEmpty()){201900L}else{model.trackTimeMillis.toLong()}
+        Log.d("MyLog",time.toString())
         trackName.text = model.trackName
         trackBand.text = model.artistName
-        trackLong.text = model.trackTime
+        trackLong.text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(time) //model.trackTime
         Glide.with(itemView)
             .load(model.artworkUrl100)
             .fitCenter()
@@ -157,3 +274,13 @@ class TrackAdapter(private val tracks:List<Track> ):RecyclerView.Adapter<TracksV
     }
 
 }
+
+interface ItunesApiService{
+    @GET("/search?entity=song")
+    fun search(
+        @Query("term") text: String
+    ): Call<SongResponse>
+}
+
+class SongResponse(val results:List<Track>)
+

@@ -14,4 +14,8 @@
     <string name="student_mail">Sapog730@yandex.ru</string>
     <string name="link_to_offerta">https://yandex.ru/legal/practicum_offer/ru/</string>
     <string name="clear">x</string>
+    <string name="no_connection_search">Проблемы со связью</string>
+    <string name="no_connection_search2">Загрузка не удалась. Проверьте подключение к интернету</string>
+    <string name="no_find_search">Ничего не нашлось</string>
+    <string name="refresh">Обновить</string>
 </resources>
