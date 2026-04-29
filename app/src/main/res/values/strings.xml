@@ -18,4 +18,6 @@
     <string name="no_connection_search2">Загрузка не удалась. Проверьте подключение к интернету</string>
     <string name="no_find_search">Ничего не нашлось</string>
     <string name="refresh">Обновить</string>
+    <string name="search_history">Вы искали</string>
+    <string name="delete_history">Очистить историю</string>
 </resources>

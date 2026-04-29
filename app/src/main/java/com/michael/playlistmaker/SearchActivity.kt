@@ -229,7 +229,8 @@ class SearchActivity : AppCompatActivity() {
 data class Track(val trackName: String,
                  val artistName: String,
                  val trackTimeMillis: String,
-                 val artworkUrl100: String)
+                 val artworkUrl100: String,
+                 val trackId:String)
 
 class TracksViewHolder(itemView:View):RecyclerView.ViewHolder(itemView){
     private val trackName:TextView = itemView.findViewById(R.id.track_name)
@@ -242,7 +243,7 @@ class TracksViewHolder(itemView:View):RecyclerView.ViewHolder(itemView){
         Log.d("MyLog",time.toString())
         trackName.text = model.trackName
         trackBand.text = model.artistName
-        trackLong.text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(time) //model.trackTime
+        trackLong.text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(time)
         Glide.with(itemView)
             .load(model.artworkUrl100)
             .fitCenter()
