@@ -1,6 +1,8 @@
 package com.michael.playlistmaker
 
 import android.content.Context
+import android.content.Context.MODE_PRIVATE
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -36,26 +38,37 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 import java.text.SimpleDateFormat
 import java.util.Locale
+lateinit var sharedPrefForHistory:SharedPreferences
 
 class SearchActivity : AppCompatActivity() {
 
     companion object {
         const val SEARCH_TEXT = "SEARCH_TEXT"
+        val TRACK_HISTORY_PREFERENCES = "track_search_history"
         private var searchText:String = ""
+
         private val tracks = listOf<Track>(
-            Track("Smells Like Teen Spirit","Nirvana","5:01","https://is5-ssl.mzstatic.com/image/thumb/Music115/v4/7b/58/c2/7b58c21a-2b51-2bb2-e59a-9bb9b96ad8c3/00602567924166.rgb.jpg/100x100bb.jpg"),
-            Track("Billie Jean","Michael Jackson","4:35","https://is5-ssl.mzstatic.com/image/thumb/Music125/v4/3d/9d/38/3d9d3811-71f0-3a0e-1ada-3004e56ff852/827969428726.jpg/100x100bb.jpg"),
-            Track("Stayin' Alive","Bee Gees","4:10","https://is4-ssl.mzstatic.com/image/thumb/Music115/v4/1f/80/1f/1f801fc1-8c0f-ea3e-d3e5-387c6619619e/16UMGIM86640.rgb.jpg/100x100bb.jpg"),
-            Track("Whole Lotta Love","Led Zeppelin","5:33","https://is2-ssl.mzstatic.com/image/thumb/Music62/v4/7e/17/e3/7e17e33f-2efa-2a36-e916-7f808576cf6b/mzm.fyigqcbs.jpg/100x100bb.jpg"),
-            Track("Sweet Child O'Mine","Guns N' Roses","5:03","https://is5-ssl.mzstatic.com/image/thumb/Music125/v4/a0/4d/c4/a04dc484-03cc-02aa-fa82-5334fcb4bc16/18UMGIM24878.rgb.jpg/100x100bb.jpg ")
+            Track("Smells Like Teen Spirit","Nirvana","201900","https://is5-ssl.mzstatic.com/image/thumb/Music115/v4/7b/58/c2/7b58c21a-2b51-2bb2-e59a-9bb9b96ad8c3/00602567924166.rgb.jpg/100x100bb.jpg","1"),
+            Track("Billie Jean","Michael Jackson","201900","https://is5-ssl.mzstatic.com/image/thumb/Music125/v4/3d/9d/38/3d9d3811-71f0-3a0e-1ada-3004e56ff852/827969428726.jpg/100x100bb.jpg","1"),
+            Track("Stayin' Alive","Bee Gees","201900","https://is4-ssl.mzstatic.com/image/thumb/Music115/v4/1f/80/1f/1f801fc1-8c0f-ea3e-d3e5-387c6619619e/16UMGIM86640.rgb.jpg/100x100bb.jpg","1"),
+            Track("Whole Lotta Love","Led Zeppelin","201900","https://is2-ssl.mzstatic.com/image/thumb/Music62/v4/7e/17/e3/7e17e33f-2efa-2a36-e916-7f808576cf6b/mzm.fyigqcbs.jpg/100x100bb.jpg","1"),
+            Track("Sweet Child O'Mine","Guns N' Roses","201900","https://is5-ssl.mzstatic.com/image/thumb/Music125/v4/a0/4d/c4/a04dc484-03cc-02aa-fa82-5334fcb4bc16/18UMGIM24878.rgb.jpg/100x100bb.jpg ","1")
         )
 
+
+
     }
+
 
     lateinit var placeholderImage:ImageView
     lateinit var placetextFirst:TextView
     lateinit var placetextSecond:TextView
     lateinit var researchButton:Button
+    lateinit var adapterR:TrackAdapter
+    lateinit var adapterH:TrackAdapter
+
+    lateinit var historyText:TextView
+    lateinit var clearHistoryButton:Button
 
     private val retrofit = Retrofit.Builder()
         .baseUrl("https://itunes.apple.com")
@@ -88,10 +101,16 @@ class SearchActivity : AppCompatActivity() {
         }
 
 
+        sharedPrefForHistory = getSharedPreferences(TRACK_HISTORY_PREFERENCES, MODE_PRIVATE)
+
         placeholderImage = findViewById<ImageView>(R.id.image_placeholder)
         placetextFirst = findViewById<TextView>(R.id.placetext_first)
         placetextSecond = findViewById<TextView>(R.id.placetext_second)
         researchButton = findViewById<Button>(R.id.research_button)
+
+
+        historyText = findViewById(R.id.history_textview)
+        clearHistoryButton = findViewById(R.id.clear_history_button)
 
 
         val backButton = findViewById<MaterialToolbar>(R.id.tool_bar)
@@ -100,7 +119,11 @@ class SearchActivity : AppCompatActivity() {
         val recyclerTrack:RecyclerView = findViewById(R.id.recycle_tracks)
         val researchButton: Button = findViewById(R.id.research_button)
 
-        val adapterR = TrackAdapter(newTracks)
+       // val searchHistory = SearchHistory(sharedPrefForHistory)
+        adapterR = TrackAdapter(newTracks)
+        adapterH = TrackAdapter(tracks)
+       // val adapterHistory = TrackAdapter(searchHistory.getHistory())
+
 
 
         researchButton.setOnClickListener {
@@ -123,6 +146,13 @@ class SearchActivity : AppCompatActivity() {
             finish()
         }
 
+        searchLine.setOnFocusChangeListener { view, hasFocus ->
+            historyText.visibility = if (hasFocus && searchLine.text.isEmpty()) View.VISIBLE else View.GONE
+            clearHistoryButton.visibility = if (hasFocus && searchLine.text.isEmpty()) View.VISIBLE else View.GONE
+            recyclerTrack.isVisible = true
+
+    }
+
         cancelText.setOnClickListener{
             searchLine.setText("")
             val inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
@@ -139,8 +169,15 @@ class SearchActivity : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
 
                 cancelText.isVisible = clearButtonVisibility(s)
+                clearHistoryButton.visibility = if (searchLine.hasFocus() && s?.isEmpty() == true) View.VISIBLE else View.GONE
+                historyText.visibility = if (searchLine.hasFocus() && s?.isEmpty() == true) View.VISIBLE else View.GONE
                 searchText=s.toString()
 
+                if (searchLine.hasFocus() && s?.isEmpty() == true){
+                    showHistory(recyclerTrack)
+                } else{
+                    recyclerTrack.isVisible = false
+                }
 
             }
 
@@ -152,6 +189,14 @@ class SearchActivity : AppCompatActivity() {
     }
 
 
+    private fun showHistory(recycle: RecyclerView){
+        val searchHistory=SearchHistory(shared = sharedPrefForHistory)
+        recycle.isVisible = true
+        val adapterHH = TrackAdapter(searchHistory.getHistory())
+        recycle.adapter = adapterHH
+        // добавляю в список новые треки
+        adapterHH.notifyDataSetChanged()
+    }
 
     private fun searchMusic(text:String,
                             recycle:RecyclerView,
@@ -160,6 +205,7 @@ class SearchActivity : AppCompatActivity() {
         itunes.search(text).enqueue(object : Callback<SongResponse>{
             override fun onResponse(call: Call<SongResponse>, response: Response<SongResponse>) {
                 // Получили ответ от сервера
+                recycle.adapter = adapter
                 if (response.isSuccessful) {
                     newTracks.clear()
                     if (response.body()?.results?.isNotEmpty() == true) {
@@ -203,7 +249,6 @@ class SearchActivity : AppCompatActivity() {
 
     private fun showPlaceholderNoConnection(recycle: RecyclerView) {
 
-
         placeholderImage.setImageResource(R.drawable.noconnection)
         placeholderImage.isVisible = true
         placetextFirst.isVisible = true
@@ -216,6 +261,14 @@ class SearchActivity : AppCompatActivity() {
 
     }
 
+   private fun showHistory(adapter: TrackAdapter,recycle: RecyclerView){
+
+        historyText.isVisible = true
+        clearHistoryButton.isVisible = true
+        //recycle.adapter=adapter
+       // adapter.notifyDataSetChanged()
+    }
+
     private fun clearButtonVisibility(s: CharSequence?): Boolean {
         return if (s.isNullOrEmpty()) {
             false
@@ -223,6 +276,8 @@ class SearchActivity : AppCompatActivity() {
               true
         }
     }
+
+
 }
 
 
@@ -261,6 +316,9 @@ class TracksViewHolder(itemView:View):RecyclerView.ViewHolder(itemView){
 }
 
 class TrackAdapter(private val tracks:List<Track> ):RecyclerView.Adapter<TracksViewHolder>(){
+
+   // lateinit var searchMaker:SearchHistory
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TracksViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.track_card,parent,false)
         return TracksViewHolder(view)
@@ -271,10 +329,17 @@ class TrackAdapter(private val tracks:List<Track> ):RecyclerView.Adapter<TracksV
     }
 
     override fun onBindViewHolder(holder: TracksViewHolder, position: Int) {
+
+       // searchMaker = SearchHistory(sharedPrefForHistory)
         holder.bind(tracks[position])
+       /* holder.itemView.setOnClickListener {
+            searchMaker.addTrackToHistory(tracks[position])
+        }*/
     }
 
 }
+
+
 
 interface ItunesApiService{
     @GET("/search?entity=song")
