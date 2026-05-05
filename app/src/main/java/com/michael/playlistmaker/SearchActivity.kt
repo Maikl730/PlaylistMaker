@@ -103,6 +103,7 @@ class SearchActivity : AppCompatActivity() {
 
         sharedPrefForHistory = getSharedPreferences(TRACK_HISTORY_PREFERENCES, MODE_PRIVATE)
 
+
         placeholderImage = findViewById<ImageView>(R.id.image_placeholder)
         placetextFirst = findViewById<TextView>(R.id.placetext_first)
         placetextSecond = findViewById<TextView>(R.id.placetext_second)
@@ -119,12 +120,16 @@ class SearchActivity : AppCompatActivity() {
         val recyclerTrack:RecyclerView = findViewById(R.id.recycle_tracks)
         val researchButton: Button = findViewById(R.id.research_button)
 
-       // val searchHistory = SearchHistory(sharedPrefForHistory)
         adapterR = TrackAdapter(newTracks)
         adapterH = TrackAdapter(tracks)
-       // val adapterHistory = TrackAdapter(searchHistory.getHistory())
 
+        clearHistoryButton.setOnClickListener {
+            sharedPrefForHistory.edit().putString(HISTORY_TRACKS_KEY,"").apply()
+            recyclerTrack.isVisible = false
 
+            historyText.isVisible = false
+            clearHistoryButton.isVisible = false
+        }
 
         researchButton.setOnClickListener {
             searchMusic(lastSearch,recyclerTrack,adapterR)
@@ -147,9 +152,18 @@ class SearchActivity : AppCompatActivity() {
         }
 
         searchLine.setOnFocusChangeListener { view, hasFocus ->
-            historyText.visibility = if (hasFocus && searchLine.text.isEmpty()) View.VISIBLE else View.GONE
-            clearHistoryButton.visibility = if (hasFocus && searchLine.text.isEmpty()) View.VISIBLE else View.GONE
+            historyText.visibility = if (hasFocus && searchLine.text.isEmpty() && sharedPrefForHistory.getString(
+                    HISTORY_TRACKS_KEY,"").isNullOrEmpty()) View.VISIBLE else View.GONE
+            clearHistoryButton.visibility = if (hasFocus && searchLine.text.isEmpty() && sharedPrefForHistory.getString(
+                        HISTORY_TRACKS_KEY,"").isNullOrEmpty()) View.VISIBLE else View.GONE
             recyclerTrack.isVisible = true
+
+
+
+            placetextSecond.visibility = if (hasFocus && searchLine.text.isEmpty()) View.GONE else View.VISIBLE
+            placetextFirst.visibility = if (hasFocus && searchLine.text.isEmpty()) View.GONE else View.VISIBLE
+            placeholderImage.visibility = if (hasFocus && searchLine.text.isEmpty()) View.GONE else View.VISIBLE
+            researchButton.visibility = if (hasFocus && searchLine.text.isEmpty()) View.GONE else View.VISIBLE
 
     }
 
@@ -159,6 +173,11 @@ class SearchActivity : AppCompatActivity() {
             inputMethodManager?.hideSoftInputFromWindow(searchLine.windowToken, 0)
             newTracks.clear()
             adapterR.notifyDataSetChanged()
+
+            placetextSecond.visibility = View.GONE
+            placetextFirst.visibility = View.GONE
+            placeholderImage.visibility = View.GONE
+            researchButton.visibility = View.GONE
         }
 
         val textWatcherForSearch = object : TextWatcher {
@@ -317,8 +336,6 @@ class TracksViewHolder(itemView:View):RecyclerView.ViewHolder(itemView){
 
 class TrackAdapter(private val tracks:List<Track> ):RecyclerView.Adapter<TracksViewHolder>(){
 
-   // lateinit var searchMaker:SearchHistory
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TracksViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.track_card,parent,false)
         return TracksViewHolder(view)
@@ -330,11 +347,11 @@ class TrackAdapter(private val tracks:List<Track> ):RecyclerView.Adapter<TracksV
 
     override fun onBindViewHolder(holder: TracksViewHolder, position: Int) {
 
-       // searchMaker = SearchHistory(sharedPrefForHistory)
+       val searchMaker = SearchHistory(sharedPrefForHistory)
         holder.bind(tracks[position])
-       /* holder.itemView.setOnClickListener {
+        holder.itemView.setOnClickListener {
             searchMaker.addTrackToHistory(tracks[position])
-        }*/
+        }
     }
 
 }

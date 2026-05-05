@@ -58,46 +58,59 @@
         android:drawableEnd="@drawable/cancel" />
 
 </FrameLayout>
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
-        
+
         <TextView
+
             android:id="@+id/history_textview"
             style="@style/PlaceholderText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:text="@string/search_history"
-            android:fontFamily="@font/ys_text_medium"
-            android:textSize="19sp"
             android:layout_marginTop="42dp"
-            android:layout_marginBottom="20dp"
-            android:visibility="gone"/>
+            android:fontFamily="@font/ys_text_medium"
+            android:text="@string/search_history"
+            android:textSize="19sp"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycle_tracks"
-        android:layout_marginHorizontal="12dp"
-        android:layout_marginTop="24dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="visible"/>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycle_tracks"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="12dp"
+            android:layout_marginTop="20dp"
+            app:layout_constraintHeight_max="450dp"
+            android:visibility="visible"
+            app:layout_constraintTop_toBottomOf="@+id/history_textview"
+            tools:layout_editor_absoluteX="12dp" />
 
         <Button
             android:id="@+id/clear_history_button"
+            style="@style/RefreshButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
             android:layout_gravity="center_horizontal"
-            style="@style/RefreshButton"
-            app:cornerRadius="54dp"
-            android:text="@string/delete_history"
+            android:layout_marginTop="24dp"
             android:fontFamily="@font/ys_text_medium"
+            android:text="@string/delete_history"
             android:textSize="14sp"
-            android:visibility="gone"/>
+            android:visibility="visible"
+            app:cornerRadius="54dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/recycle_tracks" />
 
-    </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
     <ImageView
         android:id="@+id/image_placeholder"
         android:layout_width="120dp"

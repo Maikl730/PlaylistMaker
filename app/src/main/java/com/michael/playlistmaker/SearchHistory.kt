@@ -1,7 +1,10 @@
 package com.michael.playlistmaker
 
+import android.annotation.SuppressLint
 import android.content.SharedPreferences
+import android.util.Log
 import com.google.gson.Gson
+import com.google.gson.JsonArray
 import com.google.gson.reflect.TypeToken
 
 const val HISTORY_TRACKS_KEY = "key_for_edit_history"
@@ -20,22 +23,51 @@ class SearchHistory(val shared:SharedPreferences) {
 
 
     fun addTrackToHistory(track: Track){
-        var jsonListOfTrack:String = shared.getString(HISTORY_TRACKS_KEY,"")!!
-        val type = object : TypeToken<ArrayList<Track>>() {}.type
-        val NewHistoryTracks:ArrayList<Track> = gson.fromJson(jsonListOfTrack, type)
-        NewHistoryTracks.add(track)
-        jsonListOfTrack = gson.toJson(NewHistoryTracks)
-        shared.edit().putString(HISTORY_TRACKS_KEY,jsonListOfTrack)
+        var jsonListOfTrack:String
+        var newHistoryTracks:ArrayList<Track>
+
+        if (shared.getString(HISTORY_TRACKS_KEY,"").isNullOrEmpty()){
+           newHistoryTracks = arrayListOf(track)
+            Log.d("MyLog","Work if")
+        }else{
+            jsonListOfTrack = shared.getString(HISTORY_TRACKS_KEY,"")!!
+            val type = object : TypeToken<ArrayList<Track>>() {}.type
+            newHistoryTracks= gson.fromJson(jsonListOfTrack, type)
+
+            if (newHistoryTracks.contains(track)){
+                newHistoryTracks.remove(track)
+                newHistoryTracks.add(track)
+            }else {
+                newHistoryTracks.add(track)
+            }
+
+            if (newHistoryTracks.size>10){
+                newHistoryTracks.removeAt(0)
+            }
+            Log.d("MyLog","Work else")
+        }
+
+        jsonListOfTrack = gson.toJson(newHistoryTracks)
+        shared.edit().putString(HISTORY_TRACKS_KEY,jsonListOfTrack).apply()
     }
 
     fun getHistory():ArrayList<Track>{
-        val jsonListOfTrackTest = gson.toJson(tracks)
 
+       var newHistoryTracks:ArrayList<Track>
 
-       // var jsonListOfTrack:String = shared.getString(HISTORY_TRACKS_KEY,"")!!
+        if (shared.getString(HISTORY_TRACKS_KEY,"").isNullOrEmpty()){
+            val newHistoryTrack = arrayListOf(Track("Test2", "Test2", "201900", "", "3"))
+            Log.d("MyLog","Work if2")
+            newHistoryTrack.reverse()
+            return newHistoryTrack
+        }else{
+        var jsonListOfTrack:String = shared.getString(HISTORY_TRACKS_KEY,"")!!
         val type = object : TypeToken<ArrayList<Track>>() {}.type
-        val NewHistoryTracks:ArrayList<Track> = gson.fromJson(jsonListOfTrackTest, type)
+        newHistoryTracks= gson.fromJson(jsonListOfTrack, type)
+            newHistoryTracks.reverse()
 
-        return NewHistoryTracks
+            Log.d("MyLog","Work else2")
+        return newHistoryTracks
+        }
     }
 }
