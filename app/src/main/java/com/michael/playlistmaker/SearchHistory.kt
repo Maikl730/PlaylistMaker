@@ -28,7 +28,6 @@ class SearchHistory(val shared:SharedPreferences) {
 
         if (shared.getString(HISTORY_TRACKS_KEY,"").isNullOrEmpty()){
            newHistoryTracks = arrayListOf(track)
-            Log.d("MyLog","Work if")
         }else{
             jsonListOfTrack = shared.getString(HISTORY_TRACKS_KEY,"")!!
             val type = object : TypeToken<ArrayList<Track>>() {}.type
@@ -44,29 +43,24 @@ class SearchHistory(val shared:SharedPreferences) {
             if (newHistoryTracks.size>10){
                 newHistoryTracks.removeAt(0)
             }
-            Log.d("MyLog","Work else")
         }
 
         jsonListOfTrack = gson.toJson(newHistoryTracks)
         shared.edit().putString(HISTORY_TRACKS_KEY,jsonListOfTrack).apply()
     }
 
-    fun getHistory():ArrayList<Track>{
+    fun getHistory(): ArrayList<Track>? {
 
        var newHistoryTracks:ArrayList<Track>
 
         if (shared.getString(HISTORY_TRACKS_KEY,"").isNullOrEmpty()){
-            val newHistoryTrack = arrayListOf(Track("Test2", "Test2", "201900", "", "3"))
-            Log.d("MyLog","Work if2")
-            newHistoryTrack.reverse()
-            return newHistoryTrack
+            return null
         }else{
         var jsonListOfTrack:String = shared.getString(HISTORY_TRACKS_KEY,"")!!
         val type = object : TypeToken<ArrayList<Track>>() {}.type
         newHistoryTracks= gson.fromJson(jsonListOfTrack, type)
             newHistoryTracks.reverse()
 
-            Log.d("MyLog","Work else2")
         return newHistoryTracks
         }
     }

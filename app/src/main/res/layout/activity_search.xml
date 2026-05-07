@@ -58,7 +58,7 @@
         android:drawableEnd="@drawable/cancel" />
 
 </FrameLayout>
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
@@ -74,7 +74,8 @@
             android:fontFamily="@font/ys_text_medium"
             android:text="@string/search_history"
             android:textSize="19sp"
-            android:visibility="visible"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@+id/recycle_tracks"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -82,11 +83,12 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycle_tracks"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:layout_marginHorizontal="12dp"
             android:layout_marginTop="20dp"
-            app:layout_constraintHeight_max="450dp"
             android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/history_textview"
             tools:layout_editor_absoluteX="12dp" />
 
@@ -96,11 +98,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="20dp"
             android:fontFamily="@font/ys_text_medium"
             android:text="@string/delete_history"
             android:textSize="14sp"
-            android:visibility="visible"
+            android:visibility="gone"
             app:cornerRadius="54dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -108,7 +110,7 @@
             app:layout_constraintTop_toBottomOf="@+id/recycle_tracks" />
 
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
 
 
     <ImageView
