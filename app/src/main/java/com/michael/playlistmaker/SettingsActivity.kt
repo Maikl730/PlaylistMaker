@@ -42,7 +42,7 @@ class SettingsActivity : AppCompatActivity() {
         }
         val sharedPrefs = getSharedPreferences(THEME_PREFERENCES, MODE_PRIVATE)
 
-        val themeSwitcher = findViewById<Switch>(R.id.switch_theme)
+        val themeSwitcher = findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.switch_theme)
         val shareButton = findViewById<TextView>(R.id.share_button)
         val supportButton = findViewById<TextView>(R.id.support_button)
         val declarationButton = findViewById<TextView>(R.id.declaration_button)

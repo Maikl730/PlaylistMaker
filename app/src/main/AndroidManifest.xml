@@ -23,7 +23,6 @@
             android:exported="false" />
         <activity
             android:name=".SettingsActivity"
-            android:theme="@style/Base.Theme.PlaylistMaker"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

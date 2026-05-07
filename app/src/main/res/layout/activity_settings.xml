@@ -19,7 +19,7 @@
         app:navigationIcon="@drawable/arrow_back">
     </com.google.android.material.appbar.MaterialToolbar>
 
-    <Switch
+    <com.google.android.material.switchmaterial.SwitchMaterial
         android:id="@+id/switch_theme"
         style="@style/SettingsVariant"
         android:gravity="center_vertical"
@@ -53,6 +53,7 @@
         android:paddingVertical="@dimen/setting_variant_padding_vertical"
         android:paddingLeft="16dp"
         android:text="@string/user_declaration" />
+
 
 
 </LinearLayout>

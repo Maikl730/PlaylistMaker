@@ -37,6 +37,7 @@ android {
 
 dependencies {
 
+    implementation(libs.androidx.constraintlayout)
     implementation(libs.converter.gson)
     implementation(libs.retrofit)
     implementation(libs.gson)
@@ -50,4 +51,5 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    implementation(libs.material)
 }
