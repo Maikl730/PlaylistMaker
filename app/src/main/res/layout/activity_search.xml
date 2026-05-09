@@ -58,13 +58,61 @@
         android:drawableEnd="@drawable/cancel" />
 
 </FrameLayout>
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycle_tracks"
-        android:layout_marginHorizontal="12dp"
-        android:layout_marginTop="24dp"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="visible"/>
+        android:orientation="vertical">
+
+        <TextView
+
+            android:id="@+id/history_textview"
+            style="@style/PlaceholderText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="42dp"
+            android:fontFamily="@font/ys_text_medium"
+            android:text="@string/search_history"
+            android:textSize="19sp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@+id/recycle_tracks"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycle_tracks"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="12dp"
+            android:layout_marginTop="20dp"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/history_textview"
+            tools:layout_editor_absoluteX="12dp" />
+
+        <Button
+            android:id="@+id/clear_history_button"
+            style="@style/RefreshButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="20dp"
+            android:fontFamily="@font/ys_text_medium"
+            android:text="@string/delete_history"
+            android:textSize="14sp"
+            android:visibility="gone"
+            app:cornerRadius="54dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/recycle_tracks" />
+
+
+    </LinearLayout>
+
+
     <ImageView
         android:id="@+id/image_placeholder"
         android:layout_width="120dp"
