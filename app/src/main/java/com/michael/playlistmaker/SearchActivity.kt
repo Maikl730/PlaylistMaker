@@ -1,7 +1,8 @@
 package com.michael.playlistmaker
 
+import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Context.MODE_PRIVATE
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.Editable
@@ -17,9 +18,11 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.startActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
@@ -38,6 +41,8 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 import java.text.SimpleDateFormat
 import java.util.Locale
+
+
 lateinit var sharedPrefForHistory:SharedPreferences
 
 class SearchActivity : AppCompatActivity() {
@@ -60,6 +65,7 @@ class SearchActivity : AppCompatActivity() {
     }
 
 
+    lateinit var startIntent:Intent
     lateinit var placeholderImage:ImageView
     lateinit var placetextFirst:TextView
     lateinit var placetextSecond:TextView
@@ -99,7 +105,6 @@ class SearchActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
 
         sharedPrefForHistory = getSharedPreferences(TRACK_HISTORY_PREFERENCES, MODE_PRIVATE)
 
@@ -313,6 +318,7 @@ class TracksViewHolder(itemView:View):RecyclerView.ViewHolder(itemView){
     private val trackImage:ImageView = itemView.findViewById(R.id.track_image)
 
     fun bind(model:Track){
+
         val time:Long = if (model.trackTimeMillis.isNullOrEmpty()){201900L}else{model.trackTimeMillis.toLong()}
         Log.d("MyLog",time.toString())
         trackName.text = model.trackName
@@ -351,8 +357,11 @@ class TrackAdapter(private val tracks:List<Track> ):RecyclerView.Adapter<TracksV
         holder.bind(tracks[position])
         holder.itemView.setOnClickListener {
             searchMaker.addTrackToHistory(tracks[position])
+            val intent = Intent(holder.itemView.context , AudioplayerActivity::class.java)
+            holder.itemView.context.startActivity(intent)
         }
     }
+
 
 }
 
