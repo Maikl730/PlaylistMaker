@@ -38,17 +38,10 @@ class AudioplayerActivity : AppCompatActivity() {
         val genreTrack:TextView = findViewById(R.id.track_genre_text_set)
         val countryTrack:TextView = findViewById(R.id.track_country_text_set)
 
-        val gson = Gson()
         val intent = intent
-        val thisTrack:Track
-
-        val trackJson: String?= intent.getStringExtra("TRACK")
-        Log.d("MyLog",trackJson.toString())
 
 
-        val type = object : TypeToken<Track>() {}.type
-        if (!trackJson.isNullOrEmpty()){
-            thisTrack = gson.fromJson(trackJson, type)
+        val thisTrack: Track = intent.getParcelableExtra(INTENT_EXTRA_KEY)!!
 
             nameTrack.text = thisTrack.trackName
             bandTrack.text = thisTrack.artistName
@@ -60,12 +53,12 @@ class AudioplayerActivity : AppCompatActivity() {
             longTrack.text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(time)
 
             Glide.with(this)
-                .load(thisTrack.artworkUrl100.replaceAfterLast('/',"512x512bb.jpg"))
+                .load(thisTrack.getCoverArtwork())
                 .fitCenter()
                 .transform(RoundedCorners(dpToPx(2f,this)))
                 .placeholder(R.drawable.bigplaceholder)
                 .into(imageTrack)
-        }
+
 
         val backButton = findViewById<MaterialToolbar>(R.id.tool_bar)
         backButton.setNavigationOnClickListener{

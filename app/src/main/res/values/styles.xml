@@ -31,6 +31,9 @@
     <style name="MainScreenDayNight">
         <item name="android:background">@color/blue</item>
     </style>
+    <style name="AudioplayerScreenDayNight">
+        <item name="android:background">@color/white</item>
+    </style>
     <style name="EditTextSearch">
     <item name="android:drawableTint">@color/yp_text_grey</item>
     <item name="android:textColorHint">@color/yp_text_grey</item>
