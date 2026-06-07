@@ -135,7 +135,7 @@ class SearchActivity : AppCompatActivity() {
             searchMusic(lastSearch,recyclerTrack,adapterR)
         }
 
-        /*
+
         searchLine.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 searchMusic(searchLine.text.toString(),recyclerTrack,adapterR)
@@ -144,7 +144,7 @@ class SearchActivity : AppCompatActivity() {
             }
             false
         }
-         */
+
 
         recyclerTrack.adapter = adapterR
         recyclerTrack.layoutManager = LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false)
@@ -207,7 +207,7 @@ class SearchActivity : AppCompatActivity() {
                     recyclerTrack.isVisible = false
                 }
 
-                searchDebounce()
+                if (searchLine.hasFocus() && s?.isEmpty() == false) searchDebounce()
 
             }
 
