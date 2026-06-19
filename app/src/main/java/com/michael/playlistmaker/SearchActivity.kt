@@ -1,10 +1,11 @@
 package com.michael.playlistmaker
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -17,12 +18,10 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContentProviderCompat.requireContext
-import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.startActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
@@ -31,7 +30,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.google.android.material.appbar.MaterialToolbar
-import com.google.gson.Gson
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -46,6 +44,10 @@ import java.util.Locale
 
 lateinit var sharedPrefForHistory:SharedPreferences
 const val INTENT_EXTRA_KEY = "TRACK"
+private var isClickAllowed = true
+val handler = Handler(Looper.getMainLooper())
+private const val CLICK_DEBOUNCE_DELAY = 1000L
+private const val SEARCH_DEBOUNCE_DELAY = 2000L
 
 class SearchActivity : AppCompatActivity() {
 
@@ -53,18 +55,19 @@ class SearchActivity : AppCompatActivity() {
         const val SEARCH_TEXT = "SEARCH_TEXT"
         val TRACK_HISTORY_PREFERENCES = "track_search_history"
         private var searchText:String = ""
-
     }
-
 
     lateinit var placeholderImage:ImageView
     lateinit var placetextFirst:TextView
     lateinit var placetextSecond:TextView
     lateinit var researchButton:Button
     lateinit var adapterR:TrackAdapter
-
+    lateinit var progressBar: ProgressBar
+    lateinit var recyclerTrack:RecyclerView
+    lateinit var searchLine:EditText
     lateinit var historyText:TextView
     lateinit var clearHistoryButton:Button
+
 
     private val retrofit = Retrofit.Builder()
         .baseUrl("https://itunes.apple.com")
@@ -79,6 +82,7 @@ class SearchActivity : AppCompatActivity() {
         super.onSaveInstanceState(outState)
         outState.putString(SEARCH_TEXT, searchText)
     }
+
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
@@ -103,16 +107,13 @@ class SearchActivity : AppCompatActivity() {
         placetextFirst = findViewById<TextView>(R.id.placetext_first)
         placetextSecond = findViewById<TextView>(R.id.placetext_second)
         researchButton = findViewById<Button>(R.id.research_button)
-
-
+        progressBar = findViewById(R.id.progressBar)
         historyText = findViewById(R.id.history_textview)
         clearHistoryButton = findViewById(R.id.clear_history_button)
-
-
         val backButton = findViewById<MaterialToolbar>(R.id.tool_bar)
         val cancelText = findViewById<TextView>(R.id.clear)
-        val searchLine = findViewById<EditText>(R.id.search_line)
-        val recyclerTrack:RecyclerView = findViewById(R.id.recycle_tracks)
+        searchLine = findViewById<EditText>(R.id.search_line)
+        recyclerTrack = findViewById(R.id.recycle_tracks)
         val researchButton: Button = findViewById(R.id.research_button)
 
         adapterR = TrackAdapter(newTracks)
@@ -129,6 +130,7 @@ class SearchActivity : AppCompatActivity() {
             searchMusic(lastSearch,recyclerTrack,adapterR)
         }
 
+
         searchLine.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 searchMusic(searchLine.text.toString(),recyclerTrack,adapterR)
@@ -137,6 +139,7 @@ class SearchActivity : AppCompatActivity() {
             }
             false
         }
+
 
         recyclerTrack.adapter = adapterR
         recyclerTrack.layoutManager = LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false)
@@ -178,6 +181,7 @@ class SearchActivity : AppCompatActivity() {
             researchButton.visibility = View.GONE
         }
 
+
         val textWatcherForSearch = object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
 
@@ -198,6 +202,8 @@ class SearchActivity : AppCompatActivity() {
                     recyclerTrack.isVisible = false
                 }
 
+                if (searchLine.hasFocus() && s?.isEmpty() == false) searchDebounce()
+
             }
 
             override fun afterTextChanged(s: Editable?) {
@@ -205,6 +211,16 @@ class SearchActivity : AppCompatActivity() {
             }
         }
         searchLine.addTextChangedListener(textWatcherForSearch)
+    }
+
+    private val searchRunnable = Runnable {
+        searchMusic(searchLine.text.toString(),recyclerTrack,adapterR)
+        lastSearch=searchLine.text.toString()
+    }
+
+    private fun searchDebounce() {
+        handler.removeCallbacks(searchRunnable)
+        handler.postDelayed(searchRunnable, SEARCH_DEBOUNCE_DELAY)
     }
 
 
@@ -223,6 +239,7 @@ class SearchActivity : AppCompatActivity() {
     private fun searchMusic(text:String,
                             recycle:RecyclerView,
                             adapter:TrackAdapter){
+        progressBar.isVisible = true
 
         itunes.search(text).enqueue(object : Callback<SongResponse>{
             override fun onResponse(call: Call<SongResponse>, response: Response<SongResponse>) {
@@ -235,21 +252,25 @@ class SearchActivity : AppCompatActivity() {
                         newTracks.addAll(forNewTrack)
                         adapter.notifyDataSetChanged()
                         recycle.isVisible = true
+                        progressBar.isVisible = false
                     }
                     if (newTracks.isEmpty()) {
                         showPlaceholderNoFound(recycle)
+                        progressBar.isVisible = false
                     } else {
 
                     }
                 } else {
                     Log.d("MyLog",response.code().toString())
                     showPlaceholderNoConnection(recycle)
+                    progressBar.isVisible = false
                 }
             }
 
             override fun onFailure(call: Call<SongResponse>, t: Throwable) {
                 // Не смогли присоединиться к серверу
                 // Выводим ошибку в лог, что-то пошло не так
+                progressBar.isVisible = false
                 t.printStackTrace()
                 showPlaceholderNoConnection(recycle)
                 Log.d("MyLog","Fail")
@@ -336,15 +357,27 @@ class TrackAdapter(private val tracks:List<Track> ):RecyclerView.Adapter<TracksV
         return tracks.size
     }
 
+    private fun clickDebounce() : Boolean {
+        val current = isClickAllowed
+        if (isClickAllowed) {
+            isClickAllowed = false
+            handler.postDelayed({ isClickAllowed = true }, CLICK_DEBOUNCE_DELAY)
+        }
+        return current
+    }
+
     override fun onBindViewHolder(holder: TracksViewHolder, position: Int) {
 
        val searchMaker = SearchHistory(sharedPrefForHistory)
         holder.bind(tracks[position])
+
         holder.itemView.setOnClickListener {
-            searchMaker.addTrackToHistory(tracks[position])
-            val intent = Intent(holder.itemView.context , AudioplayerActivity::class.java)
-            intent.putExtra(INTENT_EXTRA_KEY,tracks[position])
-            holder.itemView.context.startActivity(intent)
+            if (clickDebounce()) {
+                searchMaker.addTrackToHistory(tracks[position])
+                val intent = Intent(holder.itemView.context, AudioplayerActivity::class.java)
+                intent.putExtra(INTENT_EXTRA_KEY, tracks[position])
+                holder.itemView.context.startActivity(intent)
+            }
         }
     }
 

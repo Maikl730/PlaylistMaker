@@ -1,9 +1,12 @@
 package com.michael.playlistmaker
 
 import android.content.Context
+import android.media.MediaPlayer
 import android.os.Bundle
-import android.util.Log
+import android.os.Handler
+import android.os.Looper
 import android.util.TypedValue
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
@@ -13,12 +16,27 @@ import androidx.core.view.WindowInsetsCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.google.android.material.appbar.MaterialToolbar
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
+
 import java.text.SimpleDateFormat
 import java.util.Locale
 
 class AudioplayerActivity : AppCompatActivity() {
+
+    companion object {
+        private const val STATE_DEFAULT = 0
+        private const val STATE_PREPARED = 1
+        private const val STATE_PLAYING = 2
+        private const val STATE_PAUSED = 3
+    }
+
+    private var mediaPlayer = MediaPlayer()
+    val  handler = Handler(Looper.getMainLooper())
+    private var playerState = STATE_DEFAULT
+
+    private lateinit var playButton: ImageButton
+    private lateinit var trackLong:TextView
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -29,6 +47,8 @@ class AudioplayerActivity : AppCompatActivity() {
             insets
         }
 
+        trackLong = findViewById(R.id.track_long)
+        playButton = findViewById(R.id.play_button)
         val imageTrack:ImageView = findViewById(R.id.album)
         val nameTrack:TextView = findViewById(R.id.track_name)
         val bandTrack:TextView = findViewById(R.id.track_band)
@@ -59,6 +79,12 @@ class AudioplayerActivity : AppCompatActivity() {
                 .placeholder(R.drawable.bigplaceholder)
                 .into(imageTrack)
 
+        preparePlayer(thisTrack.previewUrl)
+
+        playButton.setOnClickListener {
+            playbackControl()
+            handler.post(runx)
+        }
 
         val backButton = findViewById<MaterialToolbar>(R.id.tool_bar)
         backButton.setNavigationOnClickListener{
@@ -70,5 +96,70 @@ class AudioplayerActivity : AppCompatActivity() {
             TypedValue.COMPLEX_UNIT_DIP,
             dp,
             context.resources.displayMetrics).toInt()
+    }
+
+    val runx = object :Runnable{
+        override fun run() {
+
+            if (playerState == STATE_PLAYING) {
+                trackLong.text = SimpleDateFormat(
+                    "mm:ss",
+                    Locale.getDefault()
+                ).format(mediaPlayer.currentPosition)
+
+                handler.postDelayed(this, 300L)
+            }
+            if (playerState == STATE_PAUSED){
+                handler.removeCallbacks(this)
+            }
+        }
+    }
+    override fun onPause() {
+        super.onPause()
+        pausePlayer()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mediaPlayer.release()
+        handler.removeCallbacks(runx)
+    }
+
+    private fun preparePlayer(url:String) {
+        mediaPlayer.setDataSource(url)
+        mediaPlayer.prepareAsync()
+        mediaPlayer.setOnPreparedListener {
+            playButton.isEnabled = true
+            playerState = STATE_PREPARED
+        }
+        mediaPlayer.setOnCompletionListener {
+            playButton.setBackgroundResource(R.drawable.playbutton) // "PLAY"
+            handler.removeCallbacks(runx)
+            trackLong.text = "00:00"
+            playerState = STATE_PREPARED
+        }
+    }
+
+    private fun startPlayer() {
+        mediaPlayer.start()
+        playButton.setBackgroundResource(R.drawable.stopbutton) //"PAUSE"
+        playerState = STATE_PLAYING
+    }
+
+    private fun pausePlayer() {
+        mediaPlayer.pause()
+        playButton.setBackgroundResource(R.drawable.playbutton)  //"PLAY"
+        playerState = STATE_PAUSED
+    }
+
+    private fun playbackControl() {
+        when(playerState) {
+            STATE_PLAYING -> {
+                pausePlayer()
+            }
+            STATE_PREPARED,STATE_PAUSED -> {
+                startPlayer()
+            }
+        }
     }
 }

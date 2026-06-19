@@ -92,6 +92,8 @@
             app:layout_constraintTop_toBottomOf="@+id/history_textview"
             tools:layout_editor_absoluteX="12dp" />
 
+
+
         <Button
             android:id="@+id/clear_history_button"
             style="@style/RefreshButton"
@@ -112,6 +114,13 @@
 
     </LinearLayout>
 
+    <ProgressBar android:id="@+id/progressBar"
+        android:layout_marginTop="248dp"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_gravity="center"
+        android:indeterminateTint="@color/blue"
+        android:visibility="gone"/>
 
     <ImageView
         android:id="@+id/image_placeholder"
