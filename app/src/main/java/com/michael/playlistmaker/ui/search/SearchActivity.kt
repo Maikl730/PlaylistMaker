@@ -1,7 +1,6 @@
-package com.michael.playlistmaker
+package com.michael.playlistmaker.ui.search
 
 import android.content.Context
-import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Handler
@@ -9,10 +8,7 @@ import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
-import android.util.TypedValue
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
@@ -27,26 +23,19 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.google.android.material.appbar.MaterialToolbar
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.create
-import retrofit2.http.GET
-import retrofit2.http.Query
-import java.text.SimpleDateFormat
-import java.util.Locale
+import com.michael.playlistmaker.Creator
+import com.michael.playlistmaker.HISTORY_TRACKS_KEY
+import com.michael.playlistmaker.R
+import com.michael.playlistmaker.SearchHistory
+import com.michael.playlistmaker.domain.api.TracksInteractor
+import com.michael.playlistmaker.domain.models.Track
+
 
 
 lateinit var sharedPrefForHistory:SharedPreferences
 const val INTENT_EXTRA_KEY = "TRACK"
-private var isClickAllowed = true
 val handler = Handler(Looper.getMainLooper())
-private const val CLICK_DEBOUNCE_DELAY = 1000L
 private const val SEARCH_DEBOUNCE_DELAY = 2000L
 
 class SearchActivity : AppCompatActivity() {
@@ -61,7 +50,7 @@ class SearchActivity : AppCompatActivity() {
     lateinit var placetextFirst:TextView
     lateinit var placetextSecond:TextView
     lateinit var researchButton:Button
-    lateinit var adapterR:TrackAdapter
+    lateinit var adapterR: TrackAdapter
     lateinit var progressBar: ProgressBar
     lateinit var recyclerTrack:RecyclerView
     lateinit var searchLine:EditText
@@ -69,13 +58,7 @@ class SearchActivity : AppCompatActivity() {
     lateinit var clearHistoryButton:Button
 
 
-    private val retrofit = Retrofit.Builder()
-        .baseUrl("https://itunes.apple.com")
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-
     private var newTracks = mutableListOf<Track>()
-    private val itunes = retrofit.create<ItunesApiService>()
     private var lastSearch:String =""
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -101,7 +84,6 @@ class SearchActivity : AppCompatActivity() {
         }
 
         sharedPrefForHistory = getSharedPreferences(TRACK_HISTORY_PREFERENCES, MODE_PRIVATE)
-
 
         placeholderImage = findViewById<ImageView>(R.id.image_placeholder)
         placetextFirst = findViewById<TextView>(R.id.placetext_first)
@@ -194,7 +176,7 @@ class SearchActivity : AppCompatActivity() {
                         HISTORY_TRACKS_KEY,"").isNullOrEmpty()) View.VISIBLE else View.GONE
                 historyText.visibility = if (searchLine.hasFocus() && s?.isEmpty() == true && !sharedPrefForHistory.getString(
                         HISTORY_TRACKS_KEY,"").isNullOrEmpty()) View.VISIBLE else View.GONE
-                searchText=s.toString()
+                searchText =s.toString()
 
                 if (searchLine.hasFocus() && s?.isEmpty() == true){
                     showHistory(recyclerTrack)
@@ -226,7 +208,7 @@ class SearchActivity : AppCompatActivity() {
 
     private fun showHistory(recycle: RecyclerView){
 
-        val searchHistory=SearchHistory(shared = sharedPrefForHistory)
+        val searchHistory= SearchHistory(shared = sharedPrefForHistory)
         if (!searchHistory.getHistory().isNullOrEmpty()) {
             recycle.isVisible = true
             val adapterHH = TrackAdapter(searchHistory.getHistory()!!)
@@ -238,9 +220,40 @@ class SearchActivity : AppCompatActivity() {
 
     private fun searchMusic(text:String,
                             recycle:RecyclerView,
-                            adapter:TrackAdapter){
+                            adapter: TrackAdapter
+    ){
         progressBar.isVisible = true
 
+        val handler = Handler(Looper.getMainLooper())
+        val trackInteractor = Creator.provideTracksInteractor()
+        val consumer = object:TracksInteractor.TracksConsumer{
+
+            override fun consume(foundTracks: List<Track>) {
+//handler работает
+                handler.post{
+                    if (foundTracks.toMutableList().isNotEmpty()){
+
+                        val adapterNew = TrackAdapter(foundTracks)
+                        recycle.adapter = adapterNew
+                        adapter.notifyDataSetChanged()
+
+                        recycle.isVisible = true
+                        progressBar.isVisible = false
+                    }else{
+                        showPlaceholderNoFound(recycle)
+                        progressBar.isVisible = false
+                    }
+                }
+            }
+        }
+
+        trackInteractor.searchTracks(text,consumer)
+        Log.d("MyLog", "Presentation" + newTracks.toString())
+        Log.d("MyLog", "Presentation visibility" + recycle.isVisible.toString())
+
+
+
+            /*
         itunes.search(text).enqueue(object : Callback<SongResponse>{
             override fun onResponse(call: Call<SongResponse>, response: Response<SongResponse>) {
                 // Получили ответ от сервера
@@ -275,7 +288,7 @@ class SearchActivity : AppCompatActivity() {
                 showPlaceholderNoConnection(recycle)
                 Log.d("MyLog","Fail")
             }
-        })
+        })*/
     }
 
     private fun showPlaceholderNoFound(recycle:RecyclerView) {
@@ -312,86 +325,7 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
-
 }
 
 
-
-class TracksViewHolder(itemView:View):RecyclerView.ViewHolder(itemView){
-    private val trackName:TextView = itemView.findViewById(R.id.track_name)
-    private val trackBand:TextView = itemView.findViewById(R.id.track_band)
-    private val trackLong:TextView = itemView.findViewById(R.id.track_long)
-    private val trackImage:ImageView = itemView.findViewById(R.id.track_image)
-
-    fun bind(model:Track){
-
-        val time:Long = if (model.trackTimeMillis.isNullOrEmpty()){201900L}else{model.trackTimeMillis.toLong()}
-        Log.d("MyLog",time.toString())
-        trackName.text = model.trackName
-        trackBand.text = model.artistName
-        trackLong.text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(time)
-        Glide.with(itemView)
-            .load(model.artworkUrl100)
-            .fitCenter()
-            .transform(RoundedCorners(dpToPx(2f,itemView.context)))
-            .placeholder(R.drawable.placeholder)
-            .into(trackImage)
-    }
-
-    fun dpToPx(dp: Float, context: Context): Int {
-        return TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
-            dp,
-            context.resources.displayMetrics).toInt()
-    }
-}
-
-class TrackAdapter(private val tracks:List<Track> ):RecyclerView.Adapter<TracksViewHolder>(){
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TracksViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.track_card,parent,false)
-        return TracksViewHolder(view)
-    }
-
-    override fun getItemCount(): Int {
-        return tracks.size
-    }
-
-    private fun clickDebounce() : Boolean {
-        val current = isClickAllowed
-        if (isClickAllowed) {
-            isClickAllowed = false
-            handler.postDelayed({ isClickAllowed = true }, CLICK_DEBOUNCE_DELAY)
-        }
-        return current
-    }
-
-    override fun onBindViewHolder(holder: TracksViewHolder, position: Int) {
-
-       val searchMaker = SearchHistory(sharedPrefForHistory)
-        holder.bind(tracks[position])
-
-        holder.itemView.setOnClickListener {
-            if (clickDebounce()) {
-                searchMaker.addTrackToHistory(tracks[position])
-                val intent = Intent(holder.itemView.context, AudioplayerActivity::class.java)
-                intent.putExtra(INTENT_EXTRA_KEY, tracks[position])
-                holder.itemView.context.startActivity(intent)
-            }
-        }
-    }
-
-
-}
-
-
-
-interface ItunesApiService{
-    @GET("/search?entity=song")
-    fun search(
-        @Query("term") text: String
-    ): Call<SongResponse>
-}
-
-class SongResponse(val results:List<Track>)
 

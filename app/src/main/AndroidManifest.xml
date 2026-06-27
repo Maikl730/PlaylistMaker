@@ -22,7 +22,7 @@
             android:name=".AudioplayerActivity"
             android:exported="false" />
         <activity
-            android:name=".SearchActivity"
+            android:name=".ui.search.SearchActivity"
             android:exported="false" />
         <activity
             android:name=".MediatekaActivity"

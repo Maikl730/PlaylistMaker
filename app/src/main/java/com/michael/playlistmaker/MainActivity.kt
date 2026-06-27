@@ -3,13 +3,12 @@ package com.michael.playlistmaker
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.view.View.OnClickListener
 import android.widget.Button
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.michael.playlistmaker.ui.search.SearchActivity
 
 class MainActivity : AppCompatActivity() {
 
@@ -31,7 +30,7 @@ class MainActivity : AppCompatActivity() {
 
         val searchClickListener: View.OnClickListener = object : View.OnClickListener {
             override fun onClick(v: View?) {
-                val searchIntent = Intent(this@MainActivity,SearchActivity::class.java)
+                val searchIntent = Intent(this@MainActivity, SearchActivity::class.java)
                 startActivity(searchIntent)
             }
         }
