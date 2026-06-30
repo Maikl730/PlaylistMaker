@@ -1,4 +1,4 @@
-package com.michael.playlistmaker
+package com.michael.playlistmaker.ui.audioplayer
 
 import android.content.Context
 import android.media.MediaPlayer
@@ -16,6 +16,7 @@ import androidx.core.view.WindowInsetsCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.google.android.material.appbar.MaterialToolbar
+import com.michael.playlistmaker.R
 import com.michael.playlistmaker.domain.models.Track
 import com.michael.playlistmaker.ui.search.INTENT_EXTRA_KEY
 
@@ -159,7 +160,7 @@ class AudioplayerActivity : AppCompatActivity() {
             STATE_PLAYING -> {
                 pausePlayer()
             }
-            STATE_PREPARED,STATE_PAUSED -> {
+            STATE_PREPARED, STATE_PAUSED -> {
                 startPlayer()
             }
         }

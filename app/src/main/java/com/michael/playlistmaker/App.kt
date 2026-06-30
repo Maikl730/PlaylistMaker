@@ -3,6 +3,8 @@ package com.michael.playlistmaker
 import android.app.Application
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatDelegate
+import com.michael.playlistmaker.ui.settings.EDIT_THEME_KEY
+import com.michael.playlistmaker.ui.settings.THEME_PREFERENCES
 
 
 class App: Application(){

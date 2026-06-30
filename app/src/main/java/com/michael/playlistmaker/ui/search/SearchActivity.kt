@@ -25,15 +25,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.MaterialToolbar
 import com.michael.playlistmaker.Creator
-import com.michael.playlistmaker.HISTORY_TRACKS_KEY
 import com.michael.playlistmaker.R
-import com.michael.playlistmaker.SearchHistory
+import com.michael.playlistmaker.domain.api.TrackHistoryInteractor
 import com.michael.playlistmaker.domain.api.TracksInteractor
 import com.michael.playlistmaker.domain.models.Track
 
 
-
-lateinit var sharedPrefForHistory:SharedPreferences
 const val INTENT_EXTRA_KEY = "TRACK"
 val handler = Handler(Looper.getMainLooper())
 private const val SEARCH_DEBOUNCE_DELAY = 2000L
@@ -60,6 +57,7 @@ class SearchActivity : AppCompatActivity() {
 
     private var newTracks = mutableListOf<Track>()
     private var lastSearch:String =""
+    lateinit var trackHistoryInteractor:TrackHistoryInteractor
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
@@ -83,7 +81,7 @@ class SearchActivity : AppCompatActivity() {
             insets
         }
 
-        sharedPrefForHistory = getSharedPreferences(TRACK_HISTORY_PREFERENCES, MODE_PRIVATE)
+        trackHistoryInteractor = Creator.provideTrackHistoryInteractor(this.applicationContext)
 
         placeholderImage = findViewById<ImageView>(R.id.image_placeholder)
         placetextFirst = findViewById<TextView>(R.id.placetext_first)
@@ -101,7 +99,8 @@ class SearchActivity : AppCompatActivity() {
         adapterR = TrackAdapter(newTracks)
 
         clearHistoryButton.setOnClickListener {
-            sharedPrefForHistory.edit().putString(HISTORY_TRACKS_KEY,"").apply()
+          //searchHistory.clearHistory()
+            trackHistoryInteractor.clearHistory()
             recyclerTrack.isVisible = false
 
             historyText.isVisible = false
@@ -132,14 +131,11 @@ class SearchActivity : AppCompatActivity() {
 
         searchLine.setOnFocusChangeListener { view, hasFocus ->
 
-            historyText.visibility = if (hasFocus && searchLine.text.isEmpty() && !sharedPrefForHistory.getString(
-                    HISTORY_TRACKS_KEY,"").isNullOrEmpty()) View.VISIBLE else View.GONE
-            clearHistoryButton.visibility = if (hasFocus && searchLine.text.isEmpty() && !sharedPrefForHistory.getString(
-                        HISTORY_TRACKS_KEY,"").isNullOrEmpty()) View.VISIBLE else View.GONE
+            historyText.visibility = if (hasFocus && searchLine.text.isEmpty() &&  trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
+            clearHistoryButton.visibility = if (hasFocus && searchLine.text.isEmpty() && trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
             recyclerTrack.isVisible = true
 
-            if (hasFocus && searchLine.text.isEmpty() && !sharedPrefForHistory.getString(
-                    HISTORY_TRACKS_KEY,"").isNullOrEmpty()){
+            if (hasFocus && searchLine.text.isEmpty() && trackHistoryInteractor.isEmpty()){
                 showHistory(recyclerTrack)
             }
 
@@ -172,10 +168,8 @@ class SearchActivity : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
 
                 cancelText.isVisible = clearButtonVisibility(s)
-                clearHistoryButton.visibility = if (searchLine.hasFocus() && s?.isEmpty() == true && !sharedPrefForHistory.getString(
-                        HISTORY_TRACKS_KEY,"").isNullOrEmpty()) View.VISIBLE else View.GONE
-                historyText.visibility = if (searchLine.hasFocus() && s?.isEmpty() == true && !sharedPrefForHistory.getString(
-                        HISTORY_TRACKS_KEY,"").isNullOrEmpty()) View.VISIBLE else View.GONE
+                clearHistoryButton.visibility = if (searchLine.hasFocus() && s?.isEmpty() == true && trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
+                historyText.visibility = if (searchLine.hasFocus() && s?.isEmpty() == true && trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
                 searchText =s.toString()
 
                 if (searchLine.hasFocus() && s?.isEmpty() == true){
@@ -208,10 +202,9 @@ class SearchActivity : AppCompatActivity() {
 
     private fun showHistory(recycle: RecyclerView){
 
-        val searchHistory= SearchHistory(shared = sharedPrefForHistory)
-        if (!searchHistory.getHistory().isNullOrEmpty()) {
+        if (trackHistoryInteractor.isEmpty()) {
             recycle.isVisible = true
-            val adapterHH = TrackAdapter(searchHistory.getHistory()!!)
+            val adapterHH = TrackAdapter(trackHistoryInteractor.getHistory()!!)
             recycle.adapter = adapterHH
             // добавляю в список новые треки
             adapterHH.notifyDataSetChanged()

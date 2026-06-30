@@ -1,4 +1,4 @@
-package com.michael.playlistmaker
+package com.michael.playlistmaker.ui.main
 
 import android.content.Intent
 import android.os.Bundle
@@ -8,7 +8,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.michael.playlistmaker.R
+import com.michael.playlistmaker.ui.mediateka.MediatekaActivity
 import com.michael.playlistmaker.ui.search.SearchActivity
+import com.michael.playlistmaker.ui.settings.SettingsActivity
 
 class MainActivity : AppCompatActivity() {
 
@@ -37,10 +40,10 @@ class MainActivity : AppCompatActivity() {
 
         searchButton.setOnClickListener(searchClickListener)
         mediaButton.setOnClickListener {
-            val mediaIntent = Intent(this@MainActivity,MediatekaActivity::class.java)
+            val mediaIntent = Intent(this@MainActivity, MediatekaActivity::class.java)
             startActivity(mediaIntent)}
         settingsButton.setOnClickListener {
-            val settingsIntent = Intent(this@MainActivity,SettingsActivity::class.java)
+            val settingsIntent = Intent(this@MainActivity, SettingsActivity::class.java)
             startActivity(settingsIntent) }
     }
 

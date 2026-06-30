@@ -4,9 +4,9 @@ import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.michael.playlistmaker.AudioplayerActivity
+import com.michael.playlistmaker.ui.audioplayer.AudioplayerActivity
+import com.michael.playlistmaker.Creator
 import com.michael.playlistmaker.R
-import com.michael.playlistmaker.SearchHistory
 import com.michael.playlistmaker.domain.models.Track
 
 private const val CLICK_DEBOUNCE_DELAY = 1000L
@@ -35,12 +35,13 @@ class TrackAdapter(private val tracks:List<Track> ): RecyclerView.Adapter<Tracks
 
     override fun onBindViewHolder(holder: TracksViewHolder, position: Int) {
 
-        val searchMaker = SearchHistory(sharedPrefForHistory)
+
+        val searchMaker = Creator.provideTrackHistoryInteractor(holder.itemView.context)
         holder.bind(tracks[position])
 
         holder.itemView.setOnClickListener {
             if (clickDebounce()) {
-                searchMaker.addTrackToHistory(tracks[position])
+                searchMaker.addToHistory(tracks[position])
                 val intent = Intent(holder.itemView.context, AudioplayerActivity::class.java)
                 intent.putExtra(INTENT_EXTRA_KEY, tracks[position])
                 holder.itemView.context.startActivity(intent)
