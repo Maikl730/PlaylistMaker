@@ -68,7 +68,6 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         shareButton.setOnClickListener{
-
             val share = Intent.createChooser(shareIntent, null)
             startActivity(share)
         }

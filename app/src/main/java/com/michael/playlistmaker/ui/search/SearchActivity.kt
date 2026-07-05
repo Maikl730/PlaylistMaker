@@ -1,7 +1,6 @@
 package com.michael.playlistmaker.ui.search
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -26,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.MaterialToolbar
 import com.michael.playlistmaker.Creator
 import com.michael.playlistmaker.R
+import com.michael.playlistmaker.data.network.NOFOUND
 import com.michael.playlistmaker.domain.api.TrackHistoryInteractor
 import com.michael.playlistmaker.domain.api.TracksInteractor
 import com.michael.playlistmaker.domain.models.Track
@@ -99,7 +99,6 @@ class SearchActivity : AppCompatActivity() {
         adapterR = TrackAdapter(newTracks)
 
         clearHistoryButton.setOnClickListener {
-          //searchHistory.clearHistory()
             trackHistoryInteractor.clearHistory()
             recyclerTrack.isVisible = false
 
@@ -216,6 +215,10 @@ class SearchActivity : AppCompatActivity() {
                             adapter: TrackAdapter
     ){
         progressBar.isVisible = true
+        placeholderImage.isVisible = false
+        placetextFirst.isVisible = false
+        placetextSecond.isVisible = false
+        researchButton.isVisible = false
 
         val handler = Handler(Looper.getMainLooper())
         val trackInteractor = Creator.provideTracksInteractor()
@@ -224,7 +227,11 @@ class SearchActivity : AppCompatActivity() {
             override fun consume(foundTracks: List<Track>) {
 //handler работает
                 handler.post{
-                    if (foundTracks.toMutableList().isNotEmpty()){
+                    if (foundTracks.toMutableList().isNotEmpty()
+                        && foundTracks.toMutableList()[0].trackId != NOFOUND
+                        ){
+
+                        Log.d("MyLog", "Внутри хэндлера пост if")
 
                         val adapterNew = TrackAdapter(foundTracks)
                         recycle.adapter = adapterNew
@@ -232,7 +239,16 @@ class SearchActivity : AppCompatActivity() {
 
                         recycle.isVisible = true
                         progressBar.isVisible = false
-                    }else{
+                    }
+
+                   else if(foundTracks.toMutableList()[0].trackId == NOFOUND
+                    && foundTracks.toMutableList()[0].trackName == NOFOUND
+                    && foundTracks.toMutableList()[0].trackTimeMillis == NOFOUND){
+                        Log.d("MyLog", "Внутри хэндлера пост else if")
+                        showPlaceholderNoConnection(recycle)
+                    }
+                    else{
+                        Log.d("MyLog", "Внутри хэндлера пост else ")
                         showPlaceholderNoFound(recycle)
                         progressBar.isVisible = false
                     }
@@ -241,47 +257,6 @@ class SearchActivity : AppCompatActivity() {
         }
 
         trackInteractor.searchTracks(text,consumer)
-        Log.d("MyLog", "Presentation" + newTracks.toString())
-        Log.d("MyLog", "Presentation visibility" + recycle.isVisible.toString())
-
-
-
-            /*
-        itunes.search(text).enqueue(object : Callback<SongResponse>{
-            override fun onResponse(call: Call<SongResponse>, response: Response<SongResponse>) {
-                // Получили ответ от сервера
-                recycle.adapter = adapter
-                if (response.isSuccessful) {
-                    newTracks.clear()
-                    if (response.body()?.results?.isNotEmpty() == true) {
-                        val forNewTrack:List<Track> = response.body()?.results!!
-                        newTracks.addAll(forNewTrack)
-                        adapter.notifyDataSetChanged()
-                        recycle.isVisible = true
-                        progressBar.isVisible = false
-                    }
-                    if (newTracks.isEmpty()) {
-                        showPlaceholderNoFound(recycle)
-                        progressBar.isVisible = false
-                    } else {
-
-                    }
-                } else {
-                    Log.d("MyLog",response.code().toString())
-                    showPlaceholderNoConnection(recycle)
-                    progressBar.isVisible = false
-                }
-            }
-
-            override fun onFailure(call: Call<SongResponse>, t: Throwable) {
-                // Не смогли присоединиться к серверу
-                // Выводим ошибку в лог, что-то пошло не так
-                progressBar.isVisible = false
-                t.printStackTrace()
-                showPlaceholderNoConnection(recycle)
-                Log.d("MyLog","Fail")
-            }
-        })*/
     }
 
     private fun showPlaceholderNoFound(recycle:RecyclerView) {
@@ -304,6 +279,7 @@ class SearchActivity : AppCompatActivity() {
         placetextSecond.isVisible = true
         researchButton.isVisible = true
         recycle.isVisible = false
+        progressBar.isVisible = false
 
         placetextFirst.setText(R.string.no_connection_search)
         placetextSecond.setText(R.string.no_connection_search2)
