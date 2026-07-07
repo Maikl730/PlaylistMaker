@@ -12,8 +12,7 @@ import kotlin.collections.ArrayList
 
 private const val HISTORY_TRACKS_KEYY = "key_for_edit_history"
 
-class TrackHistoryRepositoryImpl(val context: Context): TrackHistoryRepository {
-    private val gson = Gson()
+class TrackHistoryRepositoryImpl(val context: Context,val gson: Gson): TrackHistoryRepository {
     private val sharedPreferences =
         context.getSharedPreferences(TRACK_HISTORY_PREFERENCES, MODE_PRIVATE)
 
