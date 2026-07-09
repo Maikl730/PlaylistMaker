@@ -81,7 +81,7 @@ class SearchActivity : AppCompatActivity() {
             insets
         }
 
-        trackHistoryInteractor = Creator.provideTrackHistoryInteractor(this.applicationContext)
+        trackHistoryInteractor = Creator.provideTrackHistoryInteractor()
 
         placeholderImage = findViewById<ImageView>(R.id.image_placeholder)
         placetextFirst = findViewById<TextView>(R.id.placetext_first)

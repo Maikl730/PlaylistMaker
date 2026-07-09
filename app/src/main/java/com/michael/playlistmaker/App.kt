@@ -1,12 +1,7 @@
 package com.michael.playlistmaker
 
 import android.app.Application
-import android.content.SharedPreferences
-import androidx.appcompat.app.AppCompatDelegate
-//import com.michael.playlistmaker.data.ThemeSwitcherControl
-import com.michael.playlistmaker.ui.settings.EDIT_THEME_KEY
-import com.michael.playlistmaker.ui.settings.THEME_PREFERENCES
-
+import android.content.Context
 
 class App: Application(){
 
@@ -14,9 +9,15 @@ class App: Application(){
 
     override fun onCreate() {
         super.onCreate()
-        var themeSwitcherControlInteractor =Creator.provideThemeSwitcherControlInteractor(this)
+        Creator.context = this.applicationContext
+        var themeSwitcherControlInteractor =Creator.provideThemeSwitcherControlInteractor()
         darkTheme = themeSwitcherControlInteractor.getPosition()
         themeSwitcherControlInteractor.switchTheme(darkTheme)
+    }
+
+    override fun onTerminate() {
+        super.onTerminate()
+        Creator.context = null
     }
 
 }

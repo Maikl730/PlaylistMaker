@@ -12,7 +12,6 @@ import com.google.android.material.appbar.MaterialToolbar
 import com.michael.playlistmaker.App
 import com.michael.playlistmaker.Creator
 import com.michael.playlistmaker.R
-//import com.michael.playlistmaker.data.ThemeSwitcherControl
 
 const val THEME_PREFERENCES = "theme_preferences"
 const val EDIT_THEME_KEY = "key_for_edit_theme"
@@ -29,7 +28,7 @@ class SettingsActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        val themeSwitcherControlInteractor = Creator.provideThemeSwitcherControlInteractor(this.applicationContext)
+        val themeSwitcherControlInteractor = Creator.provideThemeSwitcherControlInteractor()
 
         val backButton = findViewById<MaterialToolbar>(R.id.tool_bar)
         backButton.setNavigationOnClickListener{

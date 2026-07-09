@@ -25,16 +25,9 @@ import java.util.Locale
 
 class AudioplayerActivity : AppCompatActivity() {
 
-    companion object {
-        private const val STATE_DEFAULT = 0
-        private const val STATE_PREPARED = 1
-        private const val STATE_PLAYING = 2
-        private const val STATE_PAUSED = 3
-    }
-
     private var mediaPlayer = MediaPlayer()
     val  handler = Handler(Looper.getMainLooper())
-    private var playerState = STATE_DEFAULT
+    private var playerState = State.STATE_DEFAULT
 
     private lateinit var playButton: ImageButton
     private lateinit var trackLong:TextView
@@ -64,7 +57,7 @@ class AudioplayerActivity : AppCompatActivity() {
         val intent = intent
 
 
-        val thisTrack: Track = intent.getParcelableExtra(INTENT_EXTRA_KEY)!!
+        val thisTrack: Track = (intent.getSerializableExtra(INTENT_EXTRA_KEY) as Track?)!!
 
             nameTrack.text = thisTrack.trackName
             bandTrack.text = thisTrack.artistName
@@ -104,7 +97,7 @@ class AudioplayerActivity : AppCompatActivity() {
     val runx = object :Runnable{
         override fun run() {
 
-            if (playerState == STATE_PLAYING) {
+            if (playerState == State.STATE_PLAYING) {
                 trackLong.text = SimpleDateFormat(
                     "mm:ss",
                     Locale.getDefault()
@@ -112,7 +105,7 @@ class AudioplayerActivity : AppCompatActivity() {
 
                 handler.postDelayed(this, 300L)
             }
-            if (playerState == STATE_PAUSED){
+            if (playerState == State.STATE_PAUSED){
                 handler.removeCallbacks(this)
             }
         }
@@ -133,36 +126,44 @@ class AudioplayerActivity : AppCompatActivity() {
         mediaPlayer.prepareAsync()
         mediaPlayer.setOnPreparedListener {
             playButton.isEnabled = true
-            playerState = STATE_PREPARED
+            playerState = State.STATE_PREPARED
         }
         mediaPlayer.setOnCompletionListener {
             playButton.setBackgroundResource(R.drawable.playbutton) // "PLAY"
             handler.removeCallbacks(runx)
             trackLong.text = "00:00"
-            playerState = STATE_PREPARED
+            playerState = State.STATE_PREPARED
         }
     }
 
     private fun startPlayer() {
         mediaPlayer.start()
         playButton.setBackgroundResource(R.drawable.stopbutton) //"PAUSE"
-        playerState = STATE_PLAYING
+        playerState = State.STATE_PLAYING
     }
 
     private fun pausePlayer() {
         mediaPlayer.pause()
         playButton.setBackgroundResource(R.drawable.playbutton)  //"PLAY"
-        playerState = STATE_PAUSED
+        playerState = State.STATE_PAUSED
     }
 
     private fun playbackControl() {
         when(playerState) {
-            STATE_PLAYING -> {
+            State.STATE_PLAYING -> {
                 pausePlayer()
             }
-            STATE_PREPARED, STATE_PAUSED -> {
+            State.STATE_PREPARED, State.STATE_PAUSED -> {
                 startPlayer()
             }
+            else -> null
         }
     }
+}
+
+enum class State (val int: Int) {
+    STATE_DEFAULT(0),
+    STATE_PREPARED(1),
+    STATE_PLAYING(2),
+    STATE_PAUSED(3)
 }

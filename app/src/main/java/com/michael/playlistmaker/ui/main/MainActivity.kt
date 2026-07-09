@@ -26,6 +26,7 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(v.paddingLeft, systemBars.top, v.paddingRight, systemBars.bottom)
             insets
         }
+        
 
         val searchButton = findViewById<Button>(R.id.search_button)
         val mediaButton = findViewById<Button>(R.id.media_button)

@@ -36,7 +36,9 @@ class TrackAdapter(private val tracks:List<Track> ): RecyclerView.Adapter<Tracks
     override fun onBindViewHolder(holder: TracksViewHolder, position: Int) {
 
 
-        val searchMaker = Creator.provideTrackHistoryInteractor(holder.itemView.context)
+        val searchMaker = Creator.provideTrackHistoryInteractor(
+           // holder.itemView.context
+        )
         holder.bind(tracks[position])
 
         holder.itemView.setOnClickListener {
