@@ -1,36 +1,23 @@
 package com.michael.playlistmaker
 
 import android.app.Application
-import android.content.SharedPreferences
-import androidx.appcompat.app.AppCompatDelegate
-
+import android.content.Context
 
 class App: Application(){
 
-
-    var darkTheme = false
-    lateinit var sharedPref: SharedPreferences
+    private var darkTheme = false
 
     override fun onCreate() {
         super.onCreate()
-        sharedPref = getSharedPreferences(THEME_PREFERENCES, MODE_PRIVATE)
-        darkTheme = sharedPref.getBoolean(EDIT_THEME_KEY, true)
-        switchTheme(darkTheme)
+        Creator.context = this.applicationContext
+        var themeSwitcherControlInteractor =Creator.provideThemeSwitcherControlInteractor()
+        darkTheme = themeSwitcherControlInteractor.getPosition()
+        themeSwitcherControlInteractor.switchTheme(darkTheme)
     }
 
-    fun switchTheme(darkThemeEnabled: Boolean) {
-        darkTheme = darkThemeEnabled
-
-        sharedPref.edit()
-            .putBoolean(EDIT_THEME_KEY, darkTheme)
-            .apply()
-
-        AppCompatDelegate.setDefaultNightMode(
-            if (darkThemeEnabled) {
-                AppCompatDelegate.MODE_NIGHT_YES
-            } else {
-                AppCompatDelegate.MODE_NIGHT_NO
-            }
-        )
+    override fun onTerminate() {
+        super.onTerminate()
+        Creator.context = null
     }
+
 }

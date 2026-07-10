@@ -1,15 +1,17 @@
-package com.michael.playlistmaker
+package com.michael.playlistmaker.ui.main
 
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.view.View.OnClickListener
 import android.widget.Button
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.michael.playlistmaker.R
+import com.michael.playlistmaker.ui.mediateka.MediatekaActivity
+import com.michael.playlistmaker.ui.search.SearchActivity
+import com.michael.playlistmaker.ui.settings.SettingsActivity
 
 class MainActivity : AppCompatActivity() {
 
@@ -24,6 +26,7 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(v.paddingLeft, systemBars.top, v.paddingRight, systemBars.bottom)
             insets
         }
+        
 
         val searchButton = findViewById<Button>(R.id.search_button)
         val mediaButton = findViewById<Button>(R.id.media_button)
@@ -31,17 +34,17 @@ class MainActivity : AppCompatActivity() {
 
         val searchClickListener: View.OnClickListener = object : View.OnClickListener {
             override fun onClick(v: View?) {
-                val searchIntent = Intent(this@MainActivity,SearchActivity::class.java)
+                val searchIntent = Intent(this@MainActivity, SearchActivity::class.java)
                 startActivity(searchIntent)
             }
         }
 
         searchButton.setOnClickListener(searchClickListener)
         mediaButton.setOnClickListener {
-            val mediaIntent = Intent(this@MainActivity,MediatekaActivity::class.java)
+            val mediaIntent = Intent(this@MainActivity, MediatekaActivity::class.java)
             startActivity(mediaIntent)}
         settingsButton.setOnClickListener {
-            val settingsIntent = Intent(this@MainActivity,SettingsActivity::class.java)
+            val settingsIntent = Intent(this@MainActivity, SettingsActivity::class.java)
             startActivity(settingsIntent) }
     }
 

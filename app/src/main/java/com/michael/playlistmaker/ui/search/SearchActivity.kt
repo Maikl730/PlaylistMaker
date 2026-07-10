@@ -1,18 +1,13 @@
-package com.michael.playlistmaker
+package com.michael.playlistmaker.ui.search
 
 import android.content.Context
-import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
-import android.util.TypedValue
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
@@ -27,26 +22,17 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.google.android.material.appbar.MaterialToolbar
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.create
-import retrofit2.http.GET
-import retrofit2.http.Query
-import java.text.SimpleDateFormat
-import java.util.Locale
+import com.michael.playlistmaker.Creator
+import com.michael.playlistmaker.R
+import com.michael.playlistmaker.data.network.NOFOUND
+import com.michael.playlistmaker.domain.api.TrackHistoryInteractor
+import com.michael.playlistmaker.domain.api.TracksInteractor
+import com.michael.playlistmaker.domain.models.Track
 
 
-lateinit var sharedPrefForHistory:SharedPreferences
 const val INTENT_EXTRA_KEY = "TRACK"
-private var isClickAllowed = true
 val handler = Handler(Looper.getMainLooper())
-private const val CLICK_DEBOUNCE_DELAY = 1000L
 private const val SEARCH_DEBOUNCE_DELAY = 2000L
 
 class SearchActivity : AppCompatActivity() {
@@ -61,7 +47,7 @@ class SearchActivity : AppCompatActivity() {
     lateinit var placetextFirst:TextView
     lateinit var placetextSecond:TextView
     lateinit var researchButton:Button
-    lateinit var adapterR:TrackAdapter
+    lateinit var adapterR: TrackAdapter
     lateinit var progressBar: ProgressBar
     lateinit var recyclerTrack:RecyclerView
     lateinit var searchLine:EditText
@@ -69,14 +55,9 @@ class SearchActivity : AppCompatActivity() {
     lateinit var clearHistoryButton:Button
 
 
-    private val retrofit = Retrofit.Builder()
-        .baseUrl("https://itunes.apple.com")
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-
     private var newTracks = mutableListOf<Track>()
-    private val itunes = retrofit.create<ItunesApiService>()
     private var lastSearch:String =""
+    lateinit var trackHistoryInteractor:TrackHistoryInteractor
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
@@ -100,8 +81,7 @@ class SearchActivity : AppCompatActivity() {
             insets
         }
 
-        sharedPrefForHistory = getSharedPreferences(TRACK_HISTORY_PREFERENCES, MODE_PRIVATE)
-
+        trackHistoryInteractor = Creator.provideTrackHistoryInteractor()
 
         placeholderImage = findViewById<ImageView>(R.id.image_placeholder)
         placetextFirst = findViewById<TextView>(R.id.placetext_first)
@@ -119,7 +99,7 @@ class SearchActivity : AppCompatActivity() {
         adapterR = TrackAdapter(newTracks)
 
         clearHistoryButton.setOnClickListener {
-            sharedPrefForHistory.edit().putString(HISTORY_TRACKS_KEY,"").apply()
+            trackHistoryInteractor.clearHistory()
             recyclerTrack.isVisible = false
 
             historyText.isVisible = false
@@ -150,14 +130,11 @@ class SearchActivity : AppCompatActivity() {
 
         searchLine.setOnFocusChangeListener { view, hasFocus ->
 
-            historyText.visibility = if (hasFocus && searchLine.text.isEmpty() && !sharedPrefForHistory.getString(
-                    HISTORY_TRACKS_KEY,"").isNullOrEmpty()) View.VISIBLE else View.GONE
-            clearHistoryButton.visibility = if (hasFocus && searchLine.text.isEmpty() && !sharedPrefForHistory.getString(
-                        HISTORY_TRACKS_KEY,"").isNullOrEmpty()) View.VISIBLE else View.GONE
+            historyText.visibility = if (hasFocus && searchLine.text.isEmpty() &&  trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
+            clearHistoryButton.visibility = if (hasFocus && searchLine.text.isEmpty() && trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
             recyclerTrack.isVisible = true
 
-            if (hasFocus && searchLine.text.isEmpty() && !sharedPrefForHistory.getString(
-                    HISTORY_TRACKS_KEY,"").isNullOrEmpty()){
+            if (hasFocus && searchLine.text.isEmpty() && trackHistoryInteractor.isEmpty()){
                 showHistory(recyclerTrack)
             }
 
@@ -190,11 +167,9 @@ class SearchActivity : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
 
                 cancelText.isVisible = clearButtonVisibility(s)
-                clearHistoryButton.visibility = if (searchLine.hasFocus() && s?.isEmpty() == true && !sharedPrefForHistory.getString(
-                        HISTORY_TRACKS_KEY,"").isNullOrEmpty()) View.VISIBLE else View.GONE
-                historyText.visibility = if (searchLine.hasFocus() && s?.isEmpty() == true && !sharedPrefForHistory.getString(
-                        HISTORY_TRACKS_KEY,"").isNullOrEmpty()) View.VISIBLE else View.GONE
-                searchText=s.toString()
+                clearHistoryButton.visibility = if (searchLine.hasFocus() && s?.isEmpty() == true && trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
+                historyText.visibility = if (searchLine.hasFocus() && s?.isEmpty() == true && trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
+                searchText =s.toString()
 
                 if (searchLine.hasFocus() && s?.isEmpty() == true){
                     showHistory(recyclerTrack)
@@ -226,10 +201,9 @@ class SearchActivity : AppCompatActivity() {
 
     private fun showHistory(recycle: RecyclerView){
 
-        val searchHistory=SearchHistory(shared = sharedPrefForHistory)
-        if (!searchHistory.getHistory().isNullOrEmpty()) {
+        if (trackHistoryInteractor.isEmpty()) {
             recycle.isVisible = true
-            val adapterHH = TrackAdapter(searchHistory.getHistory()!!)
+            val adapterHH = TrackAdapter(trackHistoryInteractor.getHistory()!!)
             recycle.adapter = adapterHH
             // добавляю в список новые треки
             adapterHH.notifyDataSetChanged()
@@ -238,44 +212,51 @@ class SearchActivity : AppCompatActivity() {
 
     private fun searchMusic(text:String,
                             recycle:RecyclerView,
-                            adapter:TrackAdapter){
+                            adapter: TrackAdapter
+    ){
         progressBar.isVisible = true
+        placeholderImage.isVisible = false
+        placetextFirst.isVisible = false
+        placetextSecond.isVisible = false
+        researchButton.isVisible = false
 
-        itunes.search(text).enqueue(object : Callback<SongResponse>{
-            override fun onResponse(call: Call<SongResponse>, response: Response<SongResponse>) {
-                // Получили ответ от сервера
-                recycle.adapter = adapter
-                if (response.isSuccessful) {
-                    newTracks.clear()
-                    if (response.body()?.results?.isNotEmpty() == true) {
-                        val forNewTrack:List<Track> = response.body()?.results!!
-                        newTracks.addAll(forNewTrack)
+        val handler = Handler(Looper.getMainLooper())
+        val trackInteractor = Creator.provideTracksInteractor()
+        val consumer = object:TracksInteractor.TracksConsumer{
+
+            override fun consume(foundTracks: List<Track>) {
+//handler работает
+                handler.post{
+                    if (foundTracks.toMutableList().isNotEmpty()
+                        && foundTracks.toMutableList()[0].trackId != NOFOUND
+                        ){
+
+                        Log.d("MyLog", "Внутри хэндлера пост if")
+
+                        val adapterNew = TrackAdapter(foundTracks)
+                        recycle.adapter = adapterNew
                         adapter.notifyDataSetChanged()
+
                         recycle.isVisible = true
                         progressBar.isVisible = false
                     }
-                    if (newTracks.isEmpty()) {
+
+                   else if(foundTracks.toMutableList()[0].trackId == NOFOUND
+                    && foundTracks.toMutableList()[0].trackName == NOFOUND
+                    && foundTracks.toMutableList()[0].trackTimeMillis == NOFOUND){
+                        Log.d("MyLog", "Внутри хэндлера пост else if")
+                        showPlaceholderNoConnection(recycle)
+                    }
+                    else{
+                        Log.d("MyLog", "Внутри хэндлера пост else ")
                         showPlaceholderNoFound(recycle)
                         progressBar.isVisible = false
-                    } else {
-
                     }
-                } else {
-                    Log.d("MyLog",response.code().toString())
-                    showPlaceholderNoConnection(recycle)
-                    progressBar.isVisible = false
                 }
             }
+        }
 
-            override fun onFailure(call: Call<SongResponse>, t: Throwable) {
-                // Не смогли присоединиться к серверу
-                // Выводим ошибку в лог, что-то пошло не так
-                progressBar.isVisible = false
-                t.printStackTrace()
-                showPlaceholderNoConnection(recycle)
-                Log.d("MyLog","Fail")
-            }
-        })
+        trackInteractor.searchTracks(text,consumer)
     }
 
     private fun showPlaceholderNoFound(recycle:RecyclerView) {
@@ -298,6 +279,7 @@ class SearchActivity : AppCompatActivity() {
         placetextSecond.isVisible = true
         researchButton.isVisible = true
         recycle.isVisible = false
+        progressBar.isVisible = false
 
         placetextFirst.setText(R.string.no_connection_search)
         placetextSecond.setText(R.string.no_connection_search2)
@@ -312,86 +294,7 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
-
 }
 
 
-
-class TracksViewHolder(itemView:View):RecyclerView.ViewHolder(itemView){
-    private val trackName:TextView = itemView.findViewById(R.id.track_name)
-    private val trackBand:TextView = itemView.findViewById(R.id.track_band)
-    private val trackLong:TextView = itemView.findViewById(R.id.track_long)
-    private val trackImage:ImageView = itemView.findViewById(R.id.track_image)
-
-    fun bind(model:Track){
-
-        val time:Long = if (model.trackTimeMillis.isNullOrEmpty()){201900L}else{model.trackTimeMillis.toLong()}
-        Log.d("MyLog",time.toString())
-        trackName.text = model.trackName
-        trackBand.text = model.artistName
-        trackLong.text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(time)
-        Glide.with(itemView)
-            .load(model.artworkUrl100)
-            .fitCenter()
-            .transform(RoundedCorners(dpToPx(2f,itemView.context)))
-            .placeholder(R.drawable.placeholder)
-            .into(trackImage)
-    }
-
-    fun dpToPx(dp: Float, context: Context): Int {
-        return TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
-            dp,
-            context.resources.displayMetrics).toInt()
-    }
-}
-
-class TrackAdapter(private val tracks:List<Track> ):RecyclerView.Adapter<TracksViewHolder>(){
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TracksViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.track_card,parent,false)
-        return TracksViewHolder(view)
-    }
-
-    override fun getItemCount(): Int {
-        return tracks.size
-    }
-
-    private fun clickDebounce() : Boolean {
-        val current = isClickAllowed
-        if (isClickAllowed) {
-            isClickAllowed = false
-            handler.postDelayed({ isClickAllowed = true }, CLICK_DEBOUNCE_DELAY)
-        }
-        return current
-    }
-
-    override fun onBindViewHolder(holder: TracksViewHolder, position: Int) {
-
-       val searchMaker = SearchHistory(sharedPrefForHistory)
-        holder.bind(tracks[position])
-
-        holder.itemView.setOnClickListener {
-            if (clickDebounce()) {
-                searchMaker.addTrackToHistory(tracks[position])
-                val intent = Intent(holder.itemView.context, AudioplayerActivity::class.java)
-                intent.putExtra(INTENT_EXTRA_KEY, tracks[position])
-                holder.itemView.context.startActivity(intent)
-            }
-        }
-    }
-
-
-}
-
-
-
-interface ItunesApiService{
-    @GET("/search?entity=song")
-    fun search(
-        @Query("term") text: String
-    ): Call<SongResponse>
-}
-
-class SongResponse(val results:List<Track>)
 
