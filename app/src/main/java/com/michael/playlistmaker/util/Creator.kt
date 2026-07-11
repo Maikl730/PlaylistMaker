@@ -1,5 +1,6 @@
 package com.michael.playlistmaker.util
 
+import android.app.Activity
 import android.content.Context
 import com.google.gson.Gson
 import com.michael.playlistmaker.data.ThemeSwitcherControlRepositoryImpl
@@ -16,6 +17,9 @@ import com.michael.playlistmaker.domain.api.TracksRepository
 import com.michael.playlistmaker.domain.impl.ThemeSwitcherControlInteractorImpl
 import com.michael.playlistmaker.domain.impl.TrackHistoryInteractorImpl
 import com.michael.playlistmaker.domain.impl.TracksInteractorImpl
+import com.michael.playlistmaker.presentation.TracksHistoryController
+import com.michael.playlistmaker.presentation.TracksSearchController
+import com.michael.playlistmaker.ui.search.TrackAdapter
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -29,6 +33,14 @@ object Creator {
         .build()
     private val gson = Gson()
     private val itunesService = retrofit.create(ItunesApiService::class.java)
+
+    fun provideTracksHistoryController(activity: Activity,adapter: TrackAdapter): TracksHistoryController {
+        return TracksHistoryController(activity,adapter)
+    }
+
+    fun provideTracksSearchController(activity: Activity, adapter: TrackAdapter): TracksSearchController {
+        return TracksSearchController(activity, adapter)
+    }
 
     private fun provideRetrofitNetworkClient():RetrofitNetworkClient{
         return RetrofitNetworkClient(itunesService, context as Context)

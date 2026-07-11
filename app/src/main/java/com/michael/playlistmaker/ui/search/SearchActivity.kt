@@ -6,7 +6,6 @@ import android.os.Handler
 import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
@@ -26,19 +25,17 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.MaterialToolbar
 import com.michael.playlistmaker.util.Creator
 import com.michael.playlistmaker.R
-import com.michael.playlistmaker.data.network.NOFOUND
 import com.michael.playlistmaker.domain.api.TrackHistoryInteractor
 import com.michael.playlistmaker.domain.api.TracksInteractor
 import com.michael.playlistmaker.domain.models.Track
 
-
 const val INTENT_EXTRA_KEY = "TRACK"
 val handler = Handler(Looper.getMainLooper())
-private const val SEARCH_DEBOUNCE_DELAY = 2000L
 
 class SearchActivity : AppCompatActivity() {
 
     companion object {
+        private const val SEARCH_DEBOUNCE_DELAY = 2000L
         const val SEARCH_TEXT = "SEARCH_TEXT"
         val TRACK_HISTORY_PREFERENCES = "track_search_history"
         private var searchText:String = ""
@@ -47,18 +44,24 @@ class SearchActivity : AppCompatActivity() {
     lateinit var placeholderImage:ImageView
     lateinit var placetextFirst:TextView
     lateinit var placetextSecond:TextView
-    lateinit var researchButton:Button
-    lateinit var adapterR: TrackAdapter
+    //lateinit var researchButton:Button
+    //lateinit var adapterR: TrackAdapter
     lateinit var progressBar: ProgressBar
     lateinit var recyclerTrack:RecyclerView
     lateinit var searchLine:EditText
-    lateinit var historyText:TextView
-    lateinit var clearHistoryButton:Button
+    //lateinit var historyText:TextView
+    //lateinit var clearHistoryButton:Button
 
 
     private var newTracks = mutableListOf<Track>()
-    private var lastSearch:String =""
-    lateinit var trackHistoryInteractor:TrackHistoryInteractor
+    //private var lastSearch:String =""
+    //lateinit var trackHistoryInteractor:TrackHistoryInteractor
+    //lateinit var tracksInteractor: TracksInteractor
+
+    val adapterR = TrackAdapter(newTracks)
+
+    val tracksSearchController = Creator.provideTracksSearchController(this,adapterR)
+    val tracksHistoryController = Creator.provideTracksHistoryController(this,adapterR)
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
@@ -82,36 +85,44 @@ class SearchActivity : AppCompatActivity() {
             insets
         }
 
-        trackHistoryInteractor = Creator.provideTrackHistoryInteractor()
+
+        tracksHistoryController.OnCreate()
+        tracksSearchController.OnCreate()
+        //trackHistoryInteractor = Creator.provideTrackHistoryInteractor()
+        //tracksInteractor = Creator.provideTracksInteractor()
 
         placeholderImage = findViewById<ImageView>(R.id.image_placeholder)
         placetextFirst = findViewById<TextView>(R.id.placetext_first)
         placetextSecond = findViewById<TextView>(R.id.placetext_second)
-        researchButton = findViewById<Button>(R.id.research_button)
+        //researchButton = findViewById<Button>(R.id.research_button)
         progressBar = findViewById(R.id.progressBar)
-        historyText = findViewById(R.id.history_textview)
-        clearHistoryButton = findViewById(R.id.clear_history_button)
+       // historyText = findViewById(R.id.history_textview)
+        //clearHistoryButton = findViewById(R.id.clear_history_button)
         val backButton = findViewById<MaterialToolbar>(R.id.tool_bar)
         val cancelText = findViewById<TextView>(R.id.clear)
         searchLine = findViewById<EditText>(R.id.search_line)
         recyclerTrack = findViewById(R.id.recycle_tracks)
         val researchButton: Button = findViewById(R.id.research_button)
 
-        adapterR = TrackAdapter(newTracks)
-
+/*
         clearHistoryButton.setOnClickListener {
-            trackHistoryInteractor.clearHistory()
+            //trackHistoryInteractor.clearHistory()
             recyclerTrack.isVisible = false
 
             historyText.isVisible = false
             clearHistoryButton.isVisible = false
         }
 
+ */
+
+        /*
         researchButton.setOnClickListener {
             searchMusic(lastSearch,recyclerTrack,adapterR)
         }
 
+         */
 
+/*
         searchLine.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 searchMusic(searchLine.text.toString(),recyclerTrack,adapterR)
@@ -120,6 +131,8 @@ class SearchActivity : AppCompatActivity() {
             }
             false
         }
+
+ */
 
 
         recyclerTrack.adapter = adapterR
@@ -130,7 +143,7 @@ class SearchActivity : AppCompatActivity() {
         }
 
         searchLine.setOnFocusChangeListener { view, hasFocus ->
-
+/*
             historyText.visibility = if (hasFocus && searchLine.text.isEmpty() &&  trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
             clearHistoryButton.visibility = if (hasFocus && searchLine.text.isEmpty() && trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
             recyclerTrack.isVisible = true
@@ -139,12 +152,15 @@ class SearchActivity : AppCompatActivity() {
                 showHistory(recyclerTrack)
             }
 
+ */
+
             placetextSecond.visibility = if (hasFocus && searchLine.text.isEmpty()) View.GONE else View.VISIBLE
             placetextFirst.visibility = if (hasFocus && searchLine.text.isEmpty()) View.GONE else View.VISIBLE
             placeholderImage.visibility = if (hasFocus && searchLine.text.isEmpty()) View.GONE else View.VISIBLE
             researchButton.visibility = if (hasFocus && searchLine.text.isEmpty()) View.GONE else View.VISIBLE
 
     }
+
 
         cancelText.setOnClickListener{
             searchLine.setText("")
@@ -166,7 +182,7 @@ class SearchActivity : AppCompatActivity() {
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-
+/*
                 cancelText.isVisible = clearButtonVisibility(s)
                 clearHistoryButton.visibility = if (searchLine.hasFocus() && s?.isEmpty() == true && trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
                 historyText.visibility = if (searchLine.hasFocus() && s?.isEmpty() == true && trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
@@ -178,7 +194,9 @@ class SearchActivity : AppCompatActivity() {
                     recyclerTrack.isVisible = false
                 }
 
-                if (searchLine.hasFocus() && s?.isEmpty() == false) searchDebounce()
+ */
+
+                //if (searchLine.hasFocus() && s?.isEmpty() == false) searchDebounce()
 
             }
 
@@ -186,9 +204,16 @@ class SearchActivity : AppCompatActivity() {
 
             }
         }
-        searchLine.addTextChangedListener(textWatcherForSearch)
+
+        //searchLine.addTextChangedListener(textWatcherForSearch)
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        tracksSearchController.onDestroy()
+        tracksHistoryController.onDestroy()
+    }
+/*
     private val searchRunnable = Runnable {
         searchMusic(searchLine.text.toString(),recyclerTrack,adapterR)
         lastSearch=searchLine.text.toString()
@@ -199,7 +224,9 @@ class SearchActivity : AppCompatActivity() {
         handler.postDelayed(searchRunnable, SEARCH_DEBOUNCE_DELAY)
     }
 
+ */
 
+/*
     private fun showHistory(recycle: RecyclerView){
 
         if (trackHistoryInteractor.isEmpty()) {
@@ -211,6 +238,9 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
+ */
+
+    /*
     private fun searchMusic(text:String,
                             recycle:RecyclerView,
                             adapter: TrackAdapter
@@ -221,8 +251,6 @@ class SearchActivity : AppCompatActivity() {
         placetextSecond.isVisible = false
         researchButton.isVisible = false
 
-        val handler = Handler(Looper.getMainLooper())
-        val trackInteractor = Creator.provideTracksInteractor()
         val consumer = object:TracksInteractor.TracksConsumer{
 
             override fun consume(foundTracks: List<Track>?,errorMessage:String?) {
@@ -250,8 +278,7 @@ class SearchActivity : AppCompatActivity() {
 
             }
         }
-
-        trackInteractor.searchTracks(text,consumer)
+        tracksInteractor.searchTracks(text,consumer)
     }
 
     private fun showMessage(message:String,messageError:String){
@@ -284,6 +311,8 @@ class SearchActivity : AppCompatActivity() {
         placetextSecond.setText(R.string.no_connection_search2)
 
     }
+
+     */
 
     private fun clearButtonVisibility(s: CharSequence?): Boolean {
         return if (s.isNullOrEmpty()) {
