@@ -15,6 +15,7 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -23,7 +24,7 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.MaterialToolbar
-import com.michael.playlistmaker.Creator
+import com.michael.playlistmaker.util.Creator
 import com.michael.playlistmaker.R
 import com.michael.playlistmaker.data.network.NOFOUND
 import com.michael.playlistmaker.domain.api.TrackHistoryInteractor
@@ -224,39 +225,37 @@ class SearchActivity : AppCompatActivity() {
         val trackInteractor = Creator.provideTracksInteractor()
         val consumer = object:TracksInteractor.TracksConsumer{
 
-            override fun consume(foundTracks: List<Track>) {
-//handler работает
-                handler.post{
-                    if (foundTracks.toMutableList().isNotEmpty()
-                        && foundTracks.toMutableList()[0].trackId != NOFOUND
-                        ){
+            override fun consume(foundTracks: List<Track>?,errorMessage:String?) {
+//handler работает.
 
-                        Log.d("MyLog", "Внутри хэндлера пост if")
-
+                handler.post {
+                    progressBar.visibility = View.GONE
+                    if (foundTracks != null) {
                         val adapterNew = TrackAdapter(foundTracks)
                         recycle.adapter = adapterNew
                         adapter.notifyDataSetChanged()
-
-                        recycle.isVisible = true
-                        progressBar.isVisible = false
+                        recycle.visibility = View.VISIBLE
                     }
-
-                   else if(foundTracks.toMutableList()[0].trackId == NOFOUND
-                    && foundTracks.toMutableList()[0].trackName == NOFOUND
-                    && foundTracks.toMutableList()[0].trackTimeMillis == NOFOUND){
-                        Log.d("MyLog", "Внутри хэндлера пост else if")
+                    if (errorMessage != null) {
+                       showMessage(getString(R.string.no_connection_search), errorMessage)
                         showPlaceholderNoConnection(recycle)
-                    }
-                    else{
-                        Log.d("MyLog", "Внутри хэндлера пост else ")
+                    } else if (foundTracks!!.isEmpty()) {
+                        showMessage(getString(R.string.no_find_search), "")
                         showPlaceholderNoFound(recycle)
                         progressBar.isVisible = false
+                    } else {
+                       // hideMessage()
                     }
                 }
+
             }
         }
 
         trackInteractor.searchTracks(text,consumer)
+    }
+
+    private fun showMessage(message:String,messageError:String){
+        Toast.makeText(this,message +" "+ messageError,Toast.LENGTH_SHORT).show()
     }
 
     private fun showPlaceholderNoFound(recycle:RecyclerView) {

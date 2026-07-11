@@ -6,19 +6,44 @@ import com.michael.playlistmaker.data.dto.SongResponse
 import com.michael.playlistmaker.data.dto.TrackSearchRequest
 import com.michael.playlistmaker.domain.api.TracksRepository
 import com.michael.playlistmaker.domain.models.Track
+import com.michael.playlistmaker.util.Resource
 
 public val NOFOUND = "NOFOUND"
 
 class TrackRepositoryImpl(private val networkClient: NetworkClient):TracksRepository {
-    override fun searchTracks(expression: String): List<Track> {
+    override fun searchTracks(expression: String): Resource<List<Track>> {
         val response = networkClient.doRequest(TrackSearchRequest(expression))
 
+        return when (response.resultCode) {
+            -1 -> {
+                Resource.Error("Проверьте подключение к интернету")
+            }
+            200 -> {
+                Resource.Success((response as  SongResponse).results.map {
+                    Track(it.trackName,
+                        it.artistName,
+                        it.trackTimeMillis,
+                        it.artworkUrl100,
+                        it.trackId,
+                        it.collectionName,
+                        it.releaseDate,
+                        it.primaryGenreName,
+                        it.country,
+                        it.previewUrl) })
+            }
+            else -> {
+                Resource.Error("Ошибка сервера")
+            }
+        }
+
+
+/*
         if (response.resultCode == 200) {
            //Работает
             return (response as SongResponse).results.map {
                 Track(it.trackName, it.artistName, it.trackTimeMillis, it.artworkUrl100, it.trackId, it.collectionName,it.releaseDate,it.primaryGenreName,it.country,it.previewUrl) }
         }
-        else if(response.resultCode >=400)
+        else if(response.resultCode ==-1)
         {
             val track = Track(NOFOUND,
                 NOFOUND,NOFOUND,NOFOUND,NOFOUND,NOFOUND,NOFOUND,NOFOUND,NOFOUND,NOFOUND)
@@ -28,5 +53,8 @@ class TrackRepositoryImpl(private val networkClient: NetworkClient):TracksReposi
     else {
             return emptyList()
         }
+
+ */
+
     }
 }

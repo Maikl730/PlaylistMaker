@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.michael.playlistmaker.ui.audioplayer.AudioplayerActivity
-import com.michael.playlistmaker.Creator
+import com.michael.playlistmaker.util.Creator
 import com.michael.playlistmaker.R
 import com.michael.playlistmaker.domain.models.Track
 
@@ -36,9 +36,7 @@ class TrackAdapter(private val tracks:List<Track> ): RecyclerView.Adapter<Tracks
     override fun onBindViewHolder(holder: TracksViewHolder, position: Int) {
 
 
-        val searchMaker = Creator.provideTrackHistoryInteractor(
-           // holder.itemView.context
-        )
+        val searchMaker = Creator.provideTrackHistoryInteractor()
         holder.bind(tracks[position])
 
         holder.itemView.setOnClickListener {

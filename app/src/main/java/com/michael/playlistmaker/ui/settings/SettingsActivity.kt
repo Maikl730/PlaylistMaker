@@ -9,8 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.appbar.MaterialToolbar
-import com.michael.playlistmaker.App
-import com.michael.playlistmaker.Creator
+import com.michael.playlistmaker.util.Creator
 import com.michael.playlistmaker.R
 
 const val THEME_PREFERENCES = "theme_preferences"

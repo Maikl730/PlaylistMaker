@@ -1,4 +1,4 @@
-package com.michael.playlistmaker
+package com.michael.playlistmaker.util
 
 import android.content.Context
 import com.google.gson.Gson
@@ -31,7 +31,7 @@ object Creator {
     private val itunesService = retrofit.create(ItunesApiService::class.java)
 
     private fun provideRetrofitNetworkClient():RetrofitNetworkClient{
-        return RetrofitNetworkClient(itunesService)
+        return RetrofitNetworkClient(itunesService, context as Context)
     }
 
     private fun getTracksRepository(): TracksRepository {
