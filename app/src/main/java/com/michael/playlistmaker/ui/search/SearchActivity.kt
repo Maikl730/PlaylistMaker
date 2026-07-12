@@ -104,6 +104,7 @@ class SearchActivity : AppCompatActivity() {
         recyclerTrack = findViewById(R.id.recycle_tracks)
         val researchButton: Button = findViewById(R.id.research_button)
 
+
 /*
         clearHistoryButton.setOnClickListener {
             //trackHistoryInteractor.clearHistory()
