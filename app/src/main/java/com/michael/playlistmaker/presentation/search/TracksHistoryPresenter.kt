@@ -1,4 +1,4 @@
-package com.michael.playlistmaker.presentation
+package com.michael.playlistmaker.presentation.search
 
 import android.app.Activity
 import android.text.Editable
@@ -14,8 +14,8 @@ import com.michael.playlistmaker.domain.api.TrackHistoryInteractor
 import com.michael.playlistmaker.ui.search.TrackAdapter
 import com.michael.playlistmaker.util.Creator
 
-class TracksHistoryController( private val activity: Activity,
-private val adapter: TrackAdapter)
+class TracksHistoryPresenter(private val activity: Activity,
+                             private val adapter: TrackAdapter)
 {
     companion object {
         private var searchText:String = ""
