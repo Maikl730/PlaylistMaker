@@ -14,6 +14,7 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -25,6 +26,7 @@ import com.michael.playlistmaker.util.Creator
 import com.michael.playlistmaker.R
 import com.michael.playlistmaker.domain.models.Track
 import com.michael.playlistmaker.presentation.search.TracksView
+import com.michael.playlistmaker.ui.search.models.TracksState
 
 const val INTENT_EXTRA_KEY = "TRACK"
 val handler = Handler(Looper.getMainLooper())
@@ -52,34 +54,34 @@ class SearchActivity : AppCompatActivity(), TracksView {
     private var newTracks = mutableListOf<Track>()
     val adapterR = TrackAdapter(newTracks)
 
-    val tracksSearchPresenter = Creator.provideTracksSearchPresenter(this,this,adapterR)
+    val tracksSearchPresenter = Creator.provideTracksSearchPresenter(this,this)
     val tracksHistoryPresenter = Creator.provideTracksHistoryPresenter(this,adapterR)
 
-    override fun showPlaceTextFirst(isVisible: Boolean) {
+    fun showPlaceTextFirst(isVisible: Boolean) {
         placetextFirst.visibility = if (isVisible) View.VISIBLE else View.GONE
     }
 
-    override fun showPlaceTextSecond(isVisible: Boolean) {
+    fun showPlaceTextSecond(isVisible: Boolean) {
         placetextSecond.visibility = if (isVisible) View.VISIBLE else View.GONE
     }
 
-    override fun showTracksList(isVisible: Boolean) {
+    fun showTracksList(isVisible: Boolean) {
         recyclerTrack.visibility = if (isVisible) View.VISIBLE else View.GONE
     }
 
-    override fun showResearchButton(isVisible: Boolean) {
+    fun showResearchButton(isVisible: Boolean) {
         researchButton.visibility = if (isVisible) View.VISIBLE else View.GONE
     }
 
-    override fun showPlaceholderMessage(isVisible: Boolean) {
+    fun showPlaceholderMessage(isVisible: Boolean) {
         placeholderImage.visibility = if (isVisible) View.VISIBLE else View.GONE
     }
 
-    override fun showProgressBar(isVisible: Boolean) {
+    fun showProgressBar(isVisible: Boolean) {
         progressBar.visibility = if (isVisible) View.VISIBLE else View.GONE
     }
 
-    override fun changePlaceholderImage(image:Boolean) {
+    fun changePlaceholderImage(image:Boolean) {
         if (image==true) {
             placeholderImage.setImageResource(R.drawable.noconnection)
         }else {
@@ -87,16 +89,83 @@ class SearchActivity : AppCompatActivity(), TracksView {
         }
     }
 
-    override fun changeAdapter(adapter: TrackAdapter) {
-        recyclerTrack.adapter = adapter
-    }
-
-    override fun changePlaceholdersText(noConOrNoFound: Boolean) {
+    fun changePlaceholdersText(noConOrNoFound: Boolean) {
         if (noConOrNoFound == true){
             placetextFirst.setText(R.string.no_connection_search)
             placetextSecond.setText(R.string.no_connection_search2)
         }else{
             placetextFirst.setText(R.string.no_find_search)
+        }
+    }
+
+    fun updateTrackList(list: List<Track>) {
+        newTracks.clear()
+        newTracks.addAll(list)
+        adapterR.notifyDataSetChanged()
+    }
+
+    fun showMessage(noConOrNoFound: Boolean) {
+        if(noConOrNoFound==true){
+            Toast.makeText(this,getString(R.string.no_connection_search),Toast.LENGTH_SHORT).show()
+        }else{
+            Toast.makeText(this,getString(R.string.no_find_search),Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    override fun showContent(list: List<Track>) {
+        showTracksList(true)
+        updateTrackList(list)
+        showProgressBar(false)
+        showPlaceTextFirst(false)
+        showPlaceTextSecond(false)
+        showPlaceholderMessage(false)
+        showResearchButton(false)
+    }
+
+    override fun showEmpty() {
+        showTracksList(false)
+        showProgressBar(false)
+        changePlaceholdersText(false)
+        changePlaceholderImage(false)
+        showPlaceTextFirst(true)
+        showPlaceTextSecond(false)
+        showPlaceholderMessage(true)
+        showResearchButton(false)
+        showMessage(false)
+    }
+
+    override fun showError(message: String) {
+        showTracksList(false)
+        showProgressBar(false)
+        changePlaceholdersText(true)
+        changePlaceholderImage(true)
+        showPlaceTextFirst(true)
+        showPlaceTextSecond(true)
+        showPlaceholderMessage(true)
+        showResearchButton(true)
+        showMessage(true)
+        showToast(message)
+    }
+
+    override fun showLoading() {
+        showTracksList(false)
+        showProgressBar(true)
+        showPlaceTextFirst(false)
+        showPlaceTextSecond(false)
+        showPlaceholderMessage(false)
+        showResearchButton(false)
+    }
+
+    override fun showToast(message: String) {
+        Toast.makeText(this,message,Toast.LENGTH_SHORT)
+    }
+
+    override fun render(state: TracksState) {
+        when{
+            state.isLoading == true -> showLoading()
+            state.errorMessage != null -> showError(state.errorMessage)
+            state.tracks!!.isNotEmpty() -> showContent(state.tracks)
+            else -> showEmpty()
         }
     }
 
@@ -123,7 +192,7 @@ class SearchActivity : AppCompatActivity(), TracksView {
         }
 
         tracksHistoryPresenter.OnCreate()
-        tracksSearchPresenter.OnCreate()
+       // tracksSearchPresenter.OnCreate()
 
         researchButton = findViewById(R.id.research_button)
 
@@ -131,7 +200,6 @@ class SearchActivity : AppCompatActivity(), TracksView {
         placeholderImage = findViewById(R.id.image_placeholder)
         placetextFirst = findViewById(R.id.placetext_first)
         placetextSecond = findViewById(R.id.placetext_second)
-        //researchButton = findViewById(R.id.research_button)
         progressBar = findViewById(R.id.progressBar)
         recyclerTrack = findViewById(R.id.recycle_tracks)
         searchLine = findViewById(R.id.search_line)

@@ -1,25 +1,19 @@
 package com.michael.playlistmaker.presentation.search
 
-import com.michael.playlistmaker.ui.search.TrackAdapter
+import com.michael.playlistmaker.domain.models.Track
+import com.michael.playlistmaker.ui.search.models.TracksState
 
 interface TracksView {
-    fun showPlaceholderMessage(isVisible: Boolean)
 
-    fun showTracksList(isVisible: Boolean)
+    fun showContent(list:List<Track>)
 
-    fun showProgressBar(isVisible: Boolean)
+    fun showEmpty()
 
-    fun showResearchButton(isVisible: Boolean)
+    fun showError(message: String)
 
-    fun showPlaceTextFirst(isVisible: Boolean)
+    fun showLoading()
 
-    fun showPlaceTextSecond(isVisible: Boolean)
+    fun showToast(message:String)
 
-    fun changePlaceholderImage(noConOrNoFound:Boolean)
-
-    fun changePlaceholdersText(noConOrNoFound:Boolean)
-
-    fun changeAdapter(adapter:TrackAdapter)
-
-
+    fun render(state:TracksState)
 }

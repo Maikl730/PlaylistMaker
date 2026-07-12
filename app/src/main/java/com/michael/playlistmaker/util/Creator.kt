@@ -39,8 +39,8 @@ object Creator {
         return TracksHistoryPresenter(activity,adapter)
     }
 
-    fun provideTracksSearchPresenter(tracksView: TracksView,context: Context, adapter: TrackAdapter): TracksSearchPresenter {
-        return TracksSearchPresenter(tracksView, context,adapter)
+    fun provideTracksSearchPresenter(tracksView: TracksView,context: Context): TracksSearchPresenter {
+        return TracksSearchPresenter(tracksView, context)
     }
 
     private fun provideRetrofitNetworkClient():RetrofitNetworkClient{
