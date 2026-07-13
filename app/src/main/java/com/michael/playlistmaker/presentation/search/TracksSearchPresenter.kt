@@ -3,6 +3,7 @@ package com.michael.playlistmaker.presentation.search
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
+import com.michael.playlistmaker.domain.api.TrackHistoryInteractor
 import com.michael.playlistmaker.domain.api.TracksInteractor
 import com.michael.playlistmaker.domain.models.Track
 import com.michael.playlistmaker.ui.search.models.TracksState
@@ -21,6 +22,7 @@ class TracksSearchPresenter(private val view: TracksView,
 
     var lastSearch:String =""
     lateinit var tracksInteractor: TracksInteractor
+    lateinit var trackHistoryInteractor: TrackHistoryInteractor
 
     private val searchRunnable = Runnable {
         searchMusic(lastSearch)
@@ -36,6 +38,14 @@ class TracksSearchPresenter(private val view: TracksView,
         com.michael.playlistmaker.ui.search.handler.postDelayed(searchRunnable,
             SEARCH_DEBOUNCE_DELAY
         )
+    }
+
+
+    fun showHistory(){
+        trackHistoryInteractor =Creator.provideTrackHistoryInteractor()
+        if (trackHistoryInteractor.isEmpty()) {
+           view.showHistory(trackHistoryInteractor.getHistory())
+        }
     }
 
     fun searchMusic(text:String){

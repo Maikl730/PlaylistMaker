@@ -16,4 +16,6 @@ interface TracksView {
     fun showToast(message:String)
 
     fun render(state:TracksState)
+
+    fun showHistory(list: List<Track>)
 }

@@ -17,10 +17,8 @@ import com.michael.playlistmaker.domain.api.TracksRepository
 import com.michael.playlistmaker.domain.impl.ThemeSwitcherControlInteractorImpl
 import com.michael.playlistmaker.domain.impl.TrackHistoryInteractorImpl
 import com.michael.playlistmaker.domain.impl.TracksInteractorImpl
-import com.michael.playlistmaker.presentation.search.TracksHistoryPresenter
 import com.michael.playlistmaker.presentation.search.TracksSearchPresenter
 import com.michael.playlistmaker.presentation.search.TracksView
-import com.michael.playlistmaker.ui.search.TrackAdapter
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -34,10 +32,6 @@ object Creator {
         .build()
     private val gson = Gson()
     private val itunesService = retrofit.create(ItunesApiService::class.java)
-
-    fun provideTracksHistoryPresenter(activity: Activity,adapter: TrackAdapter): TracksHistoryPresenter {
-        return TracksHistoryPresenter(activity,adapter)
-    }
 
     fun provideTracksSearchPresenter(tracksView: TracksView,context: Context): TracksSearchPresenter {
         return TracksSearchPresenter(tracksView, context)
