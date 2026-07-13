@@ -9,8 +9,7 @@ import com.michael.playlistmaker.domain.models.Track
 import com.michael.playlistmaker.ui.search.models.TracksState
 import com.michael.playlistmaker.util.Creator
 
-class TracksSearchPresenter(private val view: TracksView,
-                            private val context: Context) {
+class TracksSearchPresenter(private val view: TracksView) {
 
     val handler = Handler(Looper.getMainLooper())
 

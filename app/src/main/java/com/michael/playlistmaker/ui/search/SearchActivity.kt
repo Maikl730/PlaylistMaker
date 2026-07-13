@@ -27,6 +27,7 @@ import com.michael.playlistmaker.util.Creator
 import com.michael.playlistmaker.R
 import com.michael.playlistmaker.domain.api.TrackHistoryInteractor
 import com.michael.playlistmaker.domain.models.Track
+import com.michael.playlistmaker.presentation.search.TracksSearchPresenter
 import com.michael.playlistmaker.presentation.search.TracksView
 import com.michael.playlistmaker.ui.search.models.TracksState
 
@@ -40,6 +41,7 @@ class SearchActivity : AppCompatActivity(), TracksView {
         const val SEARCH_TEXT = "SEARCH_TEXT"
         val TRACK_HISTORY_PREFERENCES = "track_search_history"
         private var searchText:String = ""
+        var tracksSearchPresenter:TracksSearchPresenter? = null
     }
 
     lateinit var historyText: TextView
@@ -57,11 +59,8 @@ class SearchActivity : AppCompatActivity(), TracksView {
 
     private var textWatcher: TextWatcher? = null
 
-
     private var newTracks = mutableListOf<Track>()
     val adapterR = TrackAdapter(newTracks)
-
-    val tracksSearchPresenter = Creator.provideTracksSearchPresenter(this,this)
 
     fun showPlaceTextFirst(isVisible: Boolean) {
         placetextFirst.visibility = if (isVisible) View.VISIBLE else View.GONE
@@ -205,6 +204,11 @@ class SearchActivity : AppCompatActivity(), TracksView {
             insets
         }
 
+        if(tracksSearchPresenter==null)
+        {
+            tracksSearchPresenter = Creator.provideTracksSearchPresenter(this)
+        }
+
         researchButton = findViewById(R.id.research_button)
         placeholderImage = findViewById(R.id.image_placeholder)
         placetextFirst = findViewById(R.id.placetext_first)
@@ -228,20 +232,18 @@ class SearchActivity : AppCompatActivity(), TracksView {
                 cancelText.isVisible = clearButtonVisibility(s)
                 clearHistoryButton.visibility = if (searchLine.hasFocus() && s?.isEmpty() == true && trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
                 historyText.visibility = if (searchLine.hasFocus() && s?.isEmpty() == true && trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
-                //TracksHistoryPresenter.searchText =s.toString()
 
                 if (searchLine.hasFocus() && s?.isEmpty() == true){
-                    tracksSearchPresenter.showHistory()
+                    tracksSearchPresenter?.showHistory()
                 } else{
                     recyclerTrack.isVisible = false
                 }
 
-                if (searchLine.hasFocus() && s?.isEmpty() == false) tracksSearchPresenter.searchDebounce(changeText = s?.toString()?:"")
+                if (searchLine.hasFocus() && s?.isEmpty() == false) tracksSearchPresenter?.searchDebounce(changeText = s?.toString()?:"")
             }
 
             override fun afterTextChanged(s: Editable?) {
             }
-
         })
 
 
@@ -256,15 +258,15 @@ class SearchActivity : AppCompatActivity(), TracksView {
 
         searchLine.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                tracksSearchPresenter.searchMusic(searchLine.text.toString())
-                tracksSearchPresenter.lastSearch=searchLine.text.toString()
+                tracksSearchPresenter?.searchMusic(searchLine.text.toString())
+                tracksSearchPresenter?.lastSearch=searchLine.text.toString()
                 true
             }
             false
         }
 
         researchButton.setOnClickListener {
-            tracksSearchPresenter.searchMusic(tracksSearchPresenter.lastSearch)
+            tracksSearchPresenter?.searchMusic(tracksSearchPresenter!!.lastSearch)
         }
 
         val backButton = findViewById<MaterialToolbar>(R.id.tool_bar)
@@ -283,7 +285,7 @@ class SearchActivity : AppCompatActivity(), TracksView {
             recyclerTrack.isVisible = true
 
             if (hasFocus && searchLine.text.isEmpty() && trackHistoryInteractor.isEmpty()){
-                tracksSearchPresenter.showHistory()
+                tracksSearchPresenter?.showHistory()
             }
 
             placetextSecond.visibility = if (hasFocus && searchLine.text.isEmpty()) View.GONE else View.VISIBLE
@@ -297,7 +299,7 @@ class SearchActivity : AppCompatActivity(), TracksView {
             searchLine.setText("")
             val inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
             inputMethodManager?.hideSoftInputFromWindow(searchLine.windowToken, 0)
-            tracksSearchPresenter.showHistory()
+            tracksSearchPresenter?.showHistory()
 
             placetextSecond.visibility = View.GONE
             placetextFirst.visibility = View.GONE
@@ -309,9 +311,8 @@ class SearchActivity : AppCompatActivity(), TracksView {
     override fun onDestroy() {
         super.onDestroy()
         textWatcher?.let { searchLine.removeTextChangedListener(it) }
-        tracksSearchPresenter.onDestroy()
+        tracksSearchPresenter?.onDestroy()
     }
-
 
     private fun clearButtonVisibility(s: CharSequence?): Boolean {
         return if (s.isNullOrEmpty()) {
