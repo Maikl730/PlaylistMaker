@@ -33,8 +33,8 @@ object Creator {
     private val gson = Gson()
     private val itunesService = retrofit.create(ItunesApiService::class.java)
 
-    fun provideTracksSearchPresenter(tracksView: TracksView): TracksSearchPresenter {
-        return TracksSearchPresenter(tracksView)
+    fun provideTracksSearchPresenter(): TracksSearchPresenter {
+        return TracksSearchPresenter()
     }
 
     private fun provideRetrofitNetworkClient():RetrofitNetworkClient{

@@ -9,9 +9,23 @@ import com.michael.playlistmaker.domain.models.Track
 import com.michael.playlistmaker.ui.search.models.TracksState
 import com.michael.playlistmaker.util.Creator
 
-class TracksSearchPresenter(private val view: TracksView) {
+class TracksSearchPresenter(
+    //private val view: TracksView
+) {
 
     val handler = Handler(Looper.getMainLooper())
+    private var view: TracksView? = null
+    private var state: TracksState? = null
+    private var latestSearchText: String? = null
+
+    fun attachView(view: TracksView) {
+        this.view = view
+        state?.let { view.render(it) }
+    }
+
+    fun detachView() {
+        this.view = null
+    }
 
     companion object {
         private const val SEARCH_DEBOUNCE_DELAY = 2000L
@@ -31,8 +45,12 @@ class TracksSearchPresenter(private val view: TracksView) {
         handler.removeCallbacks(searchRunnable)
     }
 
-    fun searchDebounce(changeText:String) {
-        this.lastSearch = changeText
+    fun searchDebounce(changedText:String) {
+        if (latestSearchText == changedText) {
+            return
+        }
+        this.latestSearchText = changedText
+       // this.lastSearch = changeText
         com.michael.playlistmaker.ui.search.handler.removeCallbacks(searchRunnable)
         com.michael.playlistmaker.ui.search.handler.postDelayed(searchRunnable,
             SEARCH_DEBOUNCE_DELAY
@@ -43,12 +61,12 @@ class TracksSearchPresenter(private val view: TracksView) {
     fun showHistory(){
         trackHistoryInteractor =Creator.provideTrackHistoryInteractor()
         if (trackHistoryInteractor.isEmpty()) {
-           view.showHistory(trackHistoryInteractor.getHistory())
+           renderState(TracksState(trackHistoryInteractor.getHistory(),false,null,true))
         }
     }
 
     fun searchMusic(text:String){
-        view.render(TracksState(null,true,null))
+        renderState(TracksState(null,true,null,false))
 
         val consumer = object:TracksInteractor.TracksConsumer{
 
@@ -56,14 +74,14 @@ class TracksSearchPresenter(private val view: TracksView) {
 
                 com.michael.playlistmaker.ui.search.handler.post {
 
-                    view.showLoading()
+                    renderState(TracksState(null,true,null,false))
                     if (foundTracks != null) {
-                        view.render(TracksState(foundTracks, false, null))
+                        renderState(TracksState(foundTracks, false, null,false))
                     }
                     if (errorMessage != null) {
-                        view.render(TracksState(null,false,errorMessage))
+                        renderState(TracksState(null,false,errorMessage,false))
                     } else if (foundTracks!!.isEmpty()) {
-                        view.render(TracksState(foundTracks,false,null))
+                        renderState(TracksState(foundTracks,false,null,false))
                     } else {
                         // hideMessage()
                     }
@@ -72,5 +90,10 @@ class TracksSearchPresenter(private val view: TracksView) {
         }
         tracksInteractor = Creator.provideTracksInteractor()
         tracksInteractor.searchTracks(text,consumer)
+    }
+
+    private fun renderState(state: TracksState) {
+        this.state = state
+        this.view?.render(state)
     }
 }

@@ -168,6 +168,7 @@ class SearchActivity : AppCompatActivity(), TracksView {
 
     override fun render(state: TracksState) {
         when{
+            state.isHistory == true -> showHistory(state.tracks!!)
             state.isLoading == true -> showLoading()
             state.errorMessage != null -> showError(state.errorMessage)
             state.tracks!!.isNotEmpty() -> showContent(state.tracks)
@@ -185,6 +186,7 @@ class SearchActivity : AppCompatActivity(), TracksView {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putString(SEARCH_TEXT, searchText)
+        tracksSearchPresenter?.detachView()
     }
 
 
@@ -193,6 +195,16 @@ class SearchActivity : AppCompatActivity(), TracksView {
         searchText = savedInstanceState.getString(SEARCH_TEXT, searchText)
         val searchLine = findViewById<EditText>(R.id.search_line)
         searchLine.setText(searchText)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        tracksSearchPresenter?.attachView(this)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        tracksSearchPresenter?.attachView(this)
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -206,8 +218,9 @@ class SearchActivity : AppCompatActivity(), TracksView {
 
         if(tracksSearchPresenter==null)
         {
-            tracksSearchPresenter = Creator.provideTracksSearchPresenter(this)
+            tracksSearchPresenter = Creator.provideTracksSearchPresenter()
         }
+        tracksSearchPresenter?.attachView(this)
 
         researchButton = findViewById(R.id.research_button)
         placeholderImage = findViewById(R.id.image_placeholder)
@@ -239,7 +252,7 @@ class SearchActivity : AppCompatActivity(), TracksView {
                     recyclerTrack.isVisible = false
                 }
 
-                if (searchLine.hasFocus() && s?.isEmpty() == false) tracksSearchPresenter?.searchDebounce(changeText = s?.toString()?:"")
+                if (searchLine.hasFocus() && s?.isEmpty() == false) tracksSearchPresenter?.searchDebounce(changedText = s?.toString()?:"")
             }
 
             override fun afterTextChanged(s: Editable?) {
@@ -312,6 +325,22 @@ class SearchActivity : AppCompatActivity(), TracksView {
         super.onDestroy()
         textWatcher?.let { searchLine.removeTextChangedListener(it) }
         tracksSearchPresenter?.onDestroy()
+        tracksSearchPresenter?.detachView()
+        /////Не нужно в моем случае
+        if (isFinishing()) {
+            tracksSearchPresenter?.detachView()
+        }
+
+    }
+
+    override fun onPause() {
+        super.onPause()
+        tracksSearchPresenter?.detachView()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        tracksSearchPresenter?.detachView()
     }
 
     private fun clearButtonVisibility(s: CharSequence?): Boolean {
