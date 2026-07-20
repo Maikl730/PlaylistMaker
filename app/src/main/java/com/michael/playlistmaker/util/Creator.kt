@@ -17,8 +17,6 @@ import com.michael.playlistmaker.domain.api.TracksRepository
 import com.michael.playlistmaker.domain.impl.ThemeSwitcherControlInteractorImpl
 import com.michael.playlistmaker.domain.impl.TrackHistoryInteractorImpl
 import com.michael.playlistmaker.domain.impl.TracksInteractorImpl
-import com.michael.playlistmaker.presentation.search.TracksSearchPresenter
-import com.michael.playlistmaker.presentation.search.TracksView
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -32,10 +30,6 @@ object Creator {
         .build()
     private val gson = Gson()
     private val itunesService = retrofit.create(ItunesApiService::class.java)
-
-    fun provideTracksSearchPresenter(): TracksSearchPresenter {
-        return TracksSearchPresenter()
-    }
 
     private fun provideRetrofitNetworkClient():RetrofitNetworkClient{
         return RetrofitNetworkClient(itunesService, context as Context)

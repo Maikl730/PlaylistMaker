@@ -1,56 +1,65 @@
 package com.michael.playlistmaker.presentation.search
 
+
+import SingleLiveEvent
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
-import com.michael.playlistmaker.domain.api.TrackHistoryInteractor
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import com.michael.playlistmaker.App
 import com.michael.playlistmaker.domain.api.TracksInteractor
 import com.michael.playlistmaker.domain.models.Track
 import com.michael.playlistmaker.ui.search.models.TracksState
 import com.michael.playlistmaker.util.Creator
 
-class TracksSearchPresenter(
-    //private val view: TracksView
-) {
+class TracksViewModel(private val context: Context): ViewModel() {
 
-    val handler = Handler(Looper.getMainLooper())
-    private var view: TracksView? = null
-    private var state: TracksState? = null
-    private var latestSearchText: String? = null
 
-    fun attachView(view: TracksView) {
-        this.view = view
-        state?.let { view.render(it) }
-    }
+    private val stateLiveData = MutableLiveData<TracksState>()
+    fun observeState(): LiveData<TracksState> = stateLiveData
 
-    fun detachView() {
-        this.view = null
-    }
+    private val showToast = SingleLiveEvent<String?>()
+    fun observeShowToast(): LiveData<String?> = showToast
 
     companion object {
         private const val SEARCH_DEBOUNCE_DELAY = 2000L
         const val SEARCH_TEXT = "SEARCH_TEXT"
         private var searchText:String = ""
+
+
+        fun getFactory(): ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                val app = (this[APPLICATION_KEY] as App)
+                TracksViewModel(app)
+            }
+        }
     }
 
+    val handler = Handler(Looper.getMainLooper())
+    private var latestSearchText: String? = null
+
     var lastSearch:String =""
-    lateinit var tracksInteractor: TracksInteractor
-    lateinit var trackHistoryInteractor: TrackHistoryInteractor
+    val tracksInteractor = Creator.provideTracksInteractor()
+    val trackHistoryInteractor = Creator.provideTrackHistoryInteractor()
+
 
     private val searchRunnable = Runnable {
         searchMusic(lastSearch)
     }
 
-    fun onDestroy() {
-        handler.removeCallbacks(searchRunnable)
-    }
 
     fun searchDebounce(changedText:String) {
         if (latestSearchText == changedText) {
             return
         }
         this.latestSearchText = changedText
-       // this.lastSearch = changeText
+        // this.lastSearch = changeText
         com.michael.playlistmaker.ui.search.handler.removeCallbacks(searchRunnable)
         com.michael.playlistmaker.ui.search.handler.postDelayed(searchRunnable,
             SEARCH_DEBOUNCE_DELAY
@@ -59,9 +68,9 @@ class TracksSearchPresenter(
 
 
     fun showHistory(){
-        trackHistoryInteractor =Creator.provideTrackHistoryInteractor()
+        // trackHistoryInteractor = Creator.provideTrackHistoryInteractor()
         if (trackHistoryInteractor.isEmpty()) {
-           renderState(TracksState(trackHistoryInteractor.getHistory(),false,null,true))
+            renderState(TracksState(trackHistoryInteractor.getHistory(),false,null,true))
         }
     }
 
@@ -70,7 +79,7 @@ class TracksSearchPresenter(
 
         val consumer = object:TracksInteractor.TracksConsumer{
 
-            override fun consume(foundTracks: List<Track>?,errorMessage:String?) {
+            override fun consume(foundTracks: List<Track>?, errorMessage:String?) {
 
                 com.michael.playlistmaker.ui.search.handler.post {
 
@@ -88,12 +97,20 @@ class TracksSearchPresenter(
                 }
             }
         }
-        tracksInteractor = Creator.provideTracksInteractor()
+        // tracksInteractor = Creator.provideTracksInteractor()
         tracksInteractor.searchTracks(text,consumer)
     }
 
+
     private fun renderState(state: TracksState) {
-        this.state = state
-        this.view?.render(state)
+        stateLiveData.postValue(state)
+        showToast.postValue(state.errorMessage)
     }
+
+    override fun onCleared() {
+        super.onCleared()
+        handler.removeCallbacks(searchRunnable)
+
+    }
+
 }
