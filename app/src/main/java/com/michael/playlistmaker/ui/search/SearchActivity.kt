@@ -6,6 +6,7 @@ import android.os.Handler
 import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.LayoutInflater
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
@@ -26,6 +27,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.MaterialToolbar
 import com.michael.playlistmaker.util.Creator
 import com.michael.playlistmaker.R
+import com.michael.playlistmaker.databinding.ActivitySearchBinding
 import com.michael.playlistmaker.domain.api.TrackHistoryInteractor
 import com.michael.playlistmaker.domain.models.Track
 import com.michael.playlistmaker.presentation.search.TracksViewModel
@@ -41,80 +43,54 @@ class SearchActivity : AppCompatActivity() {
         const val SEARCH_TEXT = "SEARCH_TEXT"
         val TRACK_HISTORY_PREFERENCES = "track_search_history"
         private var searchText:String = ""
-        // var tracksSearchPresenter:TracksSearchPresenter? = null
     }
 
-    /*
-        @InjectPresenter
-        lateinit var tracksSearchPresenter: TracksSearchPresenter
-
-        @ProvidePresenter
-        fun providePresenter(): TracksSearchPresenter {
-            return Creator.provideTracksSearchPresenter(
-               // context = this.applicationContext,
-            )
-        }
-
-     */
-
+    private lateinit var binding:ActivitySearchBinding
     private var viewModel: TracksViewModel? = null
-
-    lateinit var historyText: TextView
-    lateinit var cancelText: TextView
-    lateinit var clearHistoryButton: Button
     lateinit var trackHistoryInteractor: TrackHistoryInteractor
-
-    lateinit var researchButton:Button
-    lateinit var placeholderImage:ImageView
-    lateinit var placetextFirst:TextView
-    lateinit var placetextSecond:TextView
-    lateinit var progressBar: ProgressBar
-    lateinit var recyclerTrack:RecyclerView
-    lateinit var searchLine:EditText
-
     private var textWatcher: TextWatcher? = null
 
     private var newTracks = mutableListOf<Track>()
     val adapterR = TrackAdapter(newTracks)
 
     fun showPlaceTextFirst(isVisible: Boolean) {
-        placetextFirst.visibility = if (isVisible) View.VISIBLE else View.GONE
+        binding.placetextFirst.visibility = if (isVisible) View.VISIBLE else View.GONE
     }
 
     fun showPlaceTextSecond(isVisible: Boolean) {
-        placetextSecond.visibility = if (isVisible) View.VISIBLE else View.GONE
+        binding.placetextSecond.visibility = if (isVisible) View.VISIBLE else View.GONE
     }
 
     fun showTracksList(isVisible: Boolean) {
-        recyclerTrack.visibility = if (isVisible) View.VISIBLE else View.GONE
+        binding.recycleTracks.visibility = if (isVisible) View.VISIBLE else View.GONE
     }
 
     fun showResearchButton(isVisible: Boolean) {
-        researchButton.visibility = if (isVisible) View.VISIBLE else View.GONE
+        binding.researchButton.visibility = if (isVisible) View.VISIBLE else View.GONE
     }
 
     fun showPlaceholderMessage(isVisible: Boolean) {
-        placeholderImage.visibility = if (isVisible) View.VISIBLE else View.GONE
+        binding.imagePlaceholder.visibility = if (isVisible) View.VISIBLE else View.GONE
     }
 
     fun showProgressBar(isVisible: Boolean) {
-        progressBar.visibility = if (isVisible) View.VISIBLE else View.GONE
+        binding.progressBar.visibility = if (isVisible) View.VISIBLE else View.GONE
     }
 
     fun changePlaceholderImage(image:Boolean) {
         if (image==true) {
-            placeholderImage.setImageResource(R.drawable.noconnection)
+            binding.imagePlaceholder.setImageResource(R.drawable.noconnection)
         }else {
-            placeholderImage.setImageResource(R.drawable.nothingfound)
+            binding.imagePlaceholder.setImageResource(R.drawable.nothingfound)
         }
     }
 
     fun changePlaceholdersText(noConOrNoFound: Boolean) {
         if (noConOrNoFound == true){
-            placetextFirst.setText(R.string.no_connection_search)
-            placetextSecond.setText(R.string.no_connection_search2)
+            binding.placetextFirst.setText(R.string.no_connection_search)
+            binding.placetextSecond.setText(R.string.no_connection_search2)
         }else{
-            placetextFirst.setText(R.string.no_find_search)
+            binding.placetextFirst.setText(R.string.no_find_search)
         }
     }
 
@@ -194,14 +170,13 @@ class SearchActivity : AppCompatActivity() {
     private fun showHistory(list: List<Track>) {
         showTracksList(true)
         updateTrackList(list)
-        historyText.visibility = View.VISIBLE
-        clearHistoryButton.visibility = View.VISIBLE
+        binding.historyTextview.visibility = View.VISIBLE
+        binding.clearHistoryButton.visibility = View.VISIBLE
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putString(SEARCH_TEXT, searchText)
-        //tracksSearchPresenter?.detachView()
     }
 
 
@@ -211,40 +186,18 @@ class SearchActivity : AppCompatActivity() {
         val searchLine = findViewById<EditText>(R.id.search_line)
         searchLine.setText(searchText)
     }
-    /*
-        override fun onStart() {
-            super.onStart()
-           tracksSearchPresenter?.attachView(this)
-        }
 
-        override fun onResume() {
-            super.onResume()
-            tracksSearchPresenter?.attachView(this)
-        }
-
-     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        binding = ActivitySearchBinding.inflate(layoutInflater)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_search)
+        setContentView(binding.root)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
-        /*
-            if(tracksSearchPresenter==null)
-            {
-                //providePresenter()
-                tracksSearchPresenter = Creator.provideTracksSearchPresenter()
-            }
-
-
-            tracksSearchPresenter?.attachView(this)
-
-         */
-
 
         viewModel = ViewModelProvider(this, TracksViewModel.getFactory())
             .get(TracksViewModel::class.java)
@@ -252,137 +205,101 @@ class SearchActivity : AppCompatActivity() {
         viewModel?.observeState()?.observe(this) {
             render(it)
         }
-/*
-        viewModel?.observeShowToast()?.observe(this) {
-            showToast(it!!)
-        }
-
- */
-
-
-        researchButton = findViewById(R.id.research_button)
-        placeholderImage = findViewById(R.id.image_placeholder)
-        placetextFirst = findViewById(R.id.placetext_first)
-        placetextSecond = findViewById(R.id.placetext_second)
-        progressBar = findViewById(R.id.progressBar)
-        recyclerTrack = findViewById(R.id.recycle_tracks)
-        searchLine = findViewById(R.id.search_line)
-        clearHistoryButton = findViewById(R.id.clear_history_button)
-        historyText = findViewById(R.id.history_textview)
-        cancelText = findViewById<TextView>(R.id.clear)
 
         trackHistoryInteractor = Creator.provideTrackHistoryInteractor()
 
-
-        searchLine.addTextChangedListener(object : TextWatcher {
+        binding.searchLine.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, p1: Int, p2: Int, p3: Int) {
             }
 
             override fun onTextChanged(s: CharSequence?, p1: Int, p2: Int, p3: Int) {
 
-                cancelText.isVisible = clearButtonVisibility(s)
-                clearHistoryButton.visibility = if (searchLine.hasFocus() && s?.isEmpty() == true && trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
-                historyText.visibility = if (searchLine.hasFocus() && s?.isEmpty() == true && trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
+                 binding.clear.isVisible = clearButtonVisibility(s)
+                binding.clearHistoryButton.visibility = if (binding.searchLine.hasFocus() && s?.isEmpty() == true && trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
+                binding.historyTextview.visibility = if (binding.searchLine.hasFocus() && s?.isEmpty() == true && trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
 
-                if (searchLine.hasFocus() && s?.isEmpty() == true){
+                if (binding.searchLine.hasFocus() && s?.isEmpty() == true){
                     viewModel?.showHistory()
                 } else{
-                    recyclerTrack.isVisible = false
+                    binding.recycleTracks.isVisible = false
                 }
 
-                if (searchLine.hasFocus() && s?.isEmpty() == false) viewModel?.searchDebounce(changedText = s?.toString()?:"")
+                if (binding.searchLine.hasFocus() && s?.isEmpty() == false) viewModel?.searchDebounce(changedText = s?.toString()?:"")
             }
 
             override fun afterTextChanged(s: Editable?) {
             }
         })
 
-
-        clearHistoryButton.setOnClickListener {
-            trackHistoryInteractor.clearHistory()
-            recyclerTrack.isVisible = false
-            historyText.isVisible = false
-            clearHistoryButton.isVisible = false
+        binding.clearHistoryButton.setOnClickListener {
+                trackHistoryInteractor.clearHistory()
+            binding.apply {
+                recycleTracks.isVisible = false
+                historyTextview.isVisible = false
+                clearHistoryButton.isVisible = false
+            }
         }
 
-        textWatcher?.let { searchLine.addTextChangedListener(it) }
+        textWatcher?.let { binding.searchLine.addTextChangedListener(it) }
 
-        searchLine.setOnEditorActionListener { _, actionId, _ ->
+        binding.searchLine.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                viewModel?.searchMusic(searchLine.text.toString())
-                viewModel?.lastSearch=searchLine.text.toString()
+                viewModel?.searchMusic(binding.searchLine.text.toString())
+                viewModel?.lastSearch = binding.searchLine.text.toString()
                 true
             }
             false
         }
 
-        researchButton.setOnClickListener {
+        binding.researchButton.setOnClickListener {
             viewModel?.searchMusic(viewModel!!.lastSearch)
         }
 
-        val backButton = findViewById<MaterialToolbar>(R.id.tool_bar)
+        binding.recycleTracks.adapter = adapterR
+        binding.recycleTracks.layoutManager = LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false)
 
-        recyclerTrack.adapter = adapterR
-        recyclerTrack.layoutManager = LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false)
-
-        backButton.setNavigationOnClickListener{
+        binding.toolBar.setNavigationOnClickListener{
             finish()
         }
 
-        searchLine.setOnFocusChangeListener { view, hasFocus ->
+        binding.searchLine.setOnFocusChangeListener { view, hasFocus ->
 
-            historyText.visibility = if (hasFocus && searchLine.text.isEmpty() &&  trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
-            clearHistoryButton.visibility = if (hasFocus && searchLine.text.isEmpty() && trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
-            recyclerTrack.isVisible = true
+            binding.historyTextview.visibility = if (hasFocus && binding.searchLine.text.isEmpty() &&  trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
+            binding.clearHistoryButton.visibility = if (hasFocus && binding.searchLine.text.isEmpty() && trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
+            binding.recycleTracks.isVisible = true
 
-            if (hasFocus && searchLine.text.isEmpty() && trackHistoryInteractor.isEmpty()){
+            if (hasFocus && binding.searchLine.text.isEmpty() && trackHistoryInteractor.isEmpty()){
                 viewModel?.showHistory()
             }
 
-            placetextSecond.visibility = if (hasFocus && searchLine.text.isEmpty()) View.GONE else View.VISIBLE
-            placetextFirst.visibility = if (hasFocus && searchLine.text.isEmpty()) View.GONE else View.VISIBLE
-            placeholderImage.visibility = if (hasFocus && searchLine.text.isEmpty()) View.GONE else View.VISIBLE
-            researchButton.visibility = if (hasFocus && searchLine.text.isEmpty()) View.GONE else View.VISIBLE
+        binding.apply {
+             placetextSecond.visibility = if (hasFocus && searchLine.text.isEmpty()) View.GONE else View.VISIBLE
+             placetextFirst.visibility = if (hasFocus && searchLine.text.isEmpty()) View.GONE else View.VISIBLE
+             imagePlaceholder.visibility = if (hasFocus && searchLine.text.isEmpty()) View.GONE else View.VISIBLE
+             researchButton.visibility = if (hasFocus && searchLine.text.isEmpty()) View.GONE else View.VISIBLE
+        }
 
         }
 
-        cancelText.setOnClickListener{
-            searchLine.setText("")
+        binding.clear.setOnClickListener{
+            binding.searchLine.setText("")
             val inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
-            inputMethodManager?.hideSoftInputFromWindow(searchLine.windowToken, 0)
+            inputMethodManager?.hideSoftInputFromWindow(binding.searchLine.windowToken, 0)
             viewModel?.showHistory()
 
-            placetextSecond.visibility = View.GONE
-            placetextFirst.visibility = View.GONE
-            placeholderImage.visibility = View.GONE
-            researchButton.visibility = View.GONE
+            binding.apply {
+                placetextSecond.visibility = View.GONE
+                placetextFirst.visibility = View.GONE
+                imagePlaceholder.visibility = View.GONE
+                researchButton.visibility = View.GONE
+            }
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        textWatcher?.let { searchLine.removeTextChangedListener(it) }
-        //viewModel?.onDestroy()
-        // tracksSearchPresenter?.detachView()
-        /////Не нужно в моем случае
-        if (isFinishing()) {
-            //tracksSearchPresenter?.detachView()
-        }
-
+        textWatcher?.let { binding.searchLine.removeTextChangedListener(it) }
     }
-
-    /*
-    override fun onPause() {
-        super.onPause()
-        tracksSearchPresenter?.detachView()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        tracksSearchPresenter?.detachView()
-    }
-
-     */
 
     private fun clearButtonVisibility(s: CharSequence?): Boolean {
         return if (s.isNullOrEmpty()) {

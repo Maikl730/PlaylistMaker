@@ -11,17 +11,20 @@ import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.appbar.MaterialToolbar
 import com.michael.playlistmaker.util.Creator
 import com.michael.playlistmaker.R
+import com.michael.playlistmaker.databinding.ActivitySettingsBinding
 
 const val THEME_PREFERENCES = "theme_preferences"
 const val EDIT_THEME_KEY = "key_for_edit_theme"
 
 class SettingsActivity : AppCompatActivity() {
+    private lateinit var binding:ActivitySettingsBinding
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        binding = ActivitySettingsBinding.inflate(layoutInflater)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_settings)
+        setContentView(binding.root)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -29,20 +32,13 @@ class SettingsActivity : AppCompatActivity() {
         }
         val themeSwitcherControlInteractor = Creator.provideThemeSwitcherControlInteractor()
 
-        val backButton = findViewById<MaterialToolbar>(R.id.tool_bar)
-        backButton.setNavigationOnClickListener{
+
+        binding.toolBar.setNavigationOnClickListener{
             finish()
         }
 
-        val themeSwitcher = findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(
-            R.id.switch_theme
-        )
-        val shareButton = findViewById<TextView>(R.id.share_button)
-        val supportButton = findViewById<TextView>(R.id.support_button)
-        val declarationButton = findViewById<TextView>(R.id.declaration_button)
-
-        themeSwitcher.isChecked =  themeSwitcherControlInteractor.getPosition()
-        themeSwitcher.setOnCheckedChangeListener { switcher, checked ->
+        binding.switchTheme.isChecked =  themeSwitcherControlInteractor.getPosition()
+        binding.switchTheme.setOnCheckedChangeListener { switcher, checked ->
             themeSwitcherControlInteractor.switchTheme(checked)
            // (applicationContext as App).switchTheme(checked)
         }
@@ -68,16 +64,16 @@ class SettingsActivity : AppCompatActivity() {
             data = Uri.parse(resources.getString(R.string.link_to_offerta))
         }
 
-        shareButton.setOnClickListener{
+        binding.shareButton.setOnClickListener{
             val share = Intent.createChooser(shareIntent, null)
             startActivity(share)
         }
 
-        supportButton.setOnClickListener{
+        binding.supportButton.setOnClickListener{
             startActivity(supportIntent)
         }
 
-        declarationButton.setOnClickListener{
+        binding.declarationButton.setOnClickListener{
             startActivity(declarationIntent)
         }
     }
