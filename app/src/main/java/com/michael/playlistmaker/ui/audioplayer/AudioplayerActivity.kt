@@ -1,10 +1,7 @@
 package com.michael.playlistmaker.ui.audioplayer
 
 import android.content.Context
-import android.media.MediaPlayer
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.TypedValue
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -25,10 +22,6 @@ class AudioplayerActivity : AppCompatActivity() {
     private lateinit var binding:ActivityAudioplayerBinding
     private lateinit var viewModel: AudioplayerViewModel
 
-    private var mediaPlayer = MediaPlayer()
-    val  handler = Handler(Looper.getMainLooper())
-    private var playerState = State.STATE_DEFAULT
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAudioplayerBinding.inflate(layoutInflater)
@@ -47,7 +40,7 @@ class AudioplayerActivity : AppCompatActivity() {
             .get(AudioplayerViewModel::class.java)
 
         viewModel.observeProgressTime().observe(this) {
-            binding.trackLongTextSet.text = it
+            binding.trackLong.text = it
         }
 
         viewModel.observePlayerState().observe(this) {
@@ -76,12 +69,6 @@ class AudioplayerActivity : AppCompatActivity() {
                 .placeholder(R.drawable.bigplaceholder)
                 .into(binding.album)
 
-        preparePlayer(thisTrack.previewUrl)
-
-        binding.playButton.setOnClickListener {
-            playbackControl()
-            handler.post(runx)
-        }
 
         binding.toolBar.setNavigationOnClickListener{
             finish()
@@ -103,79 +90,8 @@ class AudioplayerActivity : AppCompatActivity() {
             context.resources.displayMetrics).toInt()
     }
 
-    val runx = object :Runnable{
-        override fun run() {
-
-            if (playerState == State.STATE_PLAYING) {
-                binding.trackLong.text = SimpleDateFormat(
-                    "mm:ss",
-                    Locale.getDefault()
-                ).format(mediaPlayer.currentPosition)
-
-                handler.postDelayed(this, 300L)
-            }
-            if (playerState == State.STATE_PAUSED){
-                handler.removeCallbacks(this)
-            }
-        }
-    }
     override fun onPause() {
         super.onPause()
-        pausePlayer()
         viewModel.onPause()
     }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        mediaPlayer.release()
-        handler.removeCallbacks(runx)
-    }
-
-    private fun preparePlayer(url:String) {
-        mediaPlayer.setDataSource(url)
-        mediaPlayer.prepareAsync()
-        mediaPlayer.setOnPreparedListener {
-            binding.playButton.isEnabled = true
-            playerState = State.STATE_PREPARED
-        }
-        mediaPlayer.setOnCompletionListener {
-            binding.playButton.setBackgroundResource(R.drawable.playbutton) // "PLAY"
-            handler.removeCallbacks(runx)
-            binding.trackLong.text = "00:00"
-            playerState = State.STATE_PREPARED
-        }
-    }
-
-    private fun startPlayer() {
-        mediaPlayer.start()
-        binding.playButton.setBackgroundResource(R.drawable.stopbutton) //"PAUSE"
-        playerState = State.STATE_PLAYING
-    }
-
-    private fun pausePlayer() {
-        mediaPlayer.pause()
-        binding.playButton.setBackgroundResource(R.drawable.playbutton)  //"PLAY"
-        playerState = State.STATE_PAUSED
-    }
-
-    private fun playbackControl() {
-        when(playerState) {
-            State.STATE_PLAYING -> {
-                pausePlayer()
-            }
-            State.STATE_PREPARED, State.STATE_PAUSED -> {
-                startPlayer()
-            }
-            else -> null
-        }
-    }
 }
-/*
-enum class State (val int: Int) {
-    STATE_DEFAULT(0),
-    STATE_PREPARED(1),
-    STATE_PLAYING(2),
-    STATE_PAUSED(3)
-}
-
- */

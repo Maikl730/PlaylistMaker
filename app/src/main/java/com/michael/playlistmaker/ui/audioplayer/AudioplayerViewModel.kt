@@ -28,19 +28,18 @@ class AudioplayerViewModel(private val url: String): ViewModel() {
             }
         }
     }
+    private var state = STATE_DEFAULT
+    private var timer = "00:00"
 
-    private val playerStateLiveData = MutableLiveData(STATE_DEFAULT)
+    private val playerStateLiveData = MutableLiveData(state)
     fun observePlayerState(): LiveData<Int> = playerStateLiveData
 
-    private val progressTimeLiveData = MutableLiveData("00:00")
+    private val progressTimeLiveData = MutableLiveData(timer)
     fun observeProgressTime(): LiveData<String> = progressTimeLiveData
 
     private var mediaPlayer = MediaPlayer()
 
     val  handler = Handler(Looper.getMainLooper())
-
-    private var state = STATE_DEFAULT
-    private var timer = "00:00"
 
     val timerRunnable = object :Runnable{
         override fun run() {
