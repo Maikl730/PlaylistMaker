@@ -6,15 +6,10 @@ import android.os.Handler
 import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.LayoutInflater
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
-import android.widget.Button
 import android.widget.EditText
-import android.widget.ImageView
-import android.widget.ProgressBar
-import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -23,13 +18,11 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.appbar.MaterialToolbar
 import com.michael.playlistmaker.util.Creator
 import com.michael.playlistmaker.R
 import com.michael.playlistmaker.databinding.ActivitySearchBinding
-import com.michael.playlistmaker.domain.api.TrackHistoryInteractor
-import com.michael.playlistmaker.domain.models.Track
+import com.michael.playlistmaker.domain.search.api.TrackHistoryInteractor
+import com.michael.playlistmaker.domain.search.models.Track
 import com.michael.playlistmaker.presentation.search.TracksViewModel
 import com.michael.playlistmaker.ui.search.models.TracksState
 

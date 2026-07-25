@@ -12,7 +12,8 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.michael.playlistmaker.R
 import com.michael.playlistmaker.databinding.ActivityAudioplayerBinding
-import com.michael.playlistmaker.domain.models.Track
+import com.michael.playlistmaker.domain.search.models.Track
+import com.michael.playlistmaker.presentation.audioplayer.AudioplayerViewModel
 import com.michael.playlistmaker.ui.search.INTENT_EXTRA_KEY
 
 import java.text.SimpleDateFormat
@@ -36,7 +37,7 @@ class AudioplayerActivity : AppCompatActivity() {
 
         val thisTrack: Track = (intent.getSerializableExtra(INTENT_EXTRA_KEY) as Track?)!!
 
-        viewModel = ViewModelProvider(this,AudioplayerViewModel.getFactory(thisTrack.previewUrl))
+        viewModel = ViewModelProvider(this, AudioplayerViewModel.getFactory(thisTrack.previewUrl))
             .get(AudioplayerViewModel::class.java)
 
         viewModel.observeProgressTime().observe(this) {

@@ -8,17 +8,20 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.appbar.MaterialToolbar
 import com.michael.playlistmaker.util.Creator
 import com.michael.playlistmaker.R
 import com.michael.playlistmaker.databinding.ActivitySettingsBinding
+import com.michael.playlistmaker.presentation.search.TracksViewModel
+import com.michael.playlistmaker.presentation.settings.SettingsViewModel
 
 const val THEME_PREFERENCES = "theme_preferences"
 const val EDIT_THEME_KEY = "key_for_edit_theme"
 
 class SettingsActivity : AppCompatActivity() {
     private lateinit var binding:ActivitySettingsBinding
-
+    private var viewModel:SettingsViewModel? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,7 +35,13 @@ class SettingsActivity : AppCompatActivity() {
         }
         val themeSwitcherControlInteractor = Creator.provideThemeSwitcherControlInteractor()
 
+        viewModel = ViewModelProvider(this, SettingsViewModel.getFactory())
+            .get(SettingsViewModel::class.java)
 
+
+        viewModel?.observeDoIntent()?.observe(this) {
+            startActivity(it)
+        }
         binding.toolBar.setNavigationOnClickListener{
             finish()
         }
@@ -40,41 +49,18 @@ class SettingsActivity : AppCompatActivity() {
         binding.switchTheme.isChecked =  themeSwitcherControlInteractor.getPosition()
         binding.switchTheme.setOnCheckedChangeListener { switcher, checked ->
             themeSwitcherControlInteractor.switchTheme(checked)
-           // (applicationContext as App).switchTheme(checked)
-        }
-
-        val shareIntent = Intent().apply {
-            action = Intent.ACTION_SEND
-            setType("text/plain")
-            putExtra(Intent.EXTRA_TEXT, resources.getString(R.string.link_to_practikum))
-        }
-
-
-        val supportIntent = Intent().apply {
-            action = Intent.ACTION_SENDTO
-            data = Uri.parse("mailto:")
-            putExtra(Intent.EXTRA_EMAIL, arrayOf(resources.getString(R.string.student_mail)))
-            putExtra(Intent.EXTRA_TEXT, resources.getString(R.string.message_to_support))
-            putExtra(Intent.EXTRA_SUBJECT, resources.getString(R.string.title_to_support))
-        }
-
-
-        val declarationIntent = Intent().apply {
-            action = Intent.ACTION_VIEW
-            data = Uri.parse(resources.getString(R.string.link_to_offerta))
         }
 
         binding.shareButton.setOnClickListener{
-            val share = Intent.createChooser(shareIntent, null)
-            startActivity(share)
+            viewModel?.share()
         }
 
         binding.supportButton.setOnClickListener{
-            startActivity(supportIntent)
+            viewModel?.support()
         }
 
         binding.declarationButton.setOnClickListener{
-            startActivity(declarationIntent)
+            viewModel?.declaration()
         }
     }
 

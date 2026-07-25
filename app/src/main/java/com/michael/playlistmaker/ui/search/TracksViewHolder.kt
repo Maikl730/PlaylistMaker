@@ -13,7 +13,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.michael.playlistmaker.R
 import com.michael.playlistmaker.databinding.TrackCardBinding
-import com.michael.playlistmaker.domain.models.Track
+import com.michael.playlistmaker.domain.search.models.Track
 import java.text.SimpleDateFormat
 import java.util.Locale
 

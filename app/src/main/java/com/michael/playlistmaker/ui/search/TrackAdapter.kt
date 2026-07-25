@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.michael.playlistmaker.ui.audioplayer.AudioplayerActivity
 import com.michael.playlistmaker.util.Creator
 import com.michael.playlistmaker.R
-import com.michael.playlistmaker.domain.models.Track
+import com.michael.playlistmaker.domain.search.models.Track
 
 private const val CLICK_DEBOUNCE_DELAY = 1000L
 

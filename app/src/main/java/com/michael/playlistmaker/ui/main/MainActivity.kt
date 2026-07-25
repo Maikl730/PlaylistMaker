@@ -8,14 +8,18 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.ViewModelProvider
 import com.michael.playlistmaker.R
 import com.michael.playlistmaker.databinding.ActivityMainBinding
+import com.michael.playlistmaker.presentation.main.MainViewModel
+import com.michael.playlistmaker.presentation.settings.SettingsViewModel
 import com.michael.playlistmaker.ui.mediateka.MediatekaActivity
 import com.michael.playlistmaker.ui.search.SearchActivity
 import com.michael.playlistmaker.ui.settings.SettingsActivity
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding:ActivityMainBinding
+    private var viewModel: MainViewModel? = null
 
 
 
@@ -30,20 +34,25 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
+        viewModel = ViewModelProvider(this, MainViewModel.getFactory())
+            .get(MainViewModel::class.java)
+
+
+        viewModel?.observeDoIntent()?.observe(this) {
+            startActivity(it)
+        }
+
         val searchClickListener: View.OnClickListener = object : View.OnClickListener {
             override fun onClick(v: View?) {
-                val searchIntent = Intent(this@MainActivity, SearchActivity::class.java)
-                startActivity(searchIntent)
+               viewModel?.search()
             }
         }
 
         binding.searchButton.setOnClickListener(searchClickListener)
-        binding.mediaButton.setOnClickListener {
-            val mediaIntent = Intent(this@MainActivity, MediatekaActivity::class.java)
-            startActivity(mediaIntent)}
-        binding.settingsButton.setOnClickListener {
-            val settingsIntent = Intent(this@MainActivity, SettingsActivity::class.java)
-            startActivity(settingsIntent) }
+        binding.mediaButton.setOnClickListener {viewModel?.mediateka()
+           }
+        binding.settingsButton.setOnClickListener {viewModel?.settings()
+            }
     }
 
 

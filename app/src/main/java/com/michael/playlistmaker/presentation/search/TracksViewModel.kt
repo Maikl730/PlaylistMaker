@@ -13,8 +13,9 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.AP
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.michael.playlistmaker.App
-import com.michael.playlistmaker.domain.api.TracksInteractor
-import com.michael.playlistmaker.domain.models.Track
+import com.michael.playlistmaker.domain.search.api.TrackHistoryInteractor
+import com.michael.playlistmaker.domain.search.api.TracksInteractor
+import com.michael.playlistmaker.domain.search.models.Track
 import com.michael.playlistmaker.ui.search.models.TracksState
 import com.michael.playlistmaker.util.Creator
 
@@ -59,7 +60,6 @@ class TracksViewModel(private val context: Context): ViewModel() {
             return
         }
         this.latestSearchText = changedText
-        // this.lastSearch = changeText
         com.michael.playlistmaker.ui.search.handler.removeCallbacks(searchRunnable)
         com.michael.playlistmaker.ui.search.handler.postDelayed(searchRunnable,
             SEARCH_DEBOUNCE_DELAY
@@ -68,16 +68,27 @@ class TracksViewModel(private val context: Context): ViewModel() {
 
 
     fun showHistory(){
-        // trackHistoryInteractor = Creator.provideTrackHistoryInteractor()
-        if (trackHistoryInteractor.isEmpty()) {
-            renderState(TracksState(trackHistoryInteractor.getHistory(),false,null,true))
-        }
+
+            val consumer = object : TrackHistoryInteractor.HistoryConsumer {
+                override fun consume(searchHistory: List<Track>?) {
+                    com.michael.playlistmaker.ui.search.handler.post {
+                        if (searchHistory != null){
+                            renderState(TracksState(searchHistory, false, null,true))
+                        }else{
+                            renderState(TracksState(ArrayList(), false, null,true))
+                        }
+                    }
+                }
+
+            }
+
+        trackHistoryInteractor.getHistory(consumer)
     }
 
     fun searchMusic(text:String){
         renderState(TracksState(null,true,null,false))
 
-        val consumer = object:TracksInteractor.TracksConsumer{
+        val consumer = object: TracksInteractor.TracksConsumer{
 
             override fun consume(foundTracks: List<Track>?, errorMessage:String?) {
 
@@ -97,7 +108,6 @@ class TracksViewModel(private val context: Context): ViewModel() {
                 }
             }
         }
-        // tracksInteractor = Creator.provideTracksInteractor()
         tracksInteractor.searchTracks(text,consumer)
     }
 
