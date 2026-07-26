@@ -40,13 +40,13 @@ class AudioplayerActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this, AudioplayerViewModel.getFactory(thisTrack.previewUrl))
             .get(AudioplayerViewModel::class.java)
 
-        viewModel.observeProgressTime().observe(this) {
-            binding.trackLong.text = it
+        viewModel.observePlayerState().observe(this) {
+            binding.trackLong.text = it.timer
         }
 
         viewModel.observePlayerState().observe(this) {
-            changeButtonText(it == AudioplayerViewModel.STATE_PLAYING)
-            enableButton(it != AudioplayerViewModel.STATE_DEFAULT)
+            changeButtonText(it.state == AudioplayerViewModel.STATE_PLAYING)
+            enableButton(it.state != AudioplayerViewModel.STATE_DEFAULT)
         }
 
         binding.playButton.setOnClickListener {

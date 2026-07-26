@@ -31,8 +31,8 @@ class AudioplayerViewModel(private val url: String): ViewModel() {
     private var state = STATE_DEFAULT
     private var timer = "00:00"
 
-    private val playerStateLiveData = MutableLiveData(state)
-    fun observePlayerState(): LiveData<Int> = playerStateLiveData
+    private val playerStateLiveData = MutableLiveData<AudioState>(AudioState(STATE_DEFAULT,"00:00"))
+    fun observePlayerState(): LiveData<AudioState> = playerStateLiveData
 
     private val progressTimeLiveData = MutableLiveData(timer)
     fun observeProgressTime(): LiveData<String> = progressTimeLiveData
@@ -43,7 +43,7 @@ class AudioplayerViewModel(private val url: String): ViewModel() {
 
     val timerRunnable = object :Runnable{
         override fun run() {
-            if (playerStateLiveData.value == STATE_PLAYING) {
+            if (playerStateLiveData.value!!.state == STATE_PLAYING) {
                 startTimerUpdate()
             }
         }
@@ -63,9 +63,15 @@ class AudioplayerViewModel(private val url: String): ViewModel() {
 
 
     fun onPlayButtonClicked() {
-        when(playerStateLiveData.value) {
+        when(playerStateLiveData.value!!.state) {
+            STATE_PLAYING -> pausePlayer()
+            STATE_PREPARED , STATE_PAUSED -> startPlayer()
+            else -> null
+            /*
             STATE_PLAYING -> pausePlayer()
             STATE_PREPARED, STATE_PAUSED -> startPlayer()
+
+             */
 
         }
     }
@@ -74,10 +80,10 @@ class AudioplayerViewModel(private val url: String): ViewModel() {
         mediaPlayer.setDataSource(url)
         mediaPlayer.prepareAsync()
         mediaPlayer.setOnPreparedListener {
-            playerStateLiveData.postValue(STATE_PREPARED)
+            playerStateLiveData.postValue(AudioState(STATE_PREPARED,"00:00"))
         }
         mediaPlayer.setOnCompletionListener {
-            playerStateLiveData.postValue( STATE_PREPARED)
+            playerStateLiveData.postValue(AudioState(STATE_PREPARED,"00:00"))
             resetTimer()
         }
     }
@@ -85,18 +91,20 @@ class AudioplayerViewModel(private val url: String): ViewModel() {
 
     private fun startPlayer() {
         mediaPlayer.start()
-        playerStateLiveData.postValue(STATE_PLAYING)
+        playerStateLiveData.postValue(AudioState(STATE_PLAYING,"00:00"))
         startTimerUpdate()
     }
 
     private fun pausePlayer() {
         pauseTimer()
         mediaPlayer.pause()
-        playerStateLiveData.postValue(STATE_PAUSED)
+        playerStateLiveData.postValue(AudioState(STATE_PAUSED,timer))
     }
 
     private fun startTimerUpdate() {
-        progressTimeLiveData.postValue(SimpleDateFormat("mm:ss", Locale.getDefault()).format(mediaPlayer.currentPosition))
+        playerStateLiveData.postValue(AudioState(STATE_PLAYING,SimpleDateFormat("mm:ss", Locale.getDefault()).format(mediaPlayer.currentPosition)))
+       // progressTimeLiveData.postValue(SimpleDateFormat("mm:ss", Locale.getDefault()).format(mediaPlayer.currentPosition))
+        timer=SimpleDateFormat("mm:ss", Locale.getDefault()).format(mediaPlayer.currentPosition)
         handler.postDelayed(timerRunnable, 200)
     }
 
@@ -107,7 +115,8 @@ class AudioplayerViewModel(private val url: String): ViewModel() {
 
     private fun resetTimer() {
         handler.removeCallbacks(timerRunnable)
-        progressTimeLiveData.postValue("00:00")
+        playerStateLiveData.postValue(AudioState(STATE_PAUSED,"00:00"))
+        //progressTimeLiveData.postValue("00:00")
     }
 
     fun onPause() {

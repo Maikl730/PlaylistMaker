@@ -2,7 +2,6 @@ package com.michael.playlistmaker.presentation.search
 
 
 import SingleLiveEvent
-import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import androidx.lifecycle.LiveData
@@ -19,7 +18,7 @@ import com.michael.playlistmaker.domain.search.models.Track
 import com.michael.playlistmaker.ui.search.models.TracksState
 import com.michael.playlistmaker.util.Creator
 
-class TracksViewModel(private val context: Context): ViewModel() {
+class TracksViewModel(): ViewModel() {
 
 
     private val stateLiveData = MutableLiveData<TracksState>()
@@ -36,14 +35,14 @@ class TracksViewModel(private val context: Context): ViewModel() {
 
         fun getFactory(): ViewModelProvider.Factory = viewModelFactory {
             initializer {
-                val app = (this[APPLICATION_KEY] as App)
-                TracksViewModel(app)
+               // val app = (this[APPLICATION_KEY] as App)
+                TracksViewModel()
             }
         }
     }
 
     val handler = Handler(Looper.getMainLooper())
-    private var latestSearchText: String? = null
+    private var latestSearchText: String = ""
 
     var lastSearch:String =""
     val tracksInteractor = Creator.provideTracksInteractor()
@@ -51,7 +50,7 @@ class TracksViewModel(private val context: Context): ViewModel() {
 
 
     private val searchRunnable = Runnable {
-        searchMusic(lastSearch)
+        searchMusic(latestSearchText)
     }
 
 
@@ -75,7 +74,7 @@ class TracksViewModel(private val context: Context): ViewModel() {
                         if (searchHistory != null){
                             renderState(TracksState(searchHistory, false, null,true))
                         }else{
-                            renderState(TracksState(ArrayList(), false, null,true))
+                            renderState(TracksState(null, false, null,false))
                         }
                     }
                 }

@@ -23,7 +23,7 @@ class TracksViewHolder(private val binding: TrackCardBinding): RecyclerView.View
 
         val time:Long = if (model.trackTimeMillis.isNullOrEmpty()){201900L}else{model.trackTimeMillis.toLong()}
         Log.d("MyLog",time.toString())
-        binding.apply {
+        with(binding) {
             trackName.text = model.trackName
             trackBand.text = model.artistName
             trackLong.text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(time)

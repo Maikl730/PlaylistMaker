@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
+import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.michael.playlistmaker.util.Creator
@@ -32,9 +33,9 @@ val handler = Handler(Looper.getMainLooper())
 class SearchActivity : AppCompatActivity() {
 
     companion object {
-        private const val SEARCH_DEBOUNCE_DELAY = 2000L
+        //private const val SEARCH_DEBOUNCE_DELAY = 2000L
         const val SEARCH_TEXT = "SEARCH_TEXT"
-        val TRACK_HISTORY_PREFERENCES = "track_search_history"
+       // val TRACK_HISTORY_PREFERENCES = "track_search_history"
         private var searchText:String = ""
     }
 
@@ -149,6 +150,19 @@ class SearchActivity : AppCompatActivity() {
         Toast.makeText(this,message,Toast.LENGTH_SHORT)
     }
 
+    fun showNothing(){
+        showTracksList(false)
+        showProgressBar(false)
+        changePlaceholdersText(false)
+        changePlaceholderImage(false)
+        showPlaceTextFirst(false)
+        showPlaceTextSecond(false)
+        showPlaceholderMessage(false)
+        showResearchButton(false)
+        showMessage(false)
+        //showToast(message)
+    }
+
 
     fun render(state: TracksState) {
         when{
@@ -156,6 +170,7 @@ class SearchActivity : AppCompatActivity() {
             state.isLoading == true -> showLoading()
             state.errorMessage != null -> showError(state.errorMessage)
             state.tracks!!.isNotEmpty() -> showContent(state.tracks)
+            state.tracks == null -> showNothing()
             else -> showEmpty()
         }
     }
@@ -200,7 +215,7 @@ class SearchActivity : AppCompatActivity() {
         }
 
         trackHistoryInteractor = Creator.provideTrackHistoryInteractor()
-
+/*
         binding.searchLine.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, p1: Int, p2: Int, p3: Int) {
             }
@@ -224,9 +239,26 @@ class SearchActivity : AppCompatActivity() {
             }
         })
 
+ */
+
+        binding.searchLine.doOnTextChanged { s, start, before, count ->
+
+            binding.clear.isVisible = clearButtonVisibility(s)
+            binding.clearHistoryButton.visibility = if (binding.searchLine.hasFocus() && s?.isEmpty() == true && trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
+            binding.historyTextview.visibility = if (binding.searchLine.hasFocus() && s?.isEmpty() == true && trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
+
+            if (binding.searchLine.hasFocus() && s?.isEmpty() == true){
+                viewModel?.showHistory()
+            } else{
+                binding.recycleTracks.isVisible = false
+            }
+
+            if (binding.searchLine.hasFocus() && s?.isEmpty() == false) viewModel?.searchDebounce(changedText = s?.toString()?:"")
+        }
+
         binding.clearHistoryButton.setOnClickListener {
                 trackHistoryInteractor.clearHistory()
-            binding.apply {
+            with(binding) {
                 recycleTracks.isVisible = false
                 historyTextview.isVisible = false
                 clearHistoryButton.isVisible = false
@@ -257,15 +289,17 @@ class SearchActivity : AppCompatActivity() {
 
         binding.searchLine.setOnFocusChangeListener { view, hasFocus ->
 
-            binding.historyTextview.visibility = if (hasFocus && binding.searchLine.text.isEmpty() &&  trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
-            binding.clearHistoryButton.visibility = if (hasFocus && binding.searchLine.text.isEmpty() && trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
+            binding.historyTextview.visibility = if (hasFocus && binding.searchLine.text.isEmpty() &&  !trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
+            binding.clearHistoryButton.visibility = if (hasFocus && binding.searchLine.text.isEmpty() && !trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
             binding.recycleTracks.isVisible = true
 
-            if (hasFocus && binding.searchLine.text.isEmpty() && trackHistoryInteractor.isEmpty()){
+            if (hasFocus && binding.searchLine.text.isEmpty() && !trackHistoryInteractor.isEmpty()){
                 viewModel?.showHistory()
             }
 
-        binding.apply {
+
+
+        with(binding) {
              placetextSecond.visibility = if (hasFocus && searchLine.text.isEmpty()) View.GONE else View.VISIBLE
              placetextFirst.visibility = if (hasFocus && searchLine.text.isEmpty()) View.GONE else View.VISIBLE
              imagePlaceholder.visibility = if (hasFocus && searchLine.text.isEmpty()) View.GONE else View.VISIBLE
@@ -280,7 +314,7 @@ class SearchActivity : AppCompatActivity() {
             inputMethodManager?.hideSoftInputFromWindow(binding.searchLine.windowToken, 0)
             viewModel?.showHistory()
 
-            binding.apply {
+            with(binding) {
                 placetextSecond.visibility = View.GONE
                 placetextFirst.visibility = View.GONE
                 imagePlaceholder.visibility = View.GONE
