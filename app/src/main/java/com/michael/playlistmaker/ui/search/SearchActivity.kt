@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.view.inputmethod.EditorInfo
@@ -33,9 +32,7 @@ val handler = Handler(Looper.getMainLooper())
 class SearchActivity : AppCompatActivity() {
 
     companion object {
-        //private const val SEARCH_DEBOUNCE_DELAY = 2000L
         const val SEARCH_TEXT = "SEARCH_TEXT"
-       // val TRACK_HISTORY_PREFERENCES = "track_search_history"
         private var searchText:String = ""
     }
 
@@ -110,6 +107,8 @@ class SearchActivity : AppCompatActivity() {
         showPlaceTextSecond(false)
         showPlaceholderMessage(false)
         showResearchButton(false)
+        binding.historyTextview.isVisible = false
+        binding.clearHistoryButton.isVisible = false
     }
 
     private fun showEmpty() {
@@ -122,6 +121,8 @@ class SearchActivity : AppCompatActivity() {
         showPlaceholderMessage(true)
         showResearchButton(false)
         showMessage(false)
+        binding.historyTextview.isVisible = false
+        binding.clearHistoryButton.isVisible = false
     }
 
     private fun showError(message: String) {
@@ -135,6 +136,8 @@ class SearchActivity : AppCompatActivity() {
         showResearchButton(true)
         showMessage(true)
         showToast(message)
+        binding.historyTextview.isVisible = false
+        binding.clearHistoryButton.isVisible = false
     }
 
     private fun showLoading() {
@@ -144,6 +147,8 @@ class SearchActivity : AppCompatActivity() {
         showPlaceTextSecond(false)
         showPlaceholderMessage(false)
         showResearchButton(false)
+        binding.historyTextview.isVisible = false
+        binding.clearHistoryButton.isVisible = false
     }
 
     fun showToast(message: String) {
@@ -160,6 +165,8 @@ class SearchActivity : AppCompatActivity() {
         showPlaceholderMessage(false)
         showResearchButton(false)
         showMessage(false)
+        binding.historyTextview.isVisible = false
+        binding.clearHistoryButton.isVisible = false
         //showToast(message)
     }
 
@@ -170,7 +177,6 @@ class SearchActivity : AppCompatActivity() {
             state.isLoading == true -> showLoading()
             state.errorMessage != null -> showError(state.errorMessage)
             state.tracks!!.isNotEmpty() -> showContent(state.tracks)
-            state.tracks == null -> showNothing()
             else -> showEmpty()
         }
     }
@@ -178,8 +184,6 @@ class SearchActivity : AppCompatActivity() {
     private fun showHistory(list: List<Track>) {
         showTracksList(true)
         updateTrackList(list)
-        binding.historyTextview.visibility = View.VISIBLE
-        binding.clearHistoryButton.visibility = View.VISIBLE
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -215,37 +219,12 @@ class SearchActivity : AppCompatActivity() {
         }
 
         trackHistoryInteractor = Creator.provideTrackHistoryInteractor()
-/*
-        binding.searchLine.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, p1: Int, p2: Int, p3: Int) {
-            }
-
-            override fun onTextChanged(s: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
-                 binding.clear.isVisible = clearButtonVisibility(s)
-                binding.clearHistoryButton.visibility = if (binding.searchLine.hasFocus() && s?.isEmpty() == true && trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
-                binding.historyTextview.visibility = if (binding.searchLine.hasFocus() && s?.isEmpty() == true && trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
-
-                if (binding.searchLine.hasFocus() && s?.isEmpty() == true){
-                    viewModel?.showHistory()
-                } else{
-                    binding.recycleTracks.isVisible = false
-                }
-
-                if (binding.searchLine.hasFocus() && s?.isEmpty() == false) viewModel?.searchDebounce(changedText = s?.toString()?:"")
-            }
-
-            override fun afterTextChanged(s: Editable?) {
-            }
-        })
-
- */
 
         binding.searchLine.doOnTextChanged { s, start, before, count ->
 
             binding.clear.isVisible = clearButtonVisibility(s)
-            binding.clearHistoryButton.visibility = if (binding.searchLine.hasFocus() && s?.isEmpty() == true && trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
-            binding.historyTextview.visibility = if (binding.searchLine.hasFocus() && s?.isEmpty() == true && trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
+            binding.clearHistoryButton.visibility = if (binding.searchLine.hasFocus() && s?.isEmpty() == true && !trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
+            binding.historyTextview.visibility = if (binding.searchLine.hasFocus() && s?.isEmpty() == true && !trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
 
             if (binding.searchLine.hasFocus() && s?.isEmpty() == true){
                 viewModel?.showHistory()
@@ -253,7 +232,9 @@ class SearchActivity : AppCompatActivity() {
                 binding.recycleTracks.isVisible = false
             }
 
-            if (binding.searchLine.hasFocus() && s?.isEmpty() == false) viewModel?.searchDebounce(changedText = s?.toString()?:"")
+            if (binding.searchLine.hasFocus() && s?.isEmpty() == false){
+                viewModel?.searchDebounce(changedText = s?.toString()?:"")
+            }
         }
 
         binding.clearHistoryButton.setOnClickListener {
@@ -307,11 +288,12 @@ class SearchActivity : AppCompatActivity() {
         }
 
         }
-
+// Нет проблемы
         binding.clear.setOnClickListener{
             binding.searchLine.setText("")
             val inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
             inputMethodManager?.hideSoftInputFromWindow(binding.searchLine.windowToken, 0)
+
             viewModel?.showHistory()
 
             with(binding) {

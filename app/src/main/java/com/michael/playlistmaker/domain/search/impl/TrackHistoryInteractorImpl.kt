@@ -17,10 +17,36 @@ class TrackHistoryInteractorImpl(private val repository: TrackHistoryRepository)
     }
 
     override fun addToHistory(track: Track) {
-        repository.addToHistory(track)
+
+        var newHistoryTracks: ArrayList<Track>
+
+        if (repository.getHistory().isEmpty()) {
+            newHistoryTracks = arrayListOf(track)
+        } else {
+            newHistoryTracks = repository.getHistory()
+
+            if (newHistoryTracks.contains(track)) {
+                newHistoryTracks.remove(track)
+                newHistoryTracks.add(track)
+            } else {
+                newHistoryTracks.add(track)
+            }
+
+            if (newHistoryTracks.size > 10) {
+                newHistoryTracks.removeAt(0)
+            }
+        }
+
+        //repository.addToHistory(track)
+        repository.addToHistory(newHistoryTracks)
     }
 
     override fun isEmpty(): Boolean {
-        return  repository.isEmpty()
+       // return  repository.isEmpty()
+        return repository.getHistory().isEmpty()
+    }
+
+    fun isRealEmpty():Boolean{
+        return repository.getHistory().isEmpty()
     }
 }

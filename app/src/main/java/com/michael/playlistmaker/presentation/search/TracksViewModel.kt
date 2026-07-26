@@ -74,7 +74,7 @@ class TracksViewModel(): ViewModel() {
                         if (searchHistory != null){
                             renderState(TracksState(searchHistory, false, null,true))
                         }else{
-                            renderState(TracksState(null, false, null,false))
+                            renderState(TracksState(null, false, null,true))
                         }
                     }
                 }
