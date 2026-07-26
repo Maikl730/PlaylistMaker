@@ -222,10 +222,13 @@ class SearchActivity : AppCompatActivity() {
 
         binding.searchLine.doOnTextChanged { s, start, before, count ->
 
-            binding.clear.isVisible = clearButtonVisibility(s)
-            binding.clearHistoryButton.visibility = if (binding.searchLine.hasFocus() && s?.isEmpty() == true && !trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
-            binding.historyTextview.visibility = if (binding.searchLine.hasFocus() && s?.isEmpty() == true && !trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
-
+            with(binding) {
+                clear.isVisible = clearButtonVisibility(s)
+                clearHistoryButton.visibility =
+                    if (binding.searchLine.hasFocus() && s?.isEmpty() == true && !trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
+                historyTextview.visibility =
+                    if (binding.searchLine.hasFocus() && s?.isEmpty() == true && !trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
+            }
             if (binding.searchLine.hasFocus() && s?.isEmpty() == true){
                 viewModel?.showHistory()
             } else{
@@ -270,9 +273,12 @@ class SearchActivity : AppCompatActivity() {
 
         binding.searchLine.setOnFocusChangeListener { view, hasFocus ->
 
-            binding.historyTextview.visibility = if (hasFocus && binding.searchLine.text.isEmpty() &&  !trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
-            binding.clearHistoryButton.visibility = if (hasFocus && binding.searchLine.text.isEmpty() && !trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
-            binding.recycleTracks.isVisible = true
+            with(binding){
+                historyTextview.visibility = if (hasFocus && binding.searchLine.text.isEmpty() &&  !trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
+                clearHistoryButton.visibility = if (hasFocus && binding.searchLine.text.isEmpty() && !trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
+                recycleTracks.isVisible = true
+            }
+
 
             if (hasFocus && binding.searchLine.text.isEmpty() && !trackHistoryInteractor.isEmpty()){
                 viewModel?.showHistory()
