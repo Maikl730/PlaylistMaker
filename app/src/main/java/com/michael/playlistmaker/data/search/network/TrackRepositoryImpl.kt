@@ -34,26 +34,5 @@ class TrackRepositoryImpl(private val networkClient: NetworkClient): TracksRepos
                 Resource.Error("Ошибка сервера")
             }
         }
-
-
-/*
-        if (response.resultCode == 200) {
-           //Работает
-            return (response as SongResponse).results.map {
-                Track(it.trackName, it.artistName, it.trackTimeMillis, it.artworkUrl100, it.trackId, it.collectionName,it.releaseDate,it.primaryGenreName,it.country,it.previewUrl) }
-        }
-        else if(response.resultCode ==-1)
-        {
-            val track = Track(NOFOUND,
-                NOFOUND,NOFOUND,NOFOUND,NOFOUND,NOFOUND,NOFOUND,NOFOUND,NOFOUND,NOFOUND)
-            return listOf(track)
-
-        }
-    else {
-            return emptyList()
-        }
-
- */
-
     }
 }

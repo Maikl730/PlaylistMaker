@@ -16,25 +16,12 @@ class AudioplayerViewModel(
     private val url: String
 ): ViewModel() {
 
-    //var url: String = ""
     companion object {
 
        const val STATE_DEFAULT= 0
         const val STATE_PREPARED = 1
         const val STATE_PLAYING = 2
         const val STATE_PAUSED = 3
-            /*
-        fun getFactory(trackUrl:String): ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                AudioplayerViewModel(
-                    trackUrl
-                )
-            }
-        }
-
-             */
-
-
     }
 
 

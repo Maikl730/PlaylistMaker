@@ -24,11 +24,8 @@ import java.util.Locale
 
 class AudioplayerActivity : AppCompatActivity() {
     private lateinit var binding:ActivityAudioplayerBinding
-    //val intent = intent
    lateinit var thisTrack:Track
     private val viewModel:AudioplayerViewModel by viewModel{( parametersOf (thisTrack.previewUrl))}
-    //private lateinit var viewModel: AudioplayerViewModel
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -44,16 +41,6 @@ class AudioplayerActivity : AppCompatActivity() {
         val intent = intent
 
         thisTrack = (intent.getSerializableExtra(INTENT_EXTRA_KEY) as Track?)!!
-
-
-       /*
-        viewModel = ViewModelProvider(this, AudioplayerViewModel.getFactory(thisTrack.previewUrl
-             ))
-            .get(AudioplayerViewModel::class.java)
-
-        */
-
-
 
         viewModel.observePlayerState().observe(this) {
             binding.trackLong.text = it.timer

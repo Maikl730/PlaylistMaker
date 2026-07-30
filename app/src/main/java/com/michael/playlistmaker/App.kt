@@ -6,9 +6,7 @@ import com.michael.playlistmaker.di.dataModule
 import com.michael.playlistmaker.di.interactorModule
 import com.michael.playlistmaker.di.repositoryModule
 import com.michael.playlistmaker.di.viewModelModule
-import com.michael.playlistmaker.domain.settings.api.ThemeSwitcherControlInteractor
 import com.michael.playlistmaker.domain.settings.impl.ThemeSwitcherControlInteractorImpl
-import com.michael.playlistmaker.util.Creator
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.GlobalContext.startKoin
 

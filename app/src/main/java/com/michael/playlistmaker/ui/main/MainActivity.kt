@@ -21,9 +21,6 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class MainActivity : AppCompatActivity() {
     private lateinit var binding:ActivityMainBinding
     private val viewModel by viewModel<MainViewModel>()
-   // private var viewModel: MainViewModel? = null
-
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,14 +32,6 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(v.paddingLeft, systemBars.top, v.paddingRight, systemBars.bottom)
             insets
         }
-/*
-        viewModel = ViewModelProvider(this, MainViewModel.getFactory())
-            .get(MainViewModel::class.java)
-
- */
-
-
-
 
         viewModel?.observeDoIntent()?.observe(this) {
             startActivity(it)
