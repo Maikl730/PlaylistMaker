@@ -29,6 +29,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object Creator {
+    /*
     private val itunesBaseUrl = "https://itunes.apple.com"
 
     var context:Context? = null
@@ -85,5 +86,7 @@ object Creator {
 
 
 
+
+     */
 
 }

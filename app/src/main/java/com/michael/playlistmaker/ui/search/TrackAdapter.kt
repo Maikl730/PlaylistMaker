@@ -7,12 +7,21 @@ import androidx.recyclerview.widget.RecyclerView
 import com.michael.playlistmaker.ui.audioplayer.AudioplayerActivity
 import com.michael.playlistmaker.util.Creator
 import com.michael.playlistmaker.R
+import com.michael.playlistmaker.data.search.impl.TrackHistoryRepositoryImpl
+import com.michael.playlistmaker.data.storage.PrefsStorageClient
+import com.michael.playlistmaker.di.dataModule
+import com.michael.playlistmaker.di.interactorModule
+import com.michael.playlistmaker.domain.search.api.TrackHistoryInteractor
+import com.michael.playlistmaker.domain.search.impl.TrackHistoryInteractorImpl
+import com.michael.playlistmaker.domain.search.impl.TracksInteractorImpl
 import com.michael.playlistmaker.domain.search.models.Track
+import org.koin.java.KoinJavaComponent.getKoin
 
 private const val CLICK_DEBOUNCE_DELAY = 1000L
 
 class TrackAdapter(private val tracks:List<Track> ): RecyclerView.Adapter<TracksViewHolder>() {
 
+    private val searchMaker:TrackHistoryInteractor = getKoin().get()
     private var isClickAllowed = true
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TracksViewHolder = TracksViewHolder.from(parent)
@@ -33,7 +42,8 @@ class TrackAdapter(private val tracks:List<Track> ): RecyclerView.Adapter<Tracks
     override fun onBindViewHolder(holder: TracksViewHolder, position: Int) {
 
 
-        val searchMaker = Creator.provideTrackHistoryInteractor()
+       // val searchMaker = Creator.provideTrackHistoryInteractor()
+
         holder.bind(tracks[position])
 
         holder.itemView.setOnClickListener {

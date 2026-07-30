@@ -25,6 +25,8 @@ import com.michael.playlistmaker.domain.search.api.TrackHistoryInteractor
 import com.michael.playlistmaker.domain.search.models.Track
 import com.michael.playlistmaker.presentation.search.TracksViewModel
 import com.michael.playlistmaker.ui.search.models.TracksState
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.java.KoinJavaComponent.getKoin
 
 const val INTENT_EXTRA_KEY = "TRACK"
 val handler = Handler(Looper.getMainLooper())
@@ -36,9 +38,11 @@ class SearchActivity : AppCompatActivity() {
         private var searchText:String = ""
     }
 
+    private val viewModel by viewModel<TracksViewModel>()
+
     private lateinit var binding:ActivitySearchBinding
-    private var viewModel: TracksViewModel? = null
-    lateinit var trackHistoryInteractor: TrackHistoryInteractor
+    //private var viewModel: TracksViewModel? = null
+    val trackHistoryInteractor: TrackHistoryInteractor = getKoin().get()
     private var textWatcher: TextWatcher? = null
 
     private var newTracks = mutableListOf<Track>()
@@ -210,24 +214,30 @@ class SearchActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
+/*
         viewModel = ViewModelProvider(this, TracksViewModel.getFactory())
             .get(TracksViewModel::class.java)
+
+ */
+
+
 
         viewModel?.observeState()?.observe(this) {
             render(it)
         }
 
-        trackHistoryInteractor = Creator.provideTrackHistoryInteractor()
+       // trackHistoryInteractor = Creator.provideTrackHistoryInteractor()
 
         binding.searchLine.doOnTextChanged { s, start, before, count ->
 
             with(binding) {
                 clear.isVisible = clearButtonVisibility(s)
                 clearHistoryButton.visibility =
-                    if (binding.searchLine.hasFocus() && s?.isEmpty() == true && !trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
+                  //  if (binding.searchLine.hasFocus() && s?.isEmpty() == true && !trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
+                if (binding.searchLine.hasFocus() && s?.isEmpty() == true && !viewModel.historyIsEmpty()) View.VISIBLE else View.GONE
                 historyTextview.visibility =
-                    if (binding.searchLine.hasFocus() && s?.isEmpty() == true && !trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
+                   // if (binding.searchLine.hasFocus() && s?.isEmpty() == true && !trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
+                if (binding.searchLine.hasFocus() && s?.isEmpty() == true && !viewModel.historyIsEmpty()) View.VISIBLE else View.GONE
             }
             if (binding.searchLine.hasFocus() && s?.isEmpty() == true){
                 viewModel?.showHistory()

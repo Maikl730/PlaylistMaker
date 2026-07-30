@@ -16,10 +16,12 @@ import com.michael.playlistmaker.presentation.settings.SettingsViewModel
 import com.michael.playlistmaker.ui.mediateka.MediatekaActivity
 import com.michael.playlistmaker.ui.search.SearchActivity
 import com.michael.playlistmaker.ui.settings.SettingsActivity
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding:ActivityMainBinding
-    private var viewModel: MainViewModel? = null
+    private val viewModel by viewModel<MainViewModel>()
+   // private var viewModel: MainViewModel? = null
 
 
 
@@ -33,9 +35,13 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(v.paddingLeft, systemBars.top, v.paddingRight, systemBars.bottom)
             insets
         }
-
+/*
         viewModel = ViewModelProvider(this, MainViewModel.getFactory())
             .get(MainViewModel::class.java)
+
+ */
+
+
 
 
         viewModel?.observeDoIntent()?.observe(this) {

@@ -11,6 +11,7 @@ import com.michael.playlistmaker.domain.settings.api.SharingInteractor
 import com.michael.playlistmaker.util.Creator
 
 class SettingsViewModel(private val sharingInteractor: SharingInteractor):ViewModel() {
+/*
     companion object {
 
         fun getFactory(): ViewModelProvider.Factory = viewModelFactory {
@@ -19,6 +20,10 @@ class SettingsViewModel(private val sharingInteractor: SharingInteractor):ViewMo
             }
         }
     }
+
+
+ */
+
     private val doIntent = SingleLiveEvent<Intent?>()
     fun observeDoIntent(): LiveData<Intent?> = doIntent
 

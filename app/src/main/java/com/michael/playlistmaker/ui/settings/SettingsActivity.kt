@@ -13,15 +13,19 @@ import com.google.android.material.appbar.MaterialToolbar
 import com.michael.playlistmaker.util.Creator
 import com.michael.playlistmaker.R
 import com.michael.playlistmaker.databinding.ActivitySettingsBinding
+import com.michael.playlistmaker.domain.settings.api.ThemeSwitcherControlInteractor
 import com.michael.playlistmaker.presentation.search.TracksViewModel
 import com.michael.playlistmaker.presentation.settings.SettingsViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.java.KoinJavaComponent.getKoin
 
 const val THEME_PREFERENCES = "theme_preferences"
 const val EDIT_THEME_KEY = "key_for_edit_theme"
 
 class SettingsActivity : AppCompatActivity() {
     private lateinit var binding:ActivitySettingsBinding
-    private var viewModel:SettingsViewModel? = null
+    //private var viewModel:SettingsViewModel? = null
+    private val viewModel by viewModel<SettingsViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,10 +37,14 @@ class SettingsActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        val themeSwitcherControlInteractor = Creator.provideThemeSwitcherControlInteractor()
-
+        val themeSwitcherControlInteractor:ThemeSwitcherControlInteractor = getKoin().get()
+/*
         viewModel = ViewModelProvider(this, SettingsViewModel.getFactory())
             .get(SettingsViewModel::class.java)
+
+ */
+
+
 
 
         viewModel?.observeDoIntent()?.observe(this) {

@@ -14,11 +14,12 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.michael.playlistmaker.App
 import com.michael.playlistmaker.domain.search.api.TrackHistoryInteractor
 import com.michael.playlistmaker.domain.search.api.TracksInteractor
+import com.michael.playlistmaker.domain.search.impl.TracksInteractorImpl
 import com.michael.playlistmaker.domain.search.models.Track
 import com.michael.playlistmaker.ui.search.models.TracksState
 import com.michael.playlistmaker.util.Creator
 
-class TracksViewModel(): ViewModel() {
+class TracksViewModel(private val tracksInteractor: TracksInteractor,private val trackHistoryInteractor: TrackHistoryInteractor): ViewModel() {
 
 
     private val stateLiveData = MutableLiveData<TracksState>()
@@ -32,22 +33,24 @@ class TracksViewModel(): ViewModel() {
         const val SEARCH_TEXT = "SEARCH_TEXT"
         private var searchText:String = ""
 
-
+/*
         fun getFactory(): ViewModelProvider.Factory = viewModelFactory {
             initializer {
                // val app = (this[APPLICATION_KEY] as App)
-                TracksViewModel()
+                TracksViewModel(tracksInteractor = Creator.provideTracksInteractor(),
+                    trackHistoryInteractor = Creator.provideTrackHistoryInteractor())
             }
         }
+
+ */
     }
+
+
 
     val handler = Handler(Looper.getMainLooper())
     private var latestSearchText: String = ""
 
     var lastSearch:String =""
-    val tracksInteractor = Creator.provideTracksInteractor()
-    val trackHistoryInteractor = Creator.provideTrackHistoryInteractor()
-
 
     private val searchRunnable = Runnable {
         searchMusic(latestSearchText)
@@ -120,6 +123,10 @@ class TracksViewModel(): ViewModel() {
         super.onCleared()
         handler.removeCallbacks(searchRunnable)
 
+    }
+
+    fun historyIsEmpty():Boolean{
+        return trackHistoryInteractor.isEmpty()
     }
 
 }

@@ -47,6 +47,8 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
     implementation("androidx.activity:activity-ktx:1.6.1")
 
+    implementation("io.insert-koin:koin-android:3.3.0")
+
     implementation(libs.androidx.constraintlayout)
     implementation(libs.converter.gson)
     implementation(libs.retrofit)

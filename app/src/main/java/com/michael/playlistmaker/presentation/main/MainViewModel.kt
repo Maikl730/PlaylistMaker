@@ -10,7 +10,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.michael.playlistmaker.domain.main.api.MainIntentInteractor
 import com.michael.playlistmaker.util.Creator
 
-class MainViewModel(var interactor: MainIntentInteractor):ViewModel() {
+class MainViewModel(private val interactor: MainIntentInteractor):ViewModel() {
 
 
 
@@ -28,7 +28,7 @@ class MainViewModel(var interactor: MainIntentInteractor):ViewModel() {
     fun settings(){
         doIntent.postValue(interactor.settings())
     }
-
+/*
     companion object {
         fun getFactory(): ViewModelProvider.Factory = viewModelFactory {
             initializer {
@@ -36,4 +36,8 @@ class MainViewModel(var interactor: MainIntentInteractor):ViewModel() {
             }
         }
     }
+
+ */
+
+
 }
