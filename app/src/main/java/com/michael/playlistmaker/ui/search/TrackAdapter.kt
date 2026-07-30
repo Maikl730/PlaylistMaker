@@ -5,9 +5,9 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.michael.playlistmaker.ui.audioplayer.AudioplayerActivity
-import com.michael.playlistmaker.Creator
+import com.michael.playlistmaker.util.Creator
 import com.michael.playlistmaker.R
-import com.michael.playlistmaker.domain.models.Track
+import com.michael.playlistmaker.domain.search.models.Track
 
 private const val CLICK_DEBOUNCE_DELAY = 1000L
 
@@ -15,10 +15,7 @@ class TrackAdapter(private val tracks:List<Track> ): RecyclerView.Adapter<Tracks
 
     private var isClickAllowed = true
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TracksViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.track_card,parent,false)
-        return TracksViewHolder(view)
-    }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TracksViewHolder = TracksViewHolder.from(parent)
 
     override fun getItemCount(): Int {
         return tracks.size
@@ -36,9 +33,7 @@ class TrackAdapter(private val tracks:List<Track> ): RecyclerView.Adapter<Tracks
     override fun onBindViewHolder(holder: TracksViewHolder, position: Int) {
 
 
-        val searchMaker = Creator.provideTrackHistoryInteractor(
-           // holder.itemView.context
-        )
+        val searchMaker = Creator.provideTrackHistoryInteractor()
         holder.bind(tracks[position])
 
         holder.itemView.setOnClickListener {

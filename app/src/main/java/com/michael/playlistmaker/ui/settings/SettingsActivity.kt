@@ -8,21 +8,26 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.appbar.MaterialToolbar
-import com.michael.playlistmaker.App
-import com.michael.playlistmaker.Creator
+import com.michael.playlistmaker.util.Creator
 import com.michael.playlistmaker.R
+import com.michael.playlistmaker.databinding.ActivitySettingsBinding
+import com.michael.playlistmaker.presentation.search.TracksViewModel
+import com.michael.playlistmaker.presentation.settings.SettingsViewModel
 
 const val THEME_PREFERENCES = "theme_preferences"
 const val EDIT_THEME_KEY = "key_for_edit_theme"
 
 class SettingsActivity : AppCompatActivity() {
-
+    private lateinit var binding:ActivitySettingsBinding
+    private var viewModel:SettingsViewModel? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        binding = ActivitySettingsBinding.inflate(layoutInflater)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_settings)
+        setContentView(binding.root)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -30,56 +35,32 @@ class SettingsActivity : AppCompatActivity() {
         }
         val themeSwitcherControlInteractor = Creator.provideThemeSwitcherControlInteractor()
 
-        val backButton = findViewById<MaterialToolbar>(R.id.tool_bar)
-        backButton.setNavigationOnClickListener{
+        viewModel = ViewModelProvider(this, SettingsViewModel.getFactory())
+            .get(SettingsViewModel::class.java)
+
+
+        viewModel?.observeDoIntent()?.observe(this) {
+            startActivity(it)
+        }
+        binding.toolBar.setNavigationOnClickListener{
             finish()
         }
 
-        val themeSwitcher = findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(
-            R.id.switch_theme
-        )
-        val shareButton = findViewById<TextView>(R.id.share_button)
-        val supportButton = findViewById<TextView>(R.id.support_button)
-        val declarationButton = findViewById<TextView>(R.id.declaration_button)
-
-        themeSwitcher.isChecked =  themeSwitcherControlInteractor.getPosition()
-        themeSwitcher.setOnCheckedChangeListener { switcher, checked ->
+        binding.switchTheme.isChecked =  themeSwitcherControlInteractor.getPosition()
+        binding.switchTheme.setOnCheckedChangeListener { switcher, checked ->
             themeSwitcherControlInteractor.switchTheme(checked)
-           // (applicationContext as App).switchTheme(checked)
         }
 
-        val shareIntent = Intent().apply {
-            action = Intent.ACTION_SEND
-            setType("text/plain")
-            putExtra(Intent.EXTRA_TEXT, resources.getString(R.string.link_to_practikum))
+        binding.shareButton.setOnClickListener{
+            viewModel?.share()
         }
 
-
-        val supportIntent = Intent().apply {
-            action = Intent.ACTION_SENDTO
-            data = Uri.parse("mailto:")
-            putExtra(Intent.EXTRA_EMAIL, arrayOf(resources.getString(R.string.student_mail)))
-            putExtra(Intent.EXTRA_TEXT, resources.getString(R.string.message_to_support))
-            putExtra(Intent.EXTRA_SUBJECT, resources.getString(R.string.title_to_support))
+        binding.supportButton.setOnClickListener{
+            viewModel?.support()
         }
 
-
-        val declarationIntent = Intent().apply {
-            action = Intent.ACTION_VIEW
-            data = Uri.parse(resources.getString(R.string.link_to_offerta))
-        }
-
-        shareButton.setOnClickListener{
-            val share = Intent.createChooser(shareIntent, null)
-            startActivity(share)
-        }
-
-        supportButton.setOnClickListener{
-            startActivity(supportIntent)
-        }
-
-        declarationButton.setOnClickListener{
-            startActivity(declarationIntent)
+        binding.declarationButton.setOnClickListener{
+            viewModel?.declaration()
         }
     }
 

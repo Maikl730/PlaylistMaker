@@ -8,44 +8,51 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.ViewModelProvider
 import com.michael.playlistmaker.R
+import com.michael.playlistmaker.databinding.ActivityMainBinding
+import com.michael.playlistmaker.presentation.main.MainViewModel
+import com.michael.playlistmaker.presentation.settings.SettingsViewModel
 import com.michael.playlistmaker.ui.mediateka.MediatekaActivity
 import com.michael.playlistmaker.ui.search.SearchActivity
 import com.michael.playlistmaker.ui.settings.SettingsActivity
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var binding:ActivityMainBinding
+    private var viewModel: MainViewModel? = null
 
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        binding=ActivityMainBinding.inflate(layoutInflater)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_main)
+        setContentView(binding.root)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(v.paddingLeft, systemBars.top, v.paddingRight, systemBars.bottom)
             insets
         }
-        
 
-        val searchButton = findViewById<Button>(R.id.search_button)
-        val mediaButton = findViewById<Button>(R.id.media_button)
-        val settingsButton = findViewById<Button>(R.id.settings_button)
+        viewModel = ViewModelProvider(this, MainViewModel.getFactory())
+            .get(MainViewModel::class.java)
+
+
+        viewModel?.observeDoIntent()?.observe(this) {
+            startActivity(it)
+        }
 
         val searchClickListener: View.OnClickListener = object : View.OnClickListener {
             override fun onClick(v: View?) {
-                val searchIntent = Intent(this@MainActivity, SearchActivity::class.java)
-                startActivity(searchIntent)
+               viewModel?.search()
             }
         }
 
-        searchButton.setOnClickListener(searchClickListener)
-        mediaButton.setOnClickListener {
-            val mediaIntent = Intent(this@MainActivity, MediatekaActivity::class.java)
-            startActivity(mediaIntent)}
-        settingsButton.setOnClickListener {
-            val settingsIntent = Intent(this@MainActivity, SettingsActivity::class.java)
-            startActivity(settingsIntent) }
+        binding.searchButton.setOnClickListener(searchClickListener)
+        binding.mediaButton.setOnClickListener {viewModel?.mediateka()
+           }
+        binding.settingsButton.setOnClickListener {viewModel?.settings()
+            }
     }
 
 

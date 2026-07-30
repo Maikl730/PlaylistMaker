@@ -9,6 +9,10 @@ android {
     namespace = "com.michael.playlistmaker"
     compileSdk = 36
 
+    buildFeatures {
+        viewBinding = true
+    }
+
     defaultConfig {
         applicationId = "com.michael.playlistmaker"
         minSdk = 29
@@ -38,6 +42,10 @@ android {
 }
 
 dependencies {
+
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.2")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
+    implementation("androidx.activity:activity-ktx:1.6.1")
 
     implementation(libs.androidx.constraintlayout)
     implementation(libs.converter.gson)
