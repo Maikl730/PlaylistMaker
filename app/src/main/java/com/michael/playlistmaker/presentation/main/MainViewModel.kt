@@ -4,13 +4,9 @@ import SingleLiveEvent
 import android.content.Intent
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
 import com.michael.playlistmaker.domain.main.api.MainIntentInteractor
-import com.michael.playlistmaker.util.Creator
 
-class MainViewModel(var interactor: MainIntentInteractor):ViewModel() {
+class MainViewModel(private val interactor: MainIntentInteractor):ViewModel() {
 
 
 
@@ -27,13 +23,5 @@ class MainViewModel(var interactor: MainIntentInteractor):ViewModel() {
 
     fun settings(){
         doIntent.postValue(interactor.settings())
-    }
-
-    companion object {
-        fun getFactory(): ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                MainViewModel(Creator.provideMainIntentInteractor())
-            }
-        }
     }
 }

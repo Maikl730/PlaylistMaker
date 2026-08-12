@@ -14,16 +14,21 @@ import com.michael.playlistmaker.R
 import com.michael.playlistmaker.databinding.ActivityAudioplayerBinding
 import com.michael.playlistmaker.domain.search.models.Track
 import com.michael.playlistmaker.presentation.audioplayer.AudioplayerViewModel
+import com.michael.playlistmaker.presentation.search.TracksViewModel
 import com.michael.playlistmaker.ui.search.INTENT_EXTRA_KEY
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.core.parameter.parametersOf
 
 import java.text.SimpleDateFormat
 import java.util.Locale
 
 class AudioplayerActivity : AppCompatActivity() {
     private lateinit var binding:ActivityAudioplayerBinding
-    private lateinit var viewModel: AudioplayerViewModel
+   lateinit var thisTrack:Track
+    private val viewModel:AudioplayerViewModel by viewModel{( parametersOf (thisTrack.previewUrl))}
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         binding = ActivityAudioplayerBinding.inflate(layoutInflater)
         enableEdgeToEdge()
@@ -35,10 +40,7 @@ class AudioplayerActivity : AppCompatActivity() {
         }
         val intent = intent
 
-        val thisTrack: Track = (intent.getSerializableExtra(INTENT_EXTRA_KEY) as Track?)!!
-
-        viewModel = ViewModelProvider(this, AudioplayerViewModel.getFactory(thisTrack.previewUrl))
-            .get(AudioplayerViewModel::class.java)
+        thisTrack = (intent.getSerializableExtra(INTENT_EXTRA_KEY) as Track?)!!
 
         viewModel.observePlayerState().observe(this) {
             binding.trackLong.text = it.timer

@@ -16,15 +16,15 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.michael.playlistmaker.util.Creator
 import com.michael.playlistmaker.R
 import com.michael.playlistmaker.databinding.ActivitySearchBinding
 import com.michael.playlistmaker.domain.search.api.TrackHistoryInteractor
 import com.michael.playlistmaker.domain.search.models.Track
 import com.michael.playlistmaker.presentation.search.TracksViewModel
 import com.michael.playlistmaker.ui.search.models.TracksState
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.java.KoinJavaComponent.getKoin
 
 const val INTENT_EXTRA_KEY = "TRACK"
 val handler = Handler(Looper.getMainLooper())
@@ -36,9 +36,10 @@ class SearchActivity : AppCompatActivity() {
         private var searchText:String = ""
     }
 
+    private val viewModel by viewModel<TracksViewModel>()
+
     private lateinit var binding:ActivitySearchBinding
-    private var viewModel: TracksViewModel? = null
-    lateinit var trackHistoryInteractor: TrackHistoryInteractor
+    val trackHistoryInteractor: TrackHistoryInteractor = getKoin().get()
     private var textWatcher: TextWatcher? = null
 
     private var newTracks = mutableListOf<Track>()
@@ -211,23 +212,18 @@ class SearchActivity : AppCompatActivity() {
             insets
         }
 
-        viewModel = ViewModelProvider(this, TracksViewModel.getFactory())
-            .get(TracksViewModel::class.java)
 
         viewModel?.observeState()?.observe(this) {
             render(it)
         }
-
-        trackHistoryInteractor = Creator.provideTrackHistoryInteractor()
-
         binding.searchLine.doOnTextChanged { s, start, before, count ->
 
             with(binding) {
                 clear.isVisible = clearButtonVisibility(s)
                 clearHistoryButton.visibility =
-                    if (binding.searchLine.hasFocus() && s?.isEmpty() == true && !trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
+                if (binding.searchLine.hasFocus() && s?.isEmpty() == true && !viewModel.historyIsEmpty()) View.VISIBLE else View.GONE
                 historyTextview.visibility =
-                    if (binding.searchLine.hasFocus() && s?.isEmpty() == true && !trackHistoryInteractor.isEmpty()) View.VISIBLE else View.GONE
+                if (binding.searchLine.hasFocus() && s?.isEmpty() == true && !viewModel.historyIsEmpty()) View.VISIBLE else View.GONE
             }
             if (binding.searchLine.hasFocus() && s?.isEmpty() == true){
                 viewModel?.showHistory()
@@ -294,7 +290,7 @@ class SearchActivity : AppCompatActivity() {
         }
 
         }
-// Нет проблемы
+
         binding.clear.setOnClickListener{
             binding.searchLine.setText("")
             val inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager

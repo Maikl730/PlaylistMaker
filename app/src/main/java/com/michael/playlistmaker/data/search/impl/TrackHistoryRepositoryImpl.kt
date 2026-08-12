@@ -11,7 +11,7 @@ class TrackHistoryRepositoryImpl(private val storage: StorageClient<ArrayList<Tr
     TrackHistoryRepository {
 
     override fun clearHistory() {
-        storage.storeData(ArrayList<Track>())
+        storage.storeData(ArrayList())
     }
 
     override fun getHistory(): ArrayList<Track> {
@@ -31,31 +31,7 @@ class TrackHistoryRepositoryImpl(private val storage: StorageClient<ArrayList<Tr
     }
 
     override fun addToHistory(tracks: ArrayList<Track>) {
-/*
-        var newHistoryTracks: ArrayList<Track>
-
-        if (storage.getData() == null) {
-            newHistoryTracks = arrayListOf(track)
-        } else {
-            newHistoryTracks = storage.getData()!!
-
-            if (newHistoryTracks.contains(track)) {
-                newHistoryTracks.remove(track)
-                newHistoryTracks.add(track)
-            } else {
-                newHistoryTracks.add(track)
-            }
-
-            if (newHistoryTracks.size > 10) {
-                newHistoryTracks.removeAt(0)
-            }
-        }
-
-
- */
-        storage.storeData(tracks
-            //newHistoryTracks
-     )
+        storage.storeData(tracks)
     }
 
     override fun isEmpty(): Boolean {

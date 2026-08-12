@@ -12,8 +12,9 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class AudioplayerViewModel(private val url: String): ViewModel() {
-
+class AudioplayerViewModel(
+    private val url: String
+): ViewModel() {
 
     companion object {
 
@@ -21,13 +22,9 @@ class AudioplayerViewModel(private val url: String): ViewModel() {
         const val STATE_PREPARED = 1
         const val STATE_PLAYING = 2
         const val STATE_PAUSED = 3
-
-        fun getFactory(trackUrl: String): ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                AudioplayerViewModel(trackUrl)
-            }
-        }
     }
+
+
     private var state = STATE_DEFAULT
     private var timer = "00:00"
 

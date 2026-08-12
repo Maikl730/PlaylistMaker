@@ -37,7 +37,6 @@ class TrackHistoryInteractorImpl(private val repository: TrackHistoryRepository)
             }
         }
 
-        //repository.addToHistory(track)
         repository.addToHistory(newHistoryTracks)
     }
 
