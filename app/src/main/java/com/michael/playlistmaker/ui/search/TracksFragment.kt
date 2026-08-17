@@ -2,34 +2,32 @@ package com.michael.playlistmaker.ui.search
 
 import android.content.Context
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.text.TextWatcher
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.michael.playlistmaker.R
 import com.michael.playlistmaker.databinding.FragmentSearchBinding
 import com.michael.playlistmaker.domain.search.api.TrackHistoryInteractor
 import com.michael.playlistmaker.domain.search.models.Track
 import com.michael.playlistmaker.presentation.search.TracksViewModel
+import com.michael.playlistmaker.ui.search.SearchActivity.Companion
 import com.michael.playlistmaker.ui.search.models.TracksState
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.java.KoinJavaComponent.getKoin
 
-const val INTENT_EXTRA_KEY = "TRACK"
-val handler = Handler(Looper.getMainLooper())
+class TracksFragment: Fragment() {
 
-class SearchActivity : AppCompatActivity() {
+    private lateinit var binding: FragmentSearchBinding
 
     companion object {
         const val SEARCH_TEXT = "SEARCH_TEXT"
@@ -37,13 +35,13 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private val viewModel by viewModel<TracksViewModel>()
-// changed
-    private lateinit var binding: FragmentSearchBinding
+
     val trackHistoryInteractor: TrackHistoryInteractor = getKoin().get()
     private var textWatcher: TextWatcher? = null
 
     private var newTracks = mutableListOf<Track>()
     val adapterR = TrackAdapter(newTracks)
+
 
     fun showPlaceTextFirst(isVisible: Boolean) {
         binding.placetextFirst.visibility = if (isVisible) View.VISIBLE else View.GONE
@@ -94,9 +92,9 @@ class SearchActivity : AppCompatActivity() {
 
     fun showMessage(noConOrNoFound: Boolean) {
         if(noConOrNoFound==true){
-            Toast.makeText(this,getString(R.string.no_connection_search),Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(),getString(R.string.no_connection_search), Toast.LENGTH_SHORT).show()
         }else{
-            Toast.makeText(this,getString(R.string.no_find_search),Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(),getString(R.string.no_find_search), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -153,7 +151,7 @@ class SearchActivity : AppCompatActivity() {
     }
 
     fun showToast(message: String) {
-        Toast.makeText(this,message,Toast.LENGTH_SHORT)
+        Toast.makeText(requireContext(),message, Toast.LENGTH_SHORT)
     }
 
     fun showNothing(){
@@ -189,31 +187,32 @@ class SearchActivity : AppCompatActivity() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putString(SEARCH_TEXT, searchText)
+        outState.putString(SEARCH_TEXT,searchText)
     }
 
-
+/*
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
-        searchText = savedInstanceState.getString(SEARCH_TEXT, searchText)
-        val searchLine = findViewById<EditText>(R.id.search_line)
-        searchLine.setText(searchText)
+        searchText = savedInstanceState.getString(
+            SEARCH_TEXT,
+            searchText
+        )
+       // val searchLine = findViewById<EditText>(R.id.search_line)
+        binding.searchLine.setText(searchText)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+ */
 
-        binding = FragmentSearchBinding.inflate(layoutInflater)
-        enableEdgeToEdge()
-        setContentView(binding.root)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        binding = FragmentSearchBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
 
-        viewModel?.observeState()?.observe(this) {
+        viewModel?.observeState()?.observe(viewLifecycleOwner) {
             render(it)
         }
         binding.searchLine.doOnTextChanged { s, start, before, count ->
@@ -221,9 +220,9 @@ class SearchActivity : AppCompatActivity() {
             with(binding) {
                 clear.isVisible = clearButtonVisibility(s)
                 clearHistoryButton.visibility =
-                if (binding.searchLine.hasFocus() && s?.isEmpty() == true && !viewModel.historyIsEmpty()) View.VISIBLE else View.GONE
+                    if (binding.searchLine.hasFocus() && s?.isEmpty() == true && !viewModel.historyIsEmpty()) View.VISIBLE else View.GONE
                 historyTextview.visibility =
-                if (binding.searchLine.hasFocus() && s?.isEmpty() == true && !viewModel.historyIsEmpty()) View.VISIBLE else View.GONE
+                    if (binding.searchLine.hasFocus() && s?.isEmpty() == true && !viewModel.historyIsEmpty()) View.VISIBLE else View.GONE
             }
             if (binding.searchLine.hasFocus() && s?.isEmpty() == true){
                 viewModel?.showHistory()
@@ -237,7 +236,7 @@ class SearchActivity : AppCompatActivity() {
         }
 
         binding.clearHistoryButton.setOnClickListener {
-                trackHistoryInteractor.clearHistory()
+            trackHistoryInteractor.clearHistory()
             with(binding) {
                 recycleTracks.isVisible = false
                 historyTextview.isVisible = false
@@ -261,10 +260,11 @@ class SearchActivity : AppCompatActivity() {
         }
 
         binding.recycleTracks.adapter = adapterR
-        binding.recycleTracks.layoutManager = LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false)
+        binding.recycleTracks.layoutManager = LinearLayoutManager(requireContext(),
+            LinearLayoutManager.VERTICAL,false)
 
         binding.toolBar.setNavigationOnClickListener{
-            finish()
+           // finish()
         }
 
         binding.searchLine.setOnFocusChangeListener { view, hasFocus ->
@@ -282,18 +282,18 @@ class SearchActivity : AppCompatActivity() {
 
 
 
-        with(binding) {
-             placetextSecond.visibility = if (hasFocus && searchLine.text.isEmpty()) View.GONE else View.VISIBLE
-             placetextFirst.visibility = if (hasFocus && searchLine.text.isEmpty()) View.GONE else View.VISIBLE
-             imagePlaceholder.visibility = if (hasFocus && searchLine.text.isEmpty()) View.GONE else View.VISIBLE
-             researchButton.visibility = if (hasFocus && searchLine.text.isEmpty()) View.GONE else View.VISIBLE
-        }
+            with(binding) {
+                placetextSecond.visibility = if (hasFocus && searchLine.text.isEmpty()) View.GONE else View.VISIBLE
+                placetextFirst.visibility = if (hasFocus && searchLine.text.isEmpty()) View.GONE else View.VISIBLE
+                imagePlaceholder.visibility = if (hasFocus && searchLine.text.isEmpty()) View.GONE else View.VISIBLE
+                researchButton.visibility = if (hasFocus && searchLine.text.isEmpty()) View.GONE else View.VISIBLE
+            }
 
         }
 
         binding.clear.setOnClickListener{
             binding.searchLine.setText("")
-            val inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+            val inputMethodManager = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
             inputMethodManager?.hideSoftInputFromWindow(binding.searchLine.windowToken, 0)
 
             viewModel?.showHistory()
@@ -306,6 +306,8 @@ class SearchActivity : AppCompatActivity() {
             }
         }
     }
+
+
 
     override fun onDestroy() {
         super.onDestroy()
@@ -320,6 +322,3 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 }
-
-
-

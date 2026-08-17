@@ -1,38 +1,36 @@
 package com.michael.playlistmaker.ui.mediateka
 
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import com.google.android.material.tabs.TabLayoutMediator
 import com.michael.playlistmaker.R
-import com.michael.playlistmaker.databinding.ActivityMediatekaBinding
 import com.michael.playlistmaker.databinding.FragmentMediatekaBinding
+import com.michael.playlistmaker.databinding.FragmentSearchBinding
 import com.michael.playlistmaker.presentation.mediateka.MediatekaViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-
-class MediatekaActivity : AppCompatActivity() {
-
-
+class MediatekaFragment:Fragment() {
     private lateinit var binding: FragmentMediatekaBinding
-
     private lateinit var tabMediator: TabLayoutMediator
 
     private val viewModel by viewModel<MediatekaViewModel>()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = FragmentMediatekaBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-        enableEdgeToEdge()
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
-        binding.viewPager.adapter = MediatekaViewPagerAdapter(supportFragmentManager, lifecycle)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        binding = FragmentMediatekaBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        binding.viewPager.adapter = MediatekaViewPagerAdapter(childFragmentManager, lifecycle)
 
         tabMediator = TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
             when (position) {
@@ -43,7 +41,7 @@ class MediatekaActivity : AppCompatActivity() {
         tabMediator.attach()
 
         binding.toolBar.setNavigationOnClickListener {
-            finish()
+           // finish()
         }
     }
 
@@ -51,5 +49,4 @@ class MediatekaActivity : AppCompatActivity() {
         super.onDestroy()
         tabMediator.detach()
     }
-
 }
