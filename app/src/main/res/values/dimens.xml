@@ -5,5 +5,6 @@
     <dimen name="smallest_text">11sp</dimen>
     <dimen name="corner_radius_buttons">16dp</dimen>
     <dimen name="main_padding">16dp</dimen>
+    <dimen name="allmost_big_text">19sp</dimen>
     <dimen name="setting_variant_padding_vertical">20dp</dimen>
 </resources>

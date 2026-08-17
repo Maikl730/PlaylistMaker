@@ -1,10 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.mediateka.MediatekaActivity">
+    style="@style/BackgroundSearchAct"
+    android:orientation="vertical">
 
-</FrameLayout>
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/tool_bar"
+        style="@style/Toolbar.TitleText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:title="@string/mediateka"
+        app:titleTextAppearance="@style/Toolbar.TitleText"
+        android:padding="4dp"
+        app:navigationIcon="@drawable/arrow_back">
+    </com.google.android.material.appbar.MaterialToolbar>
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:tabMaxWidth="150dp"
+        app:tabMinWidth="150dp"
+        app:tabTextAppearance="@style/TabText"
+        style="@style/Tab" />
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+</LinearLayout>
