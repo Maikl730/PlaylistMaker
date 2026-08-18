@@ -7,7 +7,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.tabs.TabLayoutMediator
 import com.michael.playlistmaker.R
-import com.michael.playlistmaker.databinding.ActivityMediatekaBinding
 import com.michael.playlistmaker.databinding.FragmentMediatekaBinding
 import com.michael.playlistmaker.presentation.mediateka.MediatekaViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel

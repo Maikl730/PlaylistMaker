@@ -24,11 +24,6 @@ class RootActivity : AppCompatActivity() {
         }
 
 
-        if (savedInstanceState == null) {
-            // Добавляем фрагмент в контейнер
-            supportFragmentManager.commit {
-                this.add(R.id.rootFragmentContainerView, TracksFragment())
-            }
-        }
+
     }
 }

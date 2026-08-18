@@ -7,6 +7,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.michael.playlistmaker.R
 import com.michael.playlistmaker.databinding.ActivitySettingsBinding
+import com.michael.playlistmaker.databinding.FragmentSettingsBinding
 import com.michael.playlistmaker.domain.settings.api.ThemeSwitcherControlInteractor
 import com.michael.playlistmaker.presentation.settings.SettingsViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -16,12 +17,12 @@ const val THEME_PREFERENCES = "theme_preferences"
 const val EDIT_THEME_KEY = "key_for_edit_theme"
 
 class SettingsActivity : AppCompatActivity() {
-    private lateinit var binding:ActivitySettingsBinding
+    private lateinit var binding: FragmentSettingsBinding
     private val viewModel by viewModel<SettingsViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivitySettingsBinding.inflate(layoutInflater)
+        binding = FragmentSettingsBinding.inflate(layoutInflater)
         enableEdgeToEdge()
         setContentView(binding.root)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
