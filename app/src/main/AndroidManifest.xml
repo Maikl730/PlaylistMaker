@@ -40,7 +40,6 @@
         <activity
             android:name=".ui.main.MainActivity"
             android:exported="false">
-
         </activity>
     </application>
 

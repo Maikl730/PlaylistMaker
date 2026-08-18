@@ -15,8 +15,7 @@
         android:layout_height="wrap_content"
         app:title="@string/mediateka"
         app:titleTextAppearance="@style/Toolbar.TitleText"
-        android:padding="4dp"
-        app:navigationIcon="@drawable/arrow_back">
+        android:padding="12dp">
     </com.google.android.material.appbar.MaterialToolbar>
 
     <com.google.android.material.tabs.TabLayout
