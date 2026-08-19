@@ -20,7 +20,6 @@ import com.michael.playlistmaker.databinding.FragmentSearchBinding
 import com.michael.playlistmaker.domain.search.api.TrackHistoryInteractor
 import com.michael.playlistmaker.domain.search.models.Track
 import com.michael.playlistmaker.presentation.search.TracksViewModel
-import com.michael.playlistmaker.ui.search.SearchActivity.Companion
 import com.michael.playlistmaker.ui.search.models.TracksState
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.java.KoinJavaComponent.getKoin
@@ -263,9 +262,7 @@ class TracksFragment: Fragment() {
         binding.recycleTracks.layoutManager = LinearLayoutManager(requireContext(),
             LinearLayoutManager.VERTICAL,false)
 
-        binding.toolBar.setNavigationOnClickListener{
-           // finish()
-        }
+
 
         binding.searchLine.setOnFocusChangeListener { view, hasFocus ->
 

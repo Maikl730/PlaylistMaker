@@ -1,17 +1,19 @@
 package com.michael.playlistmaker.ui.root
 
+import android.graphics.Rect
 import android.os.Bundle
+import android.view.ViewTreeObserver
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.fragment.app.commit
+
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.michael.playlistmaker.R
 import com.michael.playlistmaker.databinding.ActivityRootBinding
-import com.michael.playlistmaker.ui.search.TracksFragment
+
 
 class RootActivity : AppCompatActivity() {
     private lateinit var binding:ActivityRootBinding
@@ -31,6 +33,7 @@ class RootActivity : AppCompatActivity() {
 
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
         bottomNavigationView.setupWithNavController(navController)
+
 
         /*
         navController.addOnDestinationChangedListener { _, destination, _ ->
