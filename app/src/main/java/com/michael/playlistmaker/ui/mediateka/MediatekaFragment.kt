@@ -39,10 +39,6 @@ class MediatekaFragment:Fragment() {
             }
         }
         tabMediator.attach()
-
-        binding.toolBar.setNavigationOnClickListener {
-           // finish()
-        }
     }
 
     override fun onDestroy() {
