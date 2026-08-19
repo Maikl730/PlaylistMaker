@@ -4,8 +4,6 @@ import android.content.Context
 import androidx.appcompat.app.AppCompatActivity.MODE_PRIVATE
 import androidx.appcompat.app.AppCompatDelegate
 import com.michael.playlistmaker.domain.settings.api.ThemeSwitcherControlRepository
-import com.michael.playlistmaker.ui.settings.EDIT_THEME_KEY
-import com.michael.playlistmaker.ui.settings.THEME_PREFERENCES
 
 
 const val THEME_PREFERENCES = "theme_preferences"

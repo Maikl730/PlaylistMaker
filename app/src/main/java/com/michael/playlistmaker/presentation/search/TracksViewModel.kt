@@ -15,6 +15,7 @@ import com.michael.playlistmaker.ui.search.models.TracksState
 
 class TracksViewModel(private val tracksInteractor: TracksInteractor,private val trackHistoryInteractor: TrackHistoryInteractor): ViewModel() {
 
+    var handler:Handler = Handler(Looper.getMainLooper())
 
     private val stateLiveData = MutableLiveData<TracksState>()
     fun observeState(): LiveData<TracksState> = stateLiveData
@@ -31,7 +32,7 @@ class TracksViewModel(private val tracksInteractor: TracksInteractor,private val
 
 
 
-    val handler = Handler(Looper.getMainLooper())
+
     private var latestSearchText: String = ""
 
     var lastSearch:String =""
@@ -42,12 +43,13 @@ class TracksViewModel(private val tracksInteractor: TracksInteractor,private val
 
 
     fun searchDebounce(changedText:String) {
+        val handler = Handler(Looper.getMainLooper())
         if (latestSearchText == changedText) {
             return
         }
         this.latestSearchText = changedText
-        com.michael.playlistmaker.ui.search.handler.removeCallbacks(searchRunnable)
-        com.michael.playlistmaker.ui.search.handler.postDelayed(searchRunnable,
+        handler.removeCallbacks(searchRunnable)
+        handler.postDelayed(searchRunnable,
             SEARCH_DEBOUNCE_DELAY
         )
     }
@@ -57,7 +59,8 @@ class TracksViewModel(private val tracksInteractor: TracksInteractor,private val
 
             val consumer = object : TrackHistoryInteractor.HistoryConsumer {
                 override fun consume(searchHistory: List<Track>?) {
-                    com.michael.playlistmaker.ui.search.handler.post {
+                    val handler = Handler(Looper.getMainLooper())
+                    handler.post {
                         if (searchHistory != null){
                             renderState(TracksState(searchHistory, false, null,true))
                         }else{
@@ -78,7 +81,8 @@ class TracksViewModel(private val tracksInteractor: TracksInteractor,private val
 
             override fun consume(foundTracks: List<Track>?, errorMessage:String?) {
 
-                com.michael.playlistmaker.ui.search.handler.post {
+                val handler = Handler(Looper.getMainLooper())
+                handler.post {
 
                     renderState(TracksState(null,true,null,false))
                     if (foundTracks != null) {
