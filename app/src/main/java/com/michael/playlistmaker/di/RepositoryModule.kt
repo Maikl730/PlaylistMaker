@@ -1,6 +1,6 @@
 package com.michael.playlistmaker.di
 
-import com.michael.playlistmaker.data.main.impl.NavigatorMainImpl
+
 import com.michael.playlistmaker.data.search.impl.TrackHistoryRepositoryImpl
 import com.michael.playlistmaker.data.search.network.TrackRepositoryImpl
 import com.michael.playlistmaker.data.settings.impl.ExternalNavigatorImpl
@@ -26,10 +26,6 @@ import org.koin.dsl.module
 
         single<ThemeSwitcherControlRepository> {
             ThemeSwitcherControlRepositoryImpl(context = androidContext())
-        }
-
-        single<NavigatorMain> {
-            NavigatorMainImpl(context = androidContext())
         }
 
         single<ExternalNavigator> {

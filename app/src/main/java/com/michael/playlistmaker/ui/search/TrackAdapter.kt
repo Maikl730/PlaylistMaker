@@ -1,6 +1,8 @@
 package com.michael.playlistmaker.ui.search
 
 import android.content.Intent
+import android.os.Handler
+import android.os.Looper
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.michael.playlistmaker.ui.audioplayer.AudioplayerActivity
@@ -9,6 +11,7 @@ import com.michael.playlistmaker.domain.search.models.Track
 import org.koin.java.KoinJavaComponent.getKoin
 
 private const val CLICK_DEBOUNCE_DELAY = 1000L
+val INTENT_EXTRA_KEY = "key_for_extra"
 
 class TrackAdapter(private val tracks:List<Track> ): RecyclerView.Adapter<TracksViewHolder>() {
 
@@ -22,6 +25,7 @@ class TrackAdapter(private val tracks:List<Track> ): RecyclerView.Adapter<Tracks
     }
 
     private fun clickDebounce() : Boolean {
+        val handler = Handler(Looper.getMainLooper())
         val current = isClickAllowed
         if (isClickAllowed) {
             isClickAllowed = false

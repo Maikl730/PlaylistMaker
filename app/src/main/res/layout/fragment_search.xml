@@ -8,7 +8,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.search.SearchActivity">
+    tools:context=".ui.search.TracksFragment">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/tool_bar"
@@ -17,8 +17,7 @@
         android:layout_height="wrap_content"
         app:title="@string/search"
         app:titleTextAppearance="@style/Toolbar.TitleText"
-        android:padding="4dp"
-        app:navigationIcon="@drawable/arrow_back">
+        android:padding="12dp">
     </com.google.android.material.appbar.MaterialToolbar>
 <FrameLayout
     android:layout_width="match_parent"

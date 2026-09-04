@@ -80,6 +80,9 @@
     <style name="TabText">
         <item name="android:textSize">14sp</item>
     </style>
+    <style name="BottomMenu">
+        <item name="android:background">@color/white</item>
+    </style>
 
 
 </resources>
