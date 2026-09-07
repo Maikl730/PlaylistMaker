@@ -54,6 +54,8 @@ dependencies {
 
     implementation("io.insert-koin:koin-android:3.3.0")
 
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.9")
+
     implementation(libs.androidx.constraintlayout)
     implementation(libs.converter.gson)
     implementation(libs.retrofit)

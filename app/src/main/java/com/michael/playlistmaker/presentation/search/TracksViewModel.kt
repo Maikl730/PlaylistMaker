@@ -7,15 +7,19 @@ import android.os.Looper
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.michael.playlistmaker.domain.search.api.TrackHistoryInteractor
 import com.michael.playlistmaker.domain.search.api.TracksInteractor
 import com.michael.playlistmaker.domain.search.models.Track
 import com.michael.playlistmaker.ui.search.models.TracksState
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 class TracksViewModel(private val tracksInteractor: TracksInteractor,private val trackHistoryInteractor: TrackHistoryInteractor): ViewModel() {
 
-    var handler:Handler = Handler(Looper.getMainLooper())
+    private var searchJob: Job? = null
 
     private val stateLiveData = MutableLiveData<TracksState>()
     fun observeState(): LiveData<TracksState> = stateLiveData
@@ -25,35 +29,23 @@ class TracksViewModel(private val tracksInteractor: TracksInteractor,private val
 
     companion object {
         private const val SEARCH_DEBOUNCE_DELAY = 2000L
-        //const val SEARCH_TEXT = "SEARCH_TEXT"
-       // private var searchText:String = ""
-
     }
-
-
-
 
     private var latestSearchText: String = ""
 
     var lastSearch:String =""
 
-    private val searchRunnable = Runnable {
-        searchMusic(latestSearchText)
-    }
-
-
     fun searchDebounce(changedText:String) {
-        val handler = Handler(Looper.getMainLooper())
         if (latestSearchText == changedText) {
             return
         }
         this.latestSearchText = changedText
-        handler.removeCallbacks(searchRunnable)
-        handler.postDelayed(searchRunnable,
-            SEARCH_DEBOUNCE_DELAY
-        )
+        searchJob?.cancel()
+        viewModelScope.launch {
+            delay(SEARCH_DEBOUNCE_DELAY)
+            searchMusic(changedText)
+        }
     }
-
 
     fun showHistory(){
 
@@ -74,31 +66,33 @@ class TracksViewModel(private val tracksInteractor: TracksInteractor,private val
         trackHistoryInteractor.getHistory(consumer)
     }
 
+    fun processResult(foundTracks: List<Track>?, errorMessage: String?){
+        val tracks = mutableListOf<Track>()
+        if (foundTracks != null) {
+            tracks.addAll(foundTracks)
+        }
+
+        if (foundTracks != null) {
+            renderState(TracksState(foundTracks, false, null,false))
+        }
+        if (errorMessage != null) {
+            renderState(TracksState(null,false,errorMessage,false))
+        } else if (foundTracks!!.isEmpty()) {
+            renderState(TracksState(foundTracks,false,null,false))
+        } else {
+            // hideMessage()
+        }
+
+    }
+
     fun searchMusic(text:String){
         renderState(TracksState(null,true,null,false))
 
-        val consumer = object: TracksInteractor.TracksConsumer{
-
-            override fun consume(foundTracks: List<Track>?, errorMessage:String?) {
-
-                val handler = Handler(Looper.getMainLooper())
-                handler.post {
-
-                    renderState(TracksState(null,true,null,false))
-                    if (foundTracks != null) {
-                        renderState(TracksState(foundTracks, false, null,false))
-                    }
-                    if (errorMessage != null) {
-                        renderState(TracksState(null,false,errorMessage,false))
-                    } else if (foundTracks!!.isEmpty()) {
-                        renderState(TracksState(foundTracks,false,null,false))
-                    } else {
-                        // hideMessage()
-                    }
-                }
-            }
+        viewModelScope.launch {
+            tracksInteractor
+                .searchTracks(text)
+                .collect{pair -> processResult(pair.first,pair.second)}
         }
-        tracksInteractor.searchTracks(text,consumer)
     }
 
 
@@ -109,8 +103,6 @@ class TracksViewModel(private val tracksInteractor: TracksInteractor,private val
 
     override fun onCleared() {
         super.onCleared()
-        handler.removeCallbacks(searchRunnable)
-
     }
 
     fun historyIsEmpty():Boolean{

@@ -7,8 +7,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -17,7 +21,6 @@ class AudioplayerViewModel(
 ): ViewModel() {
 
     companion object {
-
        const val STATE_DEFAULT= 0
         const val STATE_PREPARED = 1
         const val STATE_PLAYING = 2
@@ -25,6 +28,7 @@ class AudioplayerViewModel(
     }
 
 
+    private var timerJob: Job? = null
     private var state = STATE_DEFAULT
     private var timer = "00:00"
 
@@ -32,19 +36,9 @@ class AudioplayerViewModel(
     fun observePlayerState(): LiveData<AudioState> = playerStateLiveData
 
     private val progressTimeLiveData = MutableLiveData(timer)
-    fun observeProgressTime(): LiveData<String> = progressTimeLiveData
 
     private var mediaPlayer = MediaPlayer()
 
-    val  handler = Handler(Looper.getMainLooper())
-
-    val timerRunnable = object :Runnable{
-        override fun run() {
-            if (playerStateLiveData.value!!.state == STATE_PLAYING) {
-                startTimerUpdate()
-            }
-        }
-    }
 
 
     init {
@@ -64,12 +58,6 @@ class AudioplayerViewModel(
             STATE_PLAYING -> pausePlayer()
             STATE_PREPARED , STATE_PAUSED -> startPlayer()
             else -> null
-            /*
-            STATE_PLAYING -> pausePlayer()
-            STATE_PREPARED, STATE_PAUSED -> startPlayer()
-
-             */
-
         }
     }
 
@@ -100,20 +88,22 @@ class AudioplayerViewModel(
 
     private fun startTimerUpdate() {
         playerStateLiveData.postValue(AudioState(STATE_PLAYING,SimpleDateFormat("mm:ss", Locale.getDefault()).format(mediaPlayer.currentPosition)))
-       // progressTimeLiveData.postValue(SimpleDateFormat("mm:ss", Locale.getDefault()).format(mediaPlayer.currentPosition))
         timer=SimpleDateFormat("mm:ss", Locale.getDefault()).format(mediaPlayer.currentPosition)
-        handler.postDelayed(timerRunnable, 200)
+
+        timerJob = viewModelScope.launch {
+                delay(300)
+                startTimerUpdate()
+        }
     }
 
     private fun pauseTimer() {
-        handler.removeCallbacks(timerRunnable)
+        timerJob?.cancel()
     }
 
 
     private fun resetTimer() {
-        handler.removeCallbacks(timerRunnable)
+        timerJob?.cancel()
         playerStateLiveData.postValue(AudioState(STATE_PAUSED,"00:00"))
-        //progressTimeLiveData.postValue("00:00")
     }
 
     fun onPause() {
