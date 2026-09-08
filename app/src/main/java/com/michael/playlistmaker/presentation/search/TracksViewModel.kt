@@ -41,7 +41,7 @@ class TracksViewModel(private val tracksInteractor: TracksInteractor,private val
         }
         this.latestSearchText = changedText
         searchJob?.cancel()
-        viewModelScope.launch {
+        searchJob = viewModelScope.launch {
             delay(SEARCH_DEBOUNCE_DELAY)
             searchMusic(changedText)
         }
