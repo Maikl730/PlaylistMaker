@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.map
 import java.util.concurrent.Executors
 
 class TracksInteractorImpl(private val repository: TracksRepository) : TracksInteractor {
-    //private val executor = Executors.newCachedThreadPool()
 
     override fun searchTracks(expression: String): Flow<Pair<List<Track>?, String?>> {
 
@@ -24,20 +23,6 @@ class TracksInteractorImpl(private val repository: TracksRepository) : TracksInt
                     Pair(null, result.message)
                 }
             }
-            /*
-            when (val resource = repository.searchTracks(expression)) {
-                is Resource.Success -> {
-                    consumer.consume(resource.data, null)
-                }
-
-                is Resource.Error -> {
-                    consumer.consume(null, resource.message)
-                }
-                // consumer.consume(repository.searchTracks(expression))
-            }
-
-         */
-
         }
     }
 }
