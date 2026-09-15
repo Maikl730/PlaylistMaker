@@ -1,8 +1,10 @@
 package com.michael.playlistmaker.di
 
 import android.content.Context
+import androidx.room.Room
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.michael.playlistmaker.data.db.AppDatabase
 import com.michael.playlistmaker.data.search.NetworkClient
 import com.michael.playlistmaker.data.search.StorageClient
 import com.michael.playlistmaker.data.search.network.ItunesApiService
@@ -44,5 +46,9 @@ val dataModule = module {
 
     factory { Gson() }
 
+    single {
+        Room.databaseBuilder(androidContext(), AppDatabase::class.java, "database.db")
+            .build()
+    }
 
 }
