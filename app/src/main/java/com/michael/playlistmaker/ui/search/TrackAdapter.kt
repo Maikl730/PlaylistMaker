@@ -13,7 +13,7 @@ import org.koin.java.KoinJavaComponent.getKoin
 private const val CLICK_DEBOUNCE_DELAY = 1000L
 val INTENT_EXTRA_KEY = "key_for_extra"
 
-class TrackAdapter(private val tracks:List<Track> ): RecyclerView.Adapter<TracksViewHolder>() {
+class TrackAdapter(private val tracks: List<Track>,private val clickDebounce: () -> Boolean): RecyclerView.Adapter<TracksViewHolder>() {
 
     private val searchMaker:TrackHistoryInteractor = getKoin().get()
     private var isClickAllowed = true
@@ -24,6 +24,8 @@ class TrackAdapter(private val tracks:List<Track> ): RecyclerView.Adapter<Tracks
         return tracks.size
     }
 
+
+/*
     private fun clickDebounce() : Boolean {
         val handler = Handler(Looper.getMainLooper())
         val current = isClickAllowed
@@ -33,6 +35,8 @@ class TrackAdapter(private val tracks:List<Track> ): RecyclerView.Adapter<Tracks
         }
         return current
     }
+
+ */
 
     override fun onBindViewHolder(holder: TracksViewHolder, position: Int) {
 

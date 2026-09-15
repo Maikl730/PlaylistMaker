@@ -6,19 +6,20 @@ import com.michael.playlistmaker.data.search.dto.TrackSearchRequest
 import com.michael.playlistmaker.domain.search.api.TracksRepository
 import com.michael.playlistmaker.domain.search.models.Track
 import com.michael.playlistmaker.util.Resource
-
-public val NOFOUND = "NOFOUND"
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
 class TrackRepositoryImpl(private val networkClient: NetworkClient): TracksRepository {
-    override fun searchTracks(expression: String): Resource<List<Track>> {
+    override fun searchTracks(expression: String): Flow<Resource<List<Track>>> =flow {
+
         val response = networkClient.doRequest(TrackSearchRequest(expression))
 
-        return when (response.resultCode) {
+         when (response.resultCode) {
             -1 -> {
-                Resource.Error("Проверьте подключение к интернету")
+                emit(Resource.Error("Проверьте подключение к интернету"))
             }
             200 -> {
-                Resource.Success((response as SongResponse).results.map {
+                val data = (response as SongResponse).results.map {
                     Track(it.trackName,
                         it.artistName,
                         it.trackTimeMillis,
@@ -28,10 +29,11 @@ class TrackRepositoryImpl(private val networkClient: NetworkClient): TracksRepos
                         it.releaseDate,
                         it.primaryGenreName,
                         it.country,
-                        it.previewUrl) })
+                        it.previewUrl) }
+                emit(Resource.Success(data))
             }
             else -> {
-                Resource.Error("Ошибка сервера")
+                emit(Resource.Error("Ошибка сервера"))
             }
         }
     }

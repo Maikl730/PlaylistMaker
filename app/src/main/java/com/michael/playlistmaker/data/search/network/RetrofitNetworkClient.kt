@@ -6,11 +6,12 @@ import android.net.NetworkCapabilities
 import com.michael.playlistmaker.data.search.NetworkClient
 import com.michael.playlistmaker.data.search.dto.Response
 import com.michael.playlistmaker.data.search.dto.TrackSearchRequest
+import kotlin.coroutines.cancellation.CancellationException
 
 class RetrofitNetworkClient(private val itunesService: ItunesApiService, private val context: Context):
     NetworkClient {
 
-    override fun doRequest(dto: Any): Response {
+    override suspend fun doRequest(dto: Any): Response {
         if (isConnected() == false) {
             return Response().apply { resultCode = -1 }
         }
@@ -18,14 +19,16 @@ class RetrofitNetworkClient(private val itunesService: ItunesApiService, private
             return Response().apply { resultCode = 400 }
         }
 
-        val resp = itunesService.search(dto.expression).execute()
-        val body = resp.body() ?: Response()
+        return (
+            try {
+                val response = itunesService.search(dto.expression)
+                response.apply { resultCode = 200 }
 
-        return if (body!=null){
-            body.apply { resultCode = resp.code()}
-        }else{
-            Response().apply { resultCode = resp.code() }
+            } catch (e: CancellationException) {
+                Response().apply { resultCode = 500 }
             }
+                )
+
     }
 
     private fun isConnected(): Boolean {
