@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
 class TrackRepositoryImpl(private val networkClient: NetworkClient,private val appDatabase: AppDatabase): TracksRepository {
+
     override fun searchTracks(expression: String): Flow<Resource<List<Track>>> =flow {
 
         val response = networkClient.doRequest(TrackSearchRequest(expression))
@@ -21,7 +22,9 @@ class TrackRepositoryImpl(private val networkClient: NetworkClient,private val a
             }
             200 -> {
                 val favoriteIds = appDatabase.trackDao().getAllFavoriteTracksId()
+
                 val data = (response as SongResponse).results.map {
+                    val isFavorite:Boolean = favoriteIds.contains(it.trackId)
                     Track(it.trackName,
                         it.artistName,
                         it.trackTimeMillis,
@@ -32,7 +35,7 @@ class TrackRepositoryImpl(private val networkClient: NetworkClient,private val a
                         it.primaryGenreName,
                         it.country,
                         it.previewUrl,
-                        if(favoriteIds.contains(it.trackId)) true else false) }
+                        isFavorite) }
                 emit(Resource.Success(data))
             }
             else -> {

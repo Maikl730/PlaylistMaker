@@ -31,4 +31,9 @@ class TrackDbConverter {
             tI.country,
             tI.previewUrl)
     }
+
+    fun mapList(list:List<TrackEntity>):List<Track>{
+        val trackList:List<Track> = list.map { eT -> map(eT) }
+        return trackList
+    }
 }

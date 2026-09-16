@@ -19,12 +19,14 @@ import org.koin.dsl.module
 
     val repositoryModule = module {
 
+        factory { TrackDbConverter() }
+
         single<TracksRepository> {
             TrackRepositoryImpl(get(), get())
         }
 
         single<TrackHistoryRepository> {
-            TrackHistoryRepositoryImpl(get())
+            TrackHistoryRepositoryImpl(get(),get())
         }
 
         single<ThemeSwitcherControlRepository> {
@@ -35,10 +37,9 @@ import org.koin.dsl.module
             ExternalNavigatorImpl(context = androidContext())
         }
 
-        factory { TrackDbConverter() }
-
-        single<FavoriteRepository> {
-            FavoriteRepositoryImpl(get(), get())
+        single<FavoriteRepository>{
+            FavoriteRepositoryImpl(get(),get())
         }
+
 
     }

@@ -10,14 +10,22 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.michael.playlistmaker.data.converters.TrackDbConverter
+import com.michael.playlistmaker.data.db.AppDatabase
+import com.michael.playlistmaker.data.db.FavoriteRepositoryImpl
+import com.michael.playlistmaker.domain.db.FavoriteInteractor
+import com.michael.playlistmaker.domain.mediateka.Impl.FavoriteInteractorImpl
+import com.michael.playlistmaker.domain.search.api.TrackHistoryRepository
+import com.michael.playlistmaker.domain.search.models.Track
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.koin.java.KoinJavaComponent.getKoin
 import java.text.SimpleDateFormat
 import java.util.Locale
 
 class AudioplayerViewModel(
-    private val url: String
+    private val track: Track, private val favoriteInteractor: FavoriteInteractor
 ): ViewModel() {
 
     companion object {
@@ -27,7 +35,14 @@ class AudioplayerViewModel(
         const val STATE_PAUSED = 3
     }
 
+    val base:AppDatabase = getKoin().get()
+    fun begin(){
+        viewModelScope.launch {
+            if (base.trackDao().getAllFavoriteTracksId().contains(track.trackId)) isFavoriteLiveData.postValue(true)
+        }
+    }
 
+    private var isFavorite = track.isFavorite
     private var timerJob: Job? = null
     private var state = STATE_DEFAULT
     private var timer = "00:00"
@@ -35,7 +50,10 @@ class AudioplayerViewModel(
     private val playerStateLiveData = MutableLiveData<AudioState>(AudioState(STATE_DEFAULT,"00:00"))
     fun observePlayerState(): LiveData<AudioState> = playerStateLiveData
 
-    private val progressTimeLiveData = MutableLiveData(timer)
+    private val isFavoriteLiveData = MutableLiveData<Boolean>(isFavorite)
+    fun observeIsFavorite():LiveData<Boolean> = isFavoriteLiveData
+
+   // private val progressTimeLiveData = MutableLiveData(timer)
 
     private var mediaPlayer = MediaPlayer()
 
@@ -62,7 +80,7 @@ class AudioplayerViewModel(
     }
 
     private fun preparePlayer() {
-        mediaPlayer.setDataSource(url)
+        mediaPlayer.setDataSource(track.previewUrl)
         mediaPlayer.prepareAsync()
         mediaPlayer.setOnPreparedListener {
             playerStateLiveData.postValue(AudioState(STATE_PREPARED,"00:00"))
@@ -108,6 +126,22 @@ class AudioplayerViewModel(
 
     fun onPause() {
         pausePlayer()
+    }
+
+    fun onFavoriteClicked(){
+        viewModelScope.launch {
+            if (isFavorite==false){
+               favoriteInteractor.addToFavirite(track)
+                isFavorite = true
+                isFavoriteLiveData.postValue(isFavorite)
+
+            }else{
+               favoriteInteractor.deleteFromFavorite(track)
+                isFavorite = false
+                isFavoriteLiveData.postValue(isFavorite)
+            }
+        }
+
     }
 
 

@@ -1,11 +1,12 @@
 package com.michael.playlistmaker.data.db
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "favorite_tracks")
 data class TrackEntity (
-    @PrimaryKey
+    @PrimaryKey  @ColumnInfo(name = "track_id")
     val trackId:String,
     val artworkUrl100: String,
     val trackName: String,

@@ -3,6 +3,7 @@ package com.michael.playlistmaker.domain.search.impl
 import com.michael.playlistmaker.domain.search.api.TrackHistoryInteractor
 import com.michael.playlistmaker.domain.search.api.TrackHistoryRepository
 import com.michael.playlistmaker.domain.search.models.Track
+import kotlinx.coroutines.flow.Flow
 
 class TrackHistoryInteractorImpl(private val repository: TrackHistoryRepository):
     TrackHistoryInteractor {
@@ -12,18 +13,18 @@ class TrackHistoryInteractorImpl(private val repository: TrackHistoryRepository)
         repository.clearHistory()
     }
 
-    override fun getHistory(consumer: TrackHistoryInteractor.HistoryConsumer) {
-        consumer.consume(repository.getHistory())
+    override fun getHistory():Flow<ArrayList<Track>> {
+        return repository.getHistory()
     }
 
     override fun addToHistory(track: Track) {
 
         var newHistoryTracks: ArrayList<Track>
 
-        if (repository.getHistory().isEmpty()) {
+        if (repository.getHistoryOldFun().isEmpty()) {
             newHistoryTracks = arrayListOf(track)
         } else {
-            newHistoryTracks = repository.getHistory()
+            newHistoryTracks = repository.getHistoryOldFun()
 
             if (newHistoryTracks.contains(track)) {
                 newHistoryTracks.remove(track)
@@ -42,10 +43,10 @@ class TrackHistoryInteractorImpl(private val repository: TrackHistoryRepository)
 
     override fun isEmpty(): Boolean {
        // return  repository.isEmpty()
-        return repository.getHistory().isEmpty()
+        return repository.getHistoryOldFun().isEmpty()
     }
 
     fun isRealEmpty():Boolean{
-        return repository.getHistory().isEmpty()
+        return repository.getHistoryOldFun().isEmpty()
     }
 }

@@ -19,4 +19,5 @@ class FavoriteInteractorImpl(private val favoriteRepository: FavoriteRepository)
     override suspend fun getAllFavorite(): Flow<List<Track>> {
       return favoriteRepository.getAllFavorite().map { value -> value.asReversed() }
     }
+
 }
