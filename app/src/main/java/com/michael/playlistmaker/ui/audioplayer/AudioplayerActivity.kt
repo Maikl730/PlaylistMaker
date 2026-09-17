@@ -48,24 +48,19 @@ class AudioplayerActivity : AppCompatActivity() {
 
 
         val intent = intent
+
+            ///// Для меня
         var list = emptyList<String>()
-
-
 
             lifecycleScope.launch {list =  base.trackDao().getAllFavoriteTracksId()
                 Log.d("MyLog",list.toString())
                 Log.d("MyLog",base.trackDao().getAllFavoriteTracksId().contains(thisTrack.trackId).toString() + " = BOOLEAN")}
-
-
-
+                ////////////
 
         thisTrack = (intent.getSerializableExtra(INTENT_EXTRA_KEY) as Track?)!!
 
-        Log.d("MyLog",thisTrack.trackId.toString() + " = Id")
-
 
         viewModel.begin()
-        Toast.makeText(this,thisTrack.isFavorite.toString(),Toast.LENGTH_SHORT).show()
 
         viewModel.observeIsFavorite().observe(this){
             if(it==true){
