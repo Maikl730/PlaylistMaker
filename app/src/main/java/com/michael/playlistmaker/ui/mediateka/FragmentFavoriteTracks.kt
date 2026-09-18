@@ -8,18 +8,13 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.michael.playlistmaker.data.db.AppDatabase
 import com.michael.playlistmaker.databinding.FragmentFavoriteTracksBinding
-import com.michael.playlistmaker.databinding.FragmentPlaylistBinding
-import com.michael.playlistmaker.domain.db.FavoriteInteractor
-import com.michael.playlistmaker.domain.search.api.TrackHistoryInteractor
 import com.michael.playlistmaker.domain.search.models.Track
 import com.michael.playlistmaker.presentation.mediateka.FragmentFavoriteTracksViewModel
 import com.michael.playlistmaker.ui.search.TrackAdapter
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import org.koin.java.KoinJavaComponent.getKoin
 
 private const val CLICK_DEBOUNCE_DELAY = 1000L
 

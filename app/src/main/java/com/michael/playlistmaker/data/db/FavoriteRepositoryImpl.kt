@@ -5,6 +5,7 @@ import com.michael.playlistmaker.domain.db.FavoriteRepository
 import com.michael.playlistmaker.domain.search.models.Track
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 
 class FavoriteRepositoryImpl(
     private val appDatabase:AppDatabase,private val converter:TrackDbConverter
@@ -18,9 +19,11 @@ class FavoriteRepositoryImpl(
      appDatabase.trackDao().deleteTrack(converter.map(track))
     }
 
-    override fun getAllFavorite(): Flow<List<Track>> = flow {
-        val tracksE = appDatabase.trackDao().getAllFavoriteTracks()
-        emit(convertFromEntityToTrack(tracksE))
+    override fun getAllFavorite(): Flow<List<Track>>  {
+        return appDatabase.trackDao().getAllFavoriteTracks().map { tracksE ->
+            convertFromEntityToTrack(tracksE)
+        }
+
     }
 
 

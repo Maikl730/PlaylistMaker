@@ -34,8 +34,9 @@ class TrackRepositoryImpl(private val networkClient: NetworkClient,private val a
                         it.releaseDate,
                         it.primaryGenreName,
                         it.country,
-                        it.previewUrl,
-                        isFavorite) }
+                        it.previewUrl
+                        //, isFavorite
+                    ) }
                 emit(Resource.Success(data))
             }
             else -> {

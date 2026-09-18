@@ -5,7 +5,6 @@ import com.michael.playlistmaker.data.db.AppDatabase
 import com.michael.playlistmaker.data.search.StorageClient
 import com.michael.playlistmaker.domain.search.api.TrackHistoryRepository
 import com.michael.playlistmaker.domain.search.models.Track
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlin.collections.ArrayList
@@ -20,7 +19,6 @@ class TrackHistoryRepositoryImpl(private val storage: StorageClient<ArrayList<Tr
 
     override fun getHistory(): Flow<ArrayList<Track>> = flow{
 
-        val favoriteIds = appDatabase.trackDao().getAllFavoriteTracksId()
         var newHistoryTracks: ArrayList<Track>
 
         if (storage.getData()==null) {
@@ -29,8 +27,6 @@ class TrackHistoryRepositoryImpl(private val storage: StorageClient<ArrayList<Tr
         } else {
 
             newHistoryTracks = storage.getData()!!
-            newHistoryTracks.forEach{ Track -> if (favoriteIds.contains(Track.trackId)) Track.isFavorite = true}
-           // newHistoryTracks.map { Track -> if (favoriteIds.contains(Track.trackId)) Track.isFavorite = true }
             newHistoryTracks.reverse()
 
             emit( newHistoryTracks)

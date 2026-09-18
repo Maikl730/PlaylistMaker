@@ -33,7 +33,6 @@ class AudioplayerActivity : AppCompatActivity() {
    lateinit var thisTrack:Track
     private val viewModel:AudioplayerViewModel by viewModel{( parametersOf (thisTrack))}
 
-    val base: AppDatabase = getKoin().get()
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
@@ -46,21 +45,9 @@ class AudioplayerActivity : AppCompatActivity() {
             insets
         }
 
-
         val intent = intent
 
-            ///// Для меня
-        var list = emptyList<String>()
-
-            lifecycleScope.launch {list =  base.trackDao().getAllFavoriteTracksId()
-                Log.d("MyLog",list.toString())
-                Log.d("MyLog",base.trackDao().getAllFavoriteTracksId().contains(thisTrack.trackId).toString() + " = BOOLEAN")}
-                ////////////
-
         thisTrack = (intent.getSerializableExtra(INTENT_EXTRA_KEY) as Track?)!!
-
-
-        viewModel.begin()
 
         viewModel.observeIsFavorite().observe(this){
             if(it==true){

@@ -23,6 +23,7 @@ import kotlinx.coroutines.launch
 import org.koin.java.KoinJavaComponent.getKoin
 import java.text.SimpleDateFormat
 import java.util.Locale
+import kotlin.properties.Delegates
 
 class AudioplayerViewModel(
     private val track: Track, private val favoriteInteractor: FavoriteInteractor
@@ -35,14 +36,8 @@ class AudioplayerViewModel(
         const val STATE_PAUSED = 3
     }
 
-    val base:AppDatabase = getKoin().get()
-    fun begin(){
-        viewModelScope.launch {
-            if (base.trackDao().getAllFavoriteTracksId().contains(track.trackId)) isFavoriteLiveData.postValue(true)
-        }
-    }
 
-    private var isFavorite = track.isFavorite
+    private var isFavorite = false
     private var timerJob: Job? = null
     private var state = STATE_DEFAULT
     private var timer = "00:00"
@@ -58,9 +53,14 @@ class AudioplayerViewModel(
     private var mediaPlayer = MediaPlayer()
 
 
-
     init {
         preparePlayer()
+        viewModelScope.launch {
+            favoriteInteractor.getAllFavorite().collect{
+                isFavorite = it.contains(track)
+                isFavoriteLiveData.postValue(isFavorite)
+            }
+        }
     }
 
 
