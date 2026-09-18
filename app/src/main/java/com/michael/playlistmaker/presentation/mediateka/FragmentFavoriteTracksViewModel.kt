@@ -6,7 +6,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.michael.playlistmaker.domain.db.FavoriteInteractor
 import com.michael.playlistmaker.domain.search.models.Track
-import com.michael.playlistmaker.ui.search.models.TracksState
 import kotlinx.coroutines.launch
 import org.koin.java.KoinJavaComponent.getKoin
 
