@@ -1,7 +1,9 @@
 package com.michael.playlistmaker.di
 
+import com.michael.playlistmaker.domain.db.FavoriteInteractor
 import com.michael.playlistmaker.domain.main.api.MainIntentInteractor
 import com.michael.playlistmaker.domain.main.impl.MainIntentInteractorImpl
+import com.michael.playlistmaker.domain.mediateka.Impl.FavoriteInteractorImpl
 import com.michael.playlistmaker.domain.search.api.TrackHistoryInteractor
 import com.michael.playlistmaker.domain.search.api.TracksInteractor
 import com.michael.playlistmaker.domain.search.impl.TrackHistoryInteractorImpl
@@ -33,6 +35,10 @@ import org.koin.dsl.module
 
         single<MainIntentInteractor> {
             MainIntentInteractorImpl(get())
+        }
+
+        single<FavoriteInteractor> {
+            FavoriteInteractorImpl(get())
         }
 
     }

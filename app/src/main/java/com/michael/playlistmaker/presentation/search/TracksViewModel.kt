@@ -49,6 +49,17 @@ class TracksViewModel(private val tracksInteractor: TracksInteractor,private val
 
     fun showHistory(){
 
+        viewModelScope.launch {
+            trackHistoryInteractor.getHistory().collect{
+                tracks ->
+                if(tracks!=null){
+                    renderState(TracksState(tracks, false, null,true))
+                }else{
+                    renderState(TracksState(null, false, null,true))
+                }
+            }
+        }
+/*
             val consumer = object : TrackHistoryInteractor.HistoryConsumer {
                 override fun consume(searchHistory: List<Track>?) {
                     val handler = Handler(Looper.getMainLooper())
@@ -64,6 +75,7 @@ class TracksViewModel(private val tracksInteractor: TracksInteractor,private val
             }
 
         trackHistoryInteractor.getHistory(consumer)
+ */
     }
 
     fun processResult(foundTracks: List<Track>?, errorMessage: String?){

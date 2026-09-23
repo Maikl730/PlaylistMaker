@@ -1,5 +1,6 @@
 package com.michael.playlistmaker.data.search.network
 
+import com.michael.playlistmaker.data.db.AppDatabase
 import com.michael.playlistmaker.data.search.NetworkClient
 import com.michael.playlistmaker.data.search.dto.SongResponse
 import com.michael.playlistmaker.data.search.dto.TrackSearchRequest
@@ -9,7 +10,8 @@ import com.michael.playlistmaker.util.Resource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
-class TrackRepositoryImpl(private val networkClient: NetworkClient): TracksRepository {
+class TrackRepositoryImpl(private val networkClient: NetworkClient,private val appDatabase: AppDatabase): TracksRepository {
+
     override fun searchTracks(expression: String): Flow<Resource<List<Track>>> =flow {
 
         val response = networkClient.doRequest(TrackSearchRequest(expression))
@@ -19,7 +21,10 @@ class TrackRepositoryImpl(private val networkClient: NetworkClient): TracksRepos
                 emit(Resource.Error("Проверьте подключение к интернету"))
             }
             200 -> {
+                val favoriteIds = appDatabase.trackDao().getAllFavoriteTracksId()
+
                 val data = (response as SongResponse).results.map {
+                    val isFavorite:Boolean = favoriteIds.contains(it.trackId)
                     Track(it.trackName,
                         it.artistName,
                         it.trackTimeMillis,
@@ -29,7 +34,9 @@ class TrackRepositoryImpl(private val networkClient: NetworkClient): TracksRepos
                         it.releaseDate,
                         it.primaryGenreName,
                         it.country,
-                        it.previewUrl) }
+                        it.previewUrl
+                        //, isFavorite
+                    ) }
                 emit(Resource.Success(data))
             }
             else -> {

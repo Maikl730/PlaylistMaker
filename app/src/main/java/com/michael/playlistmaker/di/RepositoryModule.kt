@@ -1,10 +1,13 @@
 package com.michael.playlistmaker.di
 
 
+import com.michael.playlistmaker.data.converters.TrackDbConverter
+import com.michael.playlistmaker.data.db.FavoriteRepositoryImpl
 import com.michael.playlistmaker.data.search.impl.TrackHistoryRepositoryImpl
 import com.michael.playlistmaker.data.search.network.TrackRepositoryImpl
 import com.michael.playlistmaker.data.settings.impl.ExternalNavigatorImpl
 import com.michael.playlistmaker.data.settings.impl.ThemeSwitcherControlRepositoryImpl
+import com.michael.playlistmaker.domain.db.FavoriteRepository
 import com.michael.playlistmaker.domain.main.api.NavigatorMain
 import com.michael.playlistmaker.domain.search.api.TrackHistoryRepository
 import com.michael.playlistmaker.domain.search.api.TracksRepository
@@ -16,12 +19,14 @@ import org.koin.dsl.module
 
     val repositoryModule = module {
 
+        factory { TrackDbConverter() }
+
         single<TracksRepository> {
-            TrackRepositoryImpl(get())
+            TrackRepositoryImpl(get(), get())
         }
 
         single<TrackHistoryRepository> {
-            TrackHistoryRepositoryImpl(get())
+            TrackHistoryRepositoryImpl(get(),get())
         }
 
         single<ThemeSwitcherControlRepository> {
@@ -31,5 +36,10 @@ import org.koin.dsl.module
         single<ExternalNavigator> {
             ExternalNavigatorImpl(context = androidContext())
         }
+
+        single<FavoriteRepository>{
+            FavoriteRepositoryImpl(get(),get())
+        }
+
 
     }

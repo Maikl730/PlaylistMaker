@@ -25,18 +25,6 @@ class TrackAdapter(private val tracks: List<Track>,private val clickDebounce: ()
     }
 
 
-/*
-    private fun clickDebounce() : Boolean {
-        val handler = Handler(Looper.getMainLooper())
-        val current = isClickAllowed
-        if (isClickAllowed) {
-            isClickAllowed = false
-            handler.postDelayed({ isClickAllowed = true }, CLICK_DEBOUNCE_DELAY)
-        }
-        return current
-    }
-
- */
 
     override fun onBindViewHolder(holder: TracksViewHolder, position: Int) {
 
