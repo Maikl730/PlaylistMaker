@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    style="@style/BackDialog"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="14dp"
+        android:fontFamily="@font/ys_display_medium"
+        android:id="@+id/dialog_title"
+        android:text="Заголовок"
+        style="@style/TextDialog"
+        android:textAlignment="center"
+    />
+
+
+</LinearLayout>

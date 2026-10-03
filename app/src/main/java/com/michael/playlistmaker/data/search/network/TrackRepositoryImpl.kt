@@ -21,10 +21,9 @@ class TrackRepositoryImpl(private val networkClient: NetworkClient,private val a
                 emit(Resource.Error("Проверьте подключение к интернету"))
             }
             200 -> {
-                val favoriteIds = appDatabase.trackDao().getAllFavoriteTracksId()
+
 
                 val data = (response as SongResponse).results.map {
-                    val isFavorite:Boolean = favoriteIds.contains(it.trackId)
                     Track(it.trackName,
                         it.artistName,
                         it.trackTimeMillis,
@@ -35,7 +34,6 @@ class TrackRepositoryImpl(private val networkClient: NetworkClient,private val a
                         it.primaryGenreName,
                         it.country,
                         it.previewUrl
-                        //, isFavorite
                     ) }
                 emit(Resource.Success(data))
             }

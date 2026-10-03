@@ -3,6 +3,7 @@ package com.michael.playlistmaker.presentation.audioplayer
 import android.media.MediaPlayer
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -13,7 +14,9 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.michael.playlistmaker.data.converters.TrackDbConverter
 import com.michael.playlistmaker.data.db.AppDatabase
 import com.michael.playlistmaker.data.db.FavoriteRepositoryImpl
+import com.michael.playlistmaker.domain.audioplayer.models.Playlist
 import com.michael.playlistmaker.domain.db.FavoriteInteractor
+import com.michael.playlistmaker.domain.db.PlaylistsInteractor
 import com.michael.playlistmaker.domain.mediateka.Impl.FavoriteInteractorImpl
 import com.michael.playlistmaker.domain.search.api.TrackHistoryRepository
 import com.michael.playlistmaker.domain.search.models.Track
@@ -26,7 +29,7 @@ import java.util.Locale
 import kotlin.properties.Delegates
 
 class AudioplayerViewModel(
-    private val track: Track, private val favoriteInteractor: FavoriteInteractor
+    private val track: Track, private val favoriteInteractor: FavoriteInteractor,private val playlistsInteractor: PlaylistsInteractor
 ): ViewModel() {
 
     companion object {
@@ -42,6 +45,10 @@ class AudioplayerViewModel(
     private var state = STATE_DEFAULT
     private var timer = "00:00"
 
+
+    private val playlistLiveData = MutableLiveData<List<Playlist>>()
+    fun observePlaylist(): LiveData<List<Playlist>> = playlistLiveData
+
     private val playerStateLiveData = MutableLiveData<AudioState>(AudioState(STATE_DEFAULT,"00:00"))
     fun observePlayerState(): LiveData<AudioState> = playerStateLiveData
 
@@ -56,9 +63,17 @@ class AudioplayerViewModel(
     init {
         preparePlayer()
         viewModelScope.launch {
-            favoriteInteractor.getAllFavorite().collect{
+
+            favoriteInteractor.getAllFavorite().collect {
                 isFavorite = it.contains(track)
                 isFavoriteLiveData.postValue(isFavorite)
+            }
+        }
+
+        viewModelScope.launch {
+            playlistsInteractor.getAllPlaylists().collect {
+                playlistLiveData.postValue(it)
+                //got
             }
         }
     }
@@ -70,6 +85,12 @@ class AudioplayerViewModel(
         resetTimer()
     }
 
+
+    fun getPlaylists(){
+        viewModelScope.launch { playlistsInteractor.getAllPlaylists().collect{
+            playlistLiveData.postValue(it)
+        } }
+    }
 
     fun onPlayButtonClicked() {
         when(playerStateLiveData.value!!.state) {
