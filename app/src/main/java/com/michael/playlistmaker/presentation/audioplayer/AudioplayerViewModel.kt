@@ -1,9 +1,13 @@
 package com.michael.playlistmaker.presentation.audioplayer
 
+import android.app.AlertDialog
 import android.media.MediaPlayer
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.view.Gravity
+import android.view.LayoutInflater
+import android.widget.TextView
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -11,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.michael.playlistmaker.R
 import com.michael.playlistmaker.data.converters.TrackDbConverter
 import com.michael.playlistmaker.data.db.AppDatabase
 import com.michael.playlistmaker.data.db.FavoriteRepositoryImpl
@@ -45,6 +50,9 @@ class AudioplayerViewModel(
     private var state = STATE_DEFAULT
     private var timer = "00:00"
 
+    private val updateMessageLiveData = MutableLiveData<String>()
+    fun observeUpdate(): LiveData<String> = updateMessageLiveData
+
 
     private val playlistLiveData = MutableLiveData<List<Playlist>>()
     fun observePlaylist(): LiveData<List<Playlist>> = playlistLiveData
@@ -55,7 +63,6 @@ class AudioplayerViewModel(
     private val isFavoriteLiveData = MutableLiveData<Boolean>(isFavorite)
     fun observeIsFavorite():LiveData<Boolean> = isFavoriteLiveData
 
-   // private val progressTimeLiveData = MutableLiveData(timer)
 
     private var mediaPlayer = MediaPlayer()
 
@@ -86,10 +93,33 @@ class AudioplayerViewModel(
     }
 
 
-    fun getPlaylists(){
-        viewModelScope.launch { playlistsInteractor.getAllPlaylists().collect{
-            playlistLiveData.postValue(it)
-        } }
+    suspend fun updateCountOfTracks(playlist: Playlist,list:List<String>){
+        playlistsInteractor.updatePlaylist(
+            playlist = Playlist(
+                id = playlist.id,
+                name = playlist.name,
+                description = playlist.description,
+                urlImage = playlist.urlImage,
+                countOfTracks = list.size,
+                listOfTracksId = list
+            )
+        )
+
+    }
+
+    fun updateListOfTracks(playlist: Playlist,trackId: String){
+        viewModelScope.launch {
+            if (playlistsInteractor.isHereTrack(playlist.id,trackId)){
+                updateMessageLiveData.postValue("Трек уже добавлен в плейлист ${playlist.name}")
+            }else{
+                var newList = playlist.listOfTracksId.toMutableList()
+                newList.add(track.trackId)
+                updateCountOfTracks(playlist,newList)
+                playlistsInteractor.updateListOfTracks(playlist.id,newList)
+                updateMessageLiveData.postValue("Добавлено в плейлист ${playlist.name}")
+            }
+        }
+
     }
 
     fun onPlayButtonClicked() {

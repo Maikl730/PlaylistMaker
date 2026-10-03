@@ -14,9 +14,11 @@ interface PlaylistsRepository {
     suspend fun updateListOfTracks(playlistId:Int,listOfTracks:List<String>)
 
     fun getAllPlaylists(): Flow<List<Playlist>>
-/*
+
+    suspend fun isHereTrack(playlistId: Int,trackId: String):Boolean
+
     fun getCountOfTracksInPlaylist(playlistId: Int): Flow<Int>
 
- */
+    suspend fun updatePlaylist(playlist: Playlist)
 
 }

@@ -21,4 +21,16 @@ class PlaylistInteractorImpl(private val repository: PlaylistsRepository):Playli
     override fun getAllPlaylists(): Flow<List<Playlist>> {
         return repository.getAllPlaylists()
     }
+
+    override suspend fun isHereTrack(playlistId: Int, trackId: String): Boolean {
+       return repository.isHereTrack(playlistId,trackId)
+    }
+
+    override fun getCountOfTracksInPlaylist(playlistId: Int): Flow<Int> {
+        return repository.getCountOfTracksInPlaylist(playlistId)
+    }
+
+    override suspend fun updatePlaylist(playlist: Playlist) {
+        repository.updatePlaylist(playlist)
+    }
 }

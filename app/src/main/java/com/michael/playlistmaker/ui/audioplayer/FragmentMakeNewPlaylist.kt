@@ -29,6 +29,7 @@ import com.michael.playlistmaker.databinding.FragmentMakeNewPlaylistBinding
 import com.michael.playlistmaker.domain.audioplayer.models.Playlist
 import com.michael.playlistmaker.domain.db.PlaylistsInteractor
 import com.michael.playlistmaker.presentation.audioplayer.FragmentMakeNewPlaylistViewModel
+import com.michael.playlistmaker.ui.mediateka.MediatekaFragment
 import org.koin.android.ext.android.getKoin
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.io.File
@@ -70,13 +71,11 @@ class FragmentMakeNewPlaylist: Fragment() {
 
         val pickMedia =
             registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-                //обрабатываем событие выбора пользователем фотографии
                 if (uri != null) {
                     binding.imageButton.setImageURI(uri)
                     imageUri = uri.toString()
-                    //saveImageToPrivateStorage(uri)
                 } else {
-                    Log.d("PhotoPicker", "No media selected")
+                   //Ничего
                 }
             }
 
@@ -99,11 +98,17 @@ class FragmentMakeNewPlaylist: Fragment() {
                 id = 0
             )
 
-
-
             viewModel.makeNewPlaylist(newPlaylist)
 
-            findNavController().popBackStack()
+            var g = true
+            try {
+                findNavController().popBackStack()
+                g = false
+            }catch (e: Exception){
+                if (g == true) {
+                    parentFragmentManager.popBackStack()
+                }
+            }
 
             val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog, null)
 
@@ -122,13 +127,21 @@ class FragmentMakeNewPlaylist: Fragment() {
         }
 
         val confirmDialog =  MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Завершить создание плейлиста?") // Заголовок диалога
-            .setMessage("Все несохраненные данные будут потеряны") // Описание диалога
-            .setNeutralButton("Отмена") { dialog, which -> // Добавляет кнопку «Отмена»
-                // Действия, выполняемые при нажатии на кнопку «Отмена»
+            .setTitle("Завершить создание плейлиста?")
+            .setMessage("Все несохраненные данные будут потеряны")
+            .setNeutralButton("Отмена") { dialog, which ->
+
             }
-            .setPositiveButton("Завершить") { dialog, which -> // Добавляет кнопку «Да»
-                findNavController().popBackStack()
+            .setPositiveButton("Завершить") { dialog, which ->
+                var g = true
+                try {
+                    findNavController().popBackStack()
+                    g = false
+                }catch (e: Exception){
+                    if (g == true) {
+                        parentFragmentManager.popBackStack()
+                    }
+                }
             }
 
         requireActivity().onBackPressedDispatcher.addCallback(object: OnBackPressedCallback(true) {
@@ -136,27 +149,36 @@ class FragmentMakeNewPlaylist: Fragment() {
                 if(!binding.name.text.isEmpty()) {
                     confirmDialog.show()
                 }else{
-                    findNavController().popBackStack()
+
+                    var g = true
+                    try {
+                        findNavController().popBackStack()
+                        g = false
+                    }catch (e: Exception){
+                        if (g == true) {
+                            parentFragmentManager.popBackStack()
+                        }
+                    }
+
                 }
             }
         })
     }
 
     private fun saveImageToPrivateStorage(uri: Uri,name:String) {
-        //создаём экземпляр класса File, который указывает на нужный каталог
+
         val filePath = File(requireActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES), "myplaylists")
-        //создаем каталог, если он не создан
+
         if (!filePath.exists()){
             filePath.mkdirs()
         }
-        //создаём экземпляр класса File, который указывает на файл внутри каталога
+
         val file = File(filePath, "$name.jpg")
         imageUri =file.toURI().toString()
-        // создаём входящий поток байтов из выбранной картинки
+
         val inputStream = requireActivity().contentResolver.openInputStream(uri)
-        // создаём исходящий поток байтов в созданный выше файл
         val outputStream = FileOutputStream(file)
-        // записываем картинку с помощью BitmapFactory
+
         BitmapFactory
             .decodeStream(inputStream)
             .compress(Bitmap.CompressFormat.JPEG, 30, outputStream)

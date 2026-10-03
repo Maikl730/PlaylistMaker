@@ -1,10 +1,14 @@
 package com.michael.playlistmaker.ui.audioplayer
 
+import android.app.AlertDialog
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
+import android.view.Gravity
+import android.view.LayoutInflater
 import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -14,6 +18,8 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.commit
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavController
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView.LayoutManager
 import com.bumptech.glide.Glide
@@ -43,8 +49,6 @@ class AudioplayerActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
-
-
         super.onCreate(savedInstanceState)
         binding = ActivityAudioplayerBinding.inflate(layoutInflater)
         enableEdgeToEdge()
@@ -61,6 +65,12 @@ class AudioplayerActivity : AppCompatActivity() {
 
         binding.newPlaylistButton.setOnClickListener {
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+
+            supportFragmentManager.commit {
+                add(R.id.container_view_audioplayer, FragmentMakeNewPlaylist())
+                addToBackStack(null)
+            }
+
         }
 
         bottomSheetBehavior.addBottomSheetCallback(object :BottomSheetBehavior.BottomSheetCallback(){
@@ -133,25 +143,29 @@ class AudioplayerActivity : AppCompatActivity() {
             viewModel.onFavoriteClicked()
         }
 
-        binding.newPlaylistButton.setOnClickListener {
-            supportFragmentManager.commit {
-                add(R.id.container_view_audioplayer, FragmentMakeNewPlaylist())
-                addToBackStack(null) // чтобы при Back вернуться назад
-            }
 
-            binding.main.isVisible = false
+        viewModel.observeUpdate().observe(this){
+            val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog, null)
+
+            val titleView = dialogView.findViewById<TextView>(R.id.dialog_title)
+            titleView.text = it
+
+            val dialog = AlertDialog.Builder(this).setView(dialogView).create()
+            val window = dialog.window
+            val lp = window?.attributes
+            lp?.gravity = Gravity.BOTTOM
+            window?.attributes = lp
+            dialog.show()
         }
-
 
         binding.playlistRecycle.layoutManager = LinearLayoutManager(this,
             LinearLayoutManager.VERTICAL,false)
 
        viewModel.observePlaylist().observe(this){
            listPlaylist = it.toMutableList()
-           val adapter = PlaylistAdapter(listPlaylist)
+           val adapter = PlaylistAdapter(listPlaylist,thisTrack,viewModel)
            binding.playlistRecycle.adapter = adapter
            adapter.notifyDataSetChanged()
-           Log.d("MyLog",listPlaylist.toString())
        }
     }
 

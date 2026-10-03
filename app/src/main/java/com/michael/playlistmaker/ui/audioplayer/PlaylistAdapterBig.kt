@@ -13,6 +13,7 @@ class PlaylistAdapterBig(private val playlists:List<Playlist>): RecyclerView.Ada
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlaylistViewHolderBig = PlaylistViewHolderBig.from(parent)
 
     override fun onBindViewHolder(holder: PlaylistViewHolderBig, position: Int) {
-        holder.bind(playlists[position])
+        holder.bind(playlists[position],holder.itemView.context)
+
     }
 }

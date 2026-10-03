@@ -27,5 +27,14 @@
     <fragment
         android:id="@+id/fragmentMakeNewPlaylist"
         android:name="com.michael.playlistmaker.ui.audioplayer.FragmentMakeNewPlaylist"
-        android:label="FragmentMakeNewPlaylist" />
+        android:label="FragmentMakeNewPlaylist" >
+        <action
+            android:id="@+id/action_fragmentMakeNewPlaylist_to_audioplayerActivity"
+            app:destination="@id/audioplayerActivity" />
+    </fragment>
+    <activity
+        android:id="@+id/audioplayerActivity"
+        android:name="com.michael.playlistmaker.ui.audioplayer.AudioplayerActivity"
+        android:label="activity_audioplayer"
+        tools:layout="@layout/activity_audioplayer" />
 </navigation>

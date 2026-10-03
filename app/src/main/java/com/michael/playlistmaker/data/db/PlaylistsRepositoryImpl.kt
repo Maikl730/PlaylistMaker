@@ -1,6 +1,7 @@
 package com.michael.playlistmaker.data.db
 
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.michael.playlistmaker.data.converters.PlaylistDbConverter
 import com.michael.playlistmaker.domain.audioplayer.models.Playlist
 import com.michael.playlistmaker.domain.db.PlaylistsRepository
@@ -38,13 +39,39 @@ class PlaylistsRepositoryImpl(private val appDatabase: AppDatabase,private val g
             listPlaylist -> convertFromEntityToPlaylists(listPlaylist)
         }
     }
-/*
+
     override fun getCountOfTracksInPlaylist(playlistId: Int): Flow<Int> {
-       return
-        //appDatabase.playlistDao().getCountOfTracksInPlaylist(playlistId)
+       return appDatabase.playlistDao().getCountOfTracksInPlaylist(playlistId)
     }
 
- */
+    override suspend fun updatePlaylist(playlist: Playlist) {
+
+        val listoOfTracksGson = gson.toJson(playlist.listOfTracksId)
+
+        val playlistEntity = PlaylistEntity(
+            playlist.id,
+            playlist.name,
+            playlist.description,
+            playlist.urlImage,
+            listoOfTracksGson,
+            playlist.countOfTracks)
+
+        appDatabase.playlistDao().insertPlaylist(playlistEntity)
+    }
+
+
+
+    override suspend fun isHereTrack(playlistId: Int,trackId: String):Boolean{
+        val listTracksType = object : TypeToken<List<String>>() {}.type
+        val list:List<String> = gson.fromJson( appDatabase.playlistDao().getListOfTracks(playlistId),listTracksType)
+
+        if (list.isEmpty()){
+            return false
+        }else{
+            return list.contains(trackId)
+        }
+
+    }
 
     private fun convertFromEntityToPlaylists(entitys:List<PlaylistEntity>):List<Playlist> {
         return entitys.map { playlist -> converter.map(playlist) }

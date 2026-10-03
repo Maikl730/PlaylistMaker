@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.michael.playlistmaker.data.db.PlaylistEntity
 import com.michael.playlistmaker.domain.audioplayer.models.Playlist
 import kotlinx.coroutines.flow.Flow
@@ -22,9 +23,14 @@ interface PlaylistsDao {
 
     @Query("SELECT * FROM playlists")
     fun getAllPlaylists(): Flow<List<PlaylistEntity>>
-/*
+
+    @Query("SELECT listOfTracksId FROM playlists WHERE id =:playlistId ")
+    suspend fun getListOfTracks(playlistId: Int):String
+
     @Query("SELECT countOfTracks FROM playlists WHERE id = :playlistId")
     fun getCountOfTracksInPlaylist(playlistId: Int): Flow<Int>
 
- */
+    @Update(entity = PlaylistEntity::class)
+    suspend fun updatePlaylist(playlist: PlaylistEntity)
+
 }
