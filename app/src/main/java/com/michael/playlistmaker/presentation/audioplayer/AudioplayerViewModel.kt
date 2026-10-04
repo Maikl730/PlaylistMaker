@@ -80,7 +80,6 @@ class AudioplayerViewModel(
         viewModelScope.launch {
             playlistsInteractor.getAllPlaylists().collect {
                 playlistLiveData.postValue(it)
-                //got
             }
         }
     }
@@ -109,7 +108,8 @@ class AudioplayerViewModel(
 
     fun updateListOfTracks(playlist: Playlist,trackId: String){
         viewModelScope.launch {
-            if (playlistsInteractor.isHereTrack(playlist.id,trackId)){
+
+            if (playlist.listOfTracksId.contains(trackId)){
                 updateMessageLiveData.postValue("Трек уже добавлен в плейлист ${playlist.name}")
             }else{
                 var newList = playlist.listOfTracksId.toMutableList()

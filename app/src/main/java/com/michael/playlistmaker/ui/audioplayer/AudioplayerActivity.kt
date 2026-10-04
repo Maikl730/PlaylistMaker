@@ -145,6 +145,10 @@ class AudioplayerActivity : AppCompatActivity() {
 
 
         viewModel.observeUpdate().observe(this){
+
+            Toast.makeText(this,it,Toast.LENGTH_SHORT).show()
+
+            /*
             val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog, null)
 
             val titleView = dialogView.findViewById<TextView>(R.id.dialog_title)
@@ -156,6 +160,8 @@ class AudioplayerActivity : AppCompatActivity() {
             lp?.gravity = Gravity.BOTTOM
             window?.attributes = lp
             dialog.show()
+
+             */
         }
 
         binding.playlistRecycle.layoutManager = LinearLayoutManager(this,

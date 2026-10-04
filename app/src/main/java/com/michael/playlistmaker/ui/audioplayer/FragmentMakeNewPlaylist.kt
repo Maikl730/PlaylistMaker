@@ -12,6 +12,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -110,6 +111,8 @@ class FragmentMakeNewPlaylist: Fragment() {
                 }
             }
 
+            Toast.makeText(context,"Плейлист "+name+" создан",Toast.LENGTH_SHORT).show()
+            /*
             val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog, null)
 
             val titleView = dialogView.findViewById<TextView>(R.id.dialog_title)
@@ -122,6 +125,8 @@ class FragmentMakeNewPlaylist: Fragment() {
             window?.attributes = lp
             dialog.show()
 
+
+             */
 
             
         }
