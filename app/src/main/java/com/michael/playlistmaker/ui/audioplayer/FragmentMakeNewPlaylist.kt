@@ -88,7 +88,8 @@ class FragmentMakeNewPlaylist: Fragment() {
 
             val name = binding.name.text.toString()
 
-            saveImageToPrivateStorage(imageUri.toUri(),name)
+            if (imageUri!=""){
+            saveImageToPrivateStorage(imageUri.toUri(),name)}
 
             val newPlaylist = Playlist(
                 name = name,

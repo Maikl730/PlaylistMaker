@@ -280,8 +280,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text="@string/add_to_playlist"
+            style="@style/PlaceholderText"
             android:textSize="@dimen/big_text"
-            android:textColor="@color/YPblack"
             android:fontFamily="@font/ys_display_medium"
             android:layout_marginTop="30dp"/>
 
