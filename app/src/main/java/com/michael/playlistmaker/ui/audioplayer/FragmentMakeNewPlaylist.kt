@@ -60,6 +60,7 @@ class FragmentMakeNewPlaylist: Fragment() {
 
         binding.toolBar.setNavigationOnClickListener {
             requireActivity().onBackPressed()
+
         }
 
         binding.name.doOnTextChanged { s, start, before, count ->
