@@ -20,7 +20,7 @@ class PlaylistAdapter(private val playlists:List<Playlist>,private val track: Tr
         holder.bind(playlists[position],holder.itemView.context)
 
         holder.itemView.setOnClickListener {
-            viewModel.updateListOfTracks(playlists[position],track.trackId)
+            viewModel.updateListOfTracks(playlists[position],track)
         }
     }
 }

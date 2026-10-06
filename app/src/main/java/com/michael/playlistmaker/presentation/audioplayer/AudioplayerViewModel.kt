@@ -1,5 +1,6 @@
 package com.michael.playlistmaker.presentation.audioplayer
 
+import SingleLiveEvent
 import android.app.AlertDialog
 import android.media.MediaPlayer
 import android.os.Handler
@@ -50,8 +51,8 @@ class AudioplayerViewModel(
     private var state = STATE_DEFAULT
     private var timer = "00:00"
 
-    private val updateMessageLiveData = MutableLiveData<String>()
-    fun observeUpdate(): LiveData<String> = updateMessageLiveData
+    private val updateMessageLiveEvent = SingleLiveEvent<String>()
+    fun observeUpdate(): LiveData<String> = updateMessageLiveEvent
 
 
     private val playlistLiveData = MutableLiveData<List<Playlist>>()
@@ -106,17 +107,18 @@ class AudioplayerViewModel(
 
     }
 
-    fun updateListOfTracks(playlist: Playlist,trackId: String){
+    fun updateListOfTracks(playlist: Playlist,track: Track){
         viewModelScope.launch {
 
-            if (playlist.listOfTracksId.contains(trackId)){
-                updateMessageLiveData.postValue("Трек уже добавлен в плейлист ${playlist.name}")
+            if (playlist.listOfTracksId.contains(track.trackId)){
+                updateMessageLiveEvent.postValue("Трек уже добавлен в плейлист ${playlist.name}")
             }else{
                 var newList = playlist.listOfTracksId.toMutableList()
                 newList.add(track.trackId)
                 updateCountOfTracks(playlist,newList)
                 playlistsInteractor.updateListOfTracks(playlist.id,newList)
-                updateMessageLiveData.postValue("Добавлено в плейлист ${playlist.name}")
+                playlistsInteractor.insertTrackInPlaylistSave(track,playlist.id)
+                updateMessageLiveEvent.postValue("Добавлено в плейлист ${playlist.name}")
             }
         }
 

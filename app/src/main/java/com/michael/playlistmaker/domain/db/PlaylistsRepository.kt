@@ -3,6 +3,7 @@ package com.michael.playlistmaker.domain.db
 
 import com.michael.playlistmaker.data.db.PlaylistEntity
 import com.michael.playlistmaker.domain.audioplayer.models.Playlist
+import com.michael.playlistmaker.domain.search.models.Track
 import kotlinx.coroutines.flow.Flow
 
 interface PlaylistsRepository {
@@ -20,5 +21,7 @@ interface PlaylistsRepository {
     fun getCountOfTracksInPlaylist(playlistId: Int): Flow<Int>
 
     suspend fun updatePlaylist(playlist: Playlist)
+
+    suspend fun insertTrackInPlaylistSave(track: Track, playlistId: Int)
 
 }

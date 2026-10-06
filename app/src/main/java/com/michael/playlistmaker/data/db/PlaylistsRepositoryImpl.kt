@@ -5,6 +5,7 @@ import com.google.gson.reflect.TypeToken
 import com.michael.playlistmaker.data.converters.PlaylistDbConverter
 import com.michael.playlistmaker.domain.audioplayer.models.Playlist
 import com.michael.playlistmaker.domain.db.PlaylistsRepository
+import com.michael.playlistmaker.domain.search.models.Track
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -71,6 +72,24 @@ class PlaylistsRepositoryImpl(private val appDatabase: AppDatabase,private val g
             return list.contains(trackId)
         }
 
+    }
+
+    override suspend fun insertTrackInPlaylistSave(track: Track,playlistId: Int){
+        appDatabase.trackPlayDao().insertTrack(
+            TrackPlayEntity(
+                trackId = track.trackId,
+                trackName = track.trackName,
+                trackTimeMillis = track.trackTimeMillis,
+                collectionName = track.collectionName,
+                artistName = track.artistName,
+                country = track.country,
+                previewUrl = track.previewUrl,
+                artworkUrl100 = track.artworkUrl100,
+                primaryGenreName = track.primaryGenreName,
+                releaseDate = track.releaseDate,
+                playlistId = playlistId
+            )
+        )
     }
 
     private fun convertFromEntityToPlaylists(entitys:List<PlaylistEntity>):List<Playlist> {

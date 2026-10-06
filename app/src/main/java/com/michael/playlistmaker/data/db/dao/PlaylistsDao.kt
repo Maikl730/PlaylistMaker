@@ -7,6 +7,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.michael.playlistmaker.data.db.PlaylistEntity
+import com.michael.playlistmaker.data.db.TrackPlayEntity
 import com.michael.playlistmaker.domain.audioplayer.models.Playlist
 import kotlinx.coroutines.flow.Flow
 
@@ -32,5 +33,8 @@ interface PlaylistsDao {
 
     @Update(entity = PlaylistEntity::class)
     suspend fun updatePlaylist(playlist: PlaylistEntity)
+
+    @Query("SELECT * FROM playlists_tracks WHERE playlistId = :playlistId")
+    suspend fun getTracksByPlaylist(playlistId: Long): List<TrackPlayEntity>
 
 }

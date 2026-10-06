@@ -3,6 +3,7 @@ package com.michael.playlistmaker.domain.audioplayer
 import com.michael.playlistmaker.domain.audioplayer.models.Playlist
 import com.michael.playlistmaker.domain.db.PlaylistsInteractor
 import com.michael.playlistmaker.domain.db.PlaylistsRepository
+import com.michael.playlistmaker.domain.search.models.Track
 import kotlinx.coroutines.flow.Flow
 
 class PlaylistInteractorImpl(private val repository: PlaylistsRepository):PlaylistsInteractor {
@@ -32,5 +33,9 @@ class PlaylistInteractorImpl(private val repository: PlaylistsRepository):Playli
 
     override suspend fun updatePlaylist(playlist: Playlist) {
         repository.updatePlaylist(playlist)
+    }
+
+    override suspend fun insertTrackInPlaylistSave(track: Track, playlistId: Int) {
+        repository.insertTrackInPlaylistSave(track,playlistId)
     }
 }

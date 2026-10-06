@@ -12,16 +12,7 @@ import com.michael.playlistmaker.domain.audioplayer.models.Playlist
 class PlaylistViewHolderBig(private val binding: PlaylistBigCardBinding): RecyclerView.ViewHolder(binding.root) {
     fun bind(playlist: Playlist, context: Context){
         binding.name.text = playlist.name
-        binding.countOfTracks.text = playlist.countOfTracks.toString() +" "+
-                if(playlist.countOfTracks > 4 || playlist.countOfTracks == 0 )
-                {
-                    context.getString(R.string.tracks)
-                }else if (playlist.countOfTracks == 1)
-                {
-                    context.getString(R.string.onetrack)
-                }else{
-                    context.getString(R.string.track)
-                }
+        binding.countOfTracks.text =playlist.countOfTracks.toString() + " " + context.resources.getQuantityString(R.plurals.CountOfTracks, playlist.countOfTracks, playlist.countOfTracks)
 
 
         if (playlist.urlImage!="") {

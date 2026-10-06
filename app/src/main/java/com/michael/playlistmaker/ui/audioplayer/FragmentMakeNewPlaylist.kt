@@ -44,6 +44,7 @@ class FragmentMakeNewPlaylist: Fragment() {
     private val viewModel by viewModel<FragmentMakeNewPlaylistViewModel>()
 
     var imageUri: String = ""
+    var imageToSave = ""
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -88,15 +89,17 @@ class FragmentMakeNewPlaylist: Fragment() {
 
             val name = binding.name.text.toString()
 
+
             if (imageUri!=""){
-            saveImageToPrivateStorage(imageUri.toUri(),name)}
+                saveImage(imageUri.toUri(),name)
+            }
 
             val newPlaylist = Playlist(
                 name = name,
                 description = binding.description.text.toString(),
                 countOfTracks = 0,
                 listOfTracksId = emptyList(),
-                urlImage = imageUri,
+                urlImage = imageToSave,
                 id = 0
             )
 
@@ -171,8 +174,7 @@ class FragmentMakeNewPlaylist: Fragment() {
         })
     }
 
-    private fun saveImageToPrivateStorage(uri: Uri,name:String) {
-
+    private fun saveImage(uri: Uri,name:String){
         val filePath = File(requireActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES), "myplaylists")
 
         if (!filePath.exists()){
@@ -180,14 +182,9 @@ class FragmentMakeNewPlaylist: Fragment() {
         }
 
         val file = File(filePath, "$name.jpg")
-        imageUri =file.toURI().toString()
+        imageToSave =file.toURI().toString()
 
-        val inputStream = requireActivity().contentResolver.openInputStream(uri)
-        val outputStream = FileOutputStream(file)
-
-        BitmapFactory
-            .decodeStream(inputStream)
-            .compress(Bitmap.CompressFormat.JPEG, 30, outputStream)
+        viewModel.saveImageToPrivateStorage(uri,file,requireActivity())
     }
 
 }

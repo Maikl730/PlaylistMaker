@@ -6,7 +6,7 @@ import com.michael.playlistmaker.data.db.dao.PlaylistsDao
 import com.michael.playlistmaker.data.db.dao.TrackDao
 import com.michael.playlistmaker.data.db.dao.TrackPlayDao
 
-@Database(version = 3, entities = [TrackEntity::class,PlaylistEntity::class,TrackPlayEntity::class])
+@Database(version = 4, entities = [TrackEntity::class,PlaylistEntity::class,TrackPlayEntity::class])
 abstract class AppDatabase:RoomDatabase() {
 
     abstract fun trackPlayDao():TrackPlayDao
