@@ -14,6 +14,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.addCallback
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.net.toUri
@@ -154,8 +155,12 @@ class FragmentMakeNewPlaylist: Fragment() {
                 }
             }
 
-        requireActivity().onBackPressedDispatcher.addCallback(object: OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
+
+
+
+
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner)
+            {
                 if(!binding.name.text.isEmpty()) {
                     confirmDialog.show()
                 }else{
@@ -172,7 +177,7 @@ class FragmentMakeNewPlaylist: Fragment() {
 
                 }
             }
-        })
+
     }
 
     private fun saveImage(uri: Uri,name:String){

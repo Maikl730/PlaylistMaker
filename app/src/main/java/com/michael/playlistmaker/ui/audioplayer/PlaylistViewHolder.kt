@@ -15,7 +15,7 @@ class PlaylistViewHolder(private val binding: NewPlaylistCardBinding): RecyclerV
     fun bind(playlist:Playlist,context: Context){
         binding.playlistName.text = playlist.name
         binding.playlistCountTracks.text =playlist.countOfTracks.toString() +" "+ context.resources.getQuantityString(R.plurals.CountOfTracks, playlist.countOfTracks, playlist.countOfTracks)
-        binding.playlistImage.setImageURI(playlist.urlImage.toUri())
+        if (playlist.urlImage!="") binding.playlistImage.setImageURI(playlist.urlImage.toUri())
     }
 
     companion object {
