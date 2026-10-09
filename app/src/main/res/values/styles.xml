@@ -6,6 +6,23 @@
         <item name="android:textColor">@color/YPblack</item>
         <item name="navigationIconTint">@color/YPblack</item>
     </style>
+    <style name="AppTheme" parent="Base.Theme.PlaylistMaker">
+        <item name="android:alertDialogStyle">@style/DialogStyle</item>
+    </style>
+
+    <style name="DialogStyle" parent="@android:style/Theme.Dialog">
+        <!-- Фон диалога — белый -->
+        <item name="android:windowBackground">@color/white</item>
+        <!-- Цвет текста (чёрный) -->
+        <item name="android:textColor">@color/YPblack</item>
+    </style>
+
+    <style name="TextDialog">
+        <item name="android:textColor">@color/YPblack</item>
+    </style>
+    <style name="BackDialog">
+        <item name="background">@color/white</item>
+    </style>
     <style name="MainButton" parent="Widget.MaterialComponents.Button.UnelevatedButton">
         <item name="android:layout_weight">1</item>
         <item name="android:layout_height">0dp</item>
@@ -82,6 +99,13 @@
     </style>
     <style name="BottomMenu">
         <item name="android:background">@color/white</item>
+    </style>
+    <style name="EditTextPlayMake">
+        <item name="android:textColor">@color/YPblack</item>
+        <item name="hintTextColor">@color/YPblack</item>
+        <item name="android:textColorHint">@color/YPblack</item>
+        <item name="android:fontFamily">@font/ys_display_regular</item>
+        <item name="android:textSize">16sp</item>
     </style>
 
 

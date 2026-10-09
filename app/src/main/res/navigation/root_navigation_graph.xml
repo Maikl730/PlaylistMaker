@@ -14,10 +14,18 @@
         android:id="@+id/mediatekaFragment"
         android:name="com.michael.playlistmaker.ui.mediateka.MediatekaFragment"
         android:label="fragment_mediateka"
-        tools:layout="@layout/fragment_mediateka" />
+        tools:layout="@layout/fragment_mediateka" >
+        <action
+            android:id="@+id/action_mediatekaFragment_to_fragmentMakeNewPlaylist"
+            app:destination="@id/fragmentMakeNewPlaylist" />
+    </fragment>
     <fragment
         android:id="@+id/settingFragment"
         android:name="com.michael.playlistmaker.ui.settings.SettingFragment"
         android:label="fragment_settings"
         tools:layout="@layout/fragment_settings" />
+    <fragment
+        android:id="@+id/fragmentMakeNewPlaylist"
+        android:name="com.michael.playlistmaker.ui.audioplayer.FragmentMakeNewPlaylist"
+        android:label="FragmentMakeNewPlaylist" />
 </navigation>

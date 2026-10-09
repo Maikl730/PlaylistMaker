@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="CountOfTracks">
+        <item quantity="one">@string/onetrack</item>
+        <item quantity="few">@string/track</item>
+        <item quantity="zero">@string/tracks</item>
+        <item quantity="other">@string/tracks</item>
+    </plurals>
+</resources>

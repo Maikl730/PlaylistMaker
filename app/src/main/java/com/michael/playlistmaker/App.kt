@@ -26,11 +26,6 @@ class App: Application(){
         )
         }
 
-
-
-       // Creator.context = this.applicationContext
-        //var themeSwitcherControlInteractor = Creator.provideThemeSwitcherControlInteractor()
-
         var themeSwitcherControlInteractor = ThemeSwitcherControlInteractorImpl(ThemeSwitcherControlRepositoryImpl(context = this))
         darkTheme = themeSwitcherControlInteractor.getPosition()
        themeSwitcherControlInteractor.switchTheme(darkTheme)
@@ -38,7 +33,6 @@ class App: Application(){
 
     override fun onTerminate() {
         super.onTerminate()
-        //Creator.context = null
     }
 
 }

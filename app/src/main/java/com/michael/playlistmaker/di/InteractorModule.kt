@@ -1,6 +1,8 @@
 package com.michael.playlistmaker.di
 
+import com.michael.playlistmaker.domain.audioplayer.PlaylistInteractorImpl
 import com.michael.playlistmaker.domain.db.FavoriteInteractor
+import com.michael.playlistmaker.domain.db.PlaylistsInteractor
 import com.michael.playlistmaker.domain.main.api.MainIntentInteractor
 import com.michael.playlistmaker.domain.main.impl.MainIntentInteractorImpl
 import com.michael.playlistmaker.domain.mediateka.Impl.FavoriteInteractorImpl
@@ -39,6 +41,10 @@ import org.koin.dsl.module
 
         single<FavoriteInteractor> {
             FavoriteInteractorImpl(get())
+        }
+
+        single<PlaylistsInteractor> {
+            PlaylistInteractorImpl(get())
         }
 
     }
