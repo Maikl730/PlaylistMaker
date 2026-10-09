@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -54,7 +55,12 @@ class FragmentPlaylist:Fragment() {
 
         viewModel.observePlaylist().observe(viewLifecycleOwner){
             listPlaylist = it.toMutableList()
-            val adapter = PlaylistAdapterBig(listPlaylist)
+            val adapter = PlaylistAdapterBig(listPlaylist){ playlistId ->
+                findNavController().navigate(
+                    R.id.action_mediatekaFragment_to_fragmentPlaylistInside,
+                    bundleOf("playlist" to playlistId)
+                )
+            }
             binding.playlistRecycle.adapter = adapter
             adapter.notifyDataSetChanged()
             Log.d("MyLog",listPlaylist.toString())

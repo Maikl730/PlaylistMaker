@@ -4,6 +4,7 @@ import com.michael.playlistmaker.presentation.audioplayer.AudioplayerViewModel
 import com.michael.playlistmaker.presentation.audioplayer.FragmentMakeNewPlaylistViewModel
 import com.michael.playlistmaker.presentation.main.MainViewModel
 import com.michael.playlistmaker.presentation.mediateka.FragmentFavoriteTracksViewModel
+import com.michael.playlistmaker.presentation.mediateka.FragmentPlaylistInsideViewModel
 import com.michael.playlistmaker.presentation.mediateka.FragmentPlaylistViewModel
 import com.michael.playlistmaker.presentation.mediateka.MediatekaViewModel
 import com.michael.playlistmaker.presentation.search.TracksViewModel
@@ -44,6 +45,10 @@ import org.koin.dsl.module
 
         viewModel {
             FragmentMakeNewPlaylistViewModel(get())
+        }
+
+        viewModel {
+            FragmentPlaylistInsideViewModel(get(),get())
         }
 
     }

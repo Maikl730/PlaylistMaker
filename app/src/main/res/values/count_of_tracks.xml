@@ -6,4 +6,11 @@
         <item quantity="zero">@string/tracks</item>
         <item quantity="other">@string/tracks</item>
     </plurals>
+
+    <plurals name="CountOfMinutes">
+        <item quantity="one">@string/oneminute</item>
+        <item quantity="few">@string/minuti</item>
+        <item quantity="zero">@string/minutes</item>
+        <item quantity="other">@string/minutes</item>
+    </plurals>
 </resources>

@@ -38,4 +38,16 @@ class PlaylistInteractorImpl(private val repository: PlaylistsRepository):Playli
     override suspend fun insertTrackInPlaylistSave(track: Track, playlistId: Int) {
         repository.insertTrackInPlaylistSave(track,playlistId)
     }
+
+    override suspend fun getOnePlaylist(id: Int): Playlist {
+        return repository.getOnePlaylist(id)
+    }
+
+    override fun getTracksByPlaylist(id: Int): Flow<List<Track>> {
+        return repository.getTracksByPlaylist(id)
+    }
+
+    override fun getPlaylistByTrack(id: String): Flow<List<Int>> {
+        return repository.getPlaylistByTrack(id)
+    }
 }

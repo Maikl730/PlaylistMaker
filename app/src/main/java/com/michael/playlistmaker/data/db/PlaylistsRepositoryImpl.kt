@@ -3,13 +3,14 @@ package com.michael.playlistmaker.data.db
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.michael.playlistmaker.data.converters.PlaylistDbConverter
+import com.michael.playlistmaker.data.converters.TrackDbConverter
 import com.michael.playlistmaker.domain.audioplayer.models.Playlist
 import com.michael.playlistmaker.domain.db.PlaylistsRepository
 import com.michael.playlistmaker.domain.search.models.Track
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class PlaylistsRepositoryImpl(private val appDatabase: AppDatabase,private val gson: Gson,private val converter: PlaylistDbConverter):PlaylistsRepository {
+class PlaylistsRepositoryImpl(private val appDatabase: AppDatabase,private val gson: Gson,private val converter: PlaylistDbConverter,private val converterTracks: TrackDbConverter):PlaylistsRepository {
     override suspend fun insertPlaylist(playlist: Playlist) {
 
         val listoOfTracksGson = gson.toJson(playlist.listOfTracksId)
@@ -24,6 +25,10 @@ class PlaylistsRepositoryImpl(private val appDatabase: AppDatabase,private val g
 
         appDatabase.playlistDao().insertPlaylist(playlistEntity)
 
+    }
+
+    override suspend fun getOnePlaylist(id:Int):Playlist{
+       return converter.map(appDatabase.playlistDao().getOnePlaylist(id))
     }
 
     override suspend fun deletePlaylist(playlist: Playlist) {
@@ -92,7 +97,23 @@ class PlaylistsRepositoryImpl(private val appDatabase: AppDatabase,private val g
         )
     }
 
+    override fun getTracksByPlaylist(id:Int):Flow<List<Track>>{
+        return appDatabase.playlistDao().getTracksByPlaylist(id)
+            .map{ trackPlay ->
+            convertFromTrackPlayEntityToTrack(trackPlay)
+        }
+    }
+
     private fun convertFromEntityToPlaylists(entitys:List<PlaylistEntity>):List<Playlist> {
         return entitys.map { playlist -> converter.map(playlist) }
+    }
+
+    private fun convertFromTrackPlayEntityToTrack(entitys:List<TrackPlayEntity>):List<Track> {
+        return entitys.map { trackPlay -> converterTracks.map(trackPlay) }
+    }
+
+
+    override fun getPlaylistByTrack(id:String):Flow<List<Int>>{
+        return appDatabase.playlistDao().getPlaylistsByTrack(id)
     }
 }

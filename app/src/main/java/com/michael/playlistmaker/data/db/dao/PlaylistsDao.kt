@@ -25,6 +25,9 @@ interface PlaylistsDao {
     @Query("SELECT * FROM playlists")
     fun getAllPlaylists(): Flow<List<PlaylistEntity>>
 
+    @Query("SELECT * FROM playlists WHERE id =:id")
+    suspend fun getOnePlaylist(id:Int):PlaylistEntity
+
     @Query("SELECT listOfTracksId FROM playlists WHERE id =:playlistId ")
     suspend fun getListOfTracks(playlistId: Int):String
 
@@ -35,6 +38,9 @@ interface PlaylistsDao {
     suspend fun updatePlaylist(playlist: PlaylistEntity)
 
     @Query("SELECT * FROM playlists_tracks WHERE playlistId = :playlistId")
-    suspend fun getTracksByPlaylist(playlistId: Long): List<TrackPlayEntity>
+    fun getTracksByPlaylist(playlistId: Int): Flow<List<TrackPlayEntity>>
+
+    @Query("SELECT playlistId FROM playlists_tracks WHERE track_id = :trackId")
+    fun getPlaylistsByTrack(trackId:String): Flow<List<Int>>
 
 }

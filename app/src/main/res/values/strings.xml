@@ -38,4 +38,7 @@
     <string name="track">трека</string>
     <string name="tracks">треков</string>
     <string name="onetrack">трек</string>
+    <string name="minutes">минут</string>
+    <string name="oneminute">минута</string>
+    <string name="minuti">минуты</string>
 </resources>

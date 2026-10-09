@@ -1,6 +1,7 @@
 package com.michael.playlistmaker.data.converters
 
 import com.michael.playlistmaker.data.db.TrackEntity
+import com.michael.playlistmaker.data.db.TrackPlayEntity
 import com.michael.playlistmaker.domain.search.models.Track
 
 class TrackDbConverter {
@@ -19,6 +20,20 @@ class TrackDbConverter {
     }
 
     fun map(tI:TrackEntity):Track{
+        return Track(
+            tI.trackName,
+            tI.artistName,
+            tI.trackTimeMillis,
+            tI.artworkUrl100,
+            tI.trackId,
+            tI.collectionName,
+            tI.releaseDate,
+            tI.primaryGenreName,
+            tI.country,
+            tI.previewUrl)
+    }
+
+    fun map(tI:TrackPlayEntity):Track{
         return Track(
             tI.trackName,
             tI.artistName,

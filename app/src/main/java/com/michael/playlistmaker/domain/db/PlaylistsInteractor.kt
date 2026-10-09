@@ -23,4 +23,10 @@ interface PlaylistsInteractor {
 
     suspend fun insertTrackInPlaylistSave(track: Track, playlistId: Int)
 
+    suspend fun getOnePlaylist(id:Int):Playlist
+
+    fun getTracksByPlaylist(id:Int):Flow<List<Track>>
+
+    fun getPlaylistByTrack(id:String):Flow<List<Int>>
+
 }
