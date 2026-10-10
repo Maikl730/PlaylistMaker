@@ -9,16 +9,20 @@ import androidx.room.PrimaryKey
 
 @Entity(
     tableName = "playlists_tracks",
+    //primaryKeys = ["track_id", "playlistId"],
+    /*
     foreignKeys = [ForeignKey(
         entity = PlaylistEntity::class,
         parentColumns = ["id"],        // колонка в плейлисте
         childColumns = ["playlistId"] // колонка в треке
         //onDelete = ForeignKey.CASCADE  // удалили плейлист — ушли его треки
     )],
-    indices = [Index("playlistId")]
+    indices = [Index("playlistId"), Index("track_id")]
+
+     */
 )
 data class TrackPlayEntity (
-    @PrimaryKey @ColumnInfo(name = "track_id")
+    @PrimaryKey@ColumnInfo(name = "track_id")
     val trackId:String,
     val artworkUrl100: String,
     val trackName: String,

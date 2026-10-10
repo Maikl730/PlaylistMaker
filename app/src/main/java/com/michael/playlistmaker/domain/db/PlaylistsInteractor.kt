@@ -29,4 +29,6 @@ interface PlaylistsInteractor {
 
     fun getPlaylistByTrack(id:String):Flow<List<Int>>
 
+    suspend fun insertJoin(playlistId: Int,trackId:String)
+
 }

@@ -40,7 +40,8 @@ interface PlaylistsDao {
     @Query("SELECT * FROM playlists_tracks WHERE playlistId = :playlistId")
     fun getTracksByPlaylist(playlistId: Int): Flow<List<TrackPlayEntity>>
 
-    @Query("SELECT playlistId FROM playlists_tracks WHERE track_id = :trackId")
+    @Query("SELECT DISTINCT playlistId FROM playlists_tracks WHERE track_id = :trackId")
     fun getPlaylistsByTrack(trackId:String): Flow<List<Int>>
+
 
 }

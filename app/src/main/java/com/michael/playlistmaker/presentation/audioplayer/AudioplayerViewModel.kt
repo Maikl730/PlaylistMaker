@@ -113,11 +113,14 @@ class AudioplayerViewModel(
             if (playlist.listOfTracksId.contains(track.trackId)){
                 updateMessageLiveEvent.postValue("Трек уже добавлен в плейлист ${playlist.name}")
             }else{
+
                 var newList = playlist.listOfTracksId.toMutableList()
                 newList.add(track.trackId)
                 updateCountOfTracks(playlist,newList)
                 playlistsInteractor.updateListOfTracks(playlist.id,newList)
                 playlistsInteractor.insertTrackInPlaylistSave(track,playlist.id)
+
+                playlistsInteractor.insertJoin(playlist.id,track.trackId)
                 updateMessageLiveEvent.postValue("Добавлено в плейлист ${playlist.name}")
             }
         }

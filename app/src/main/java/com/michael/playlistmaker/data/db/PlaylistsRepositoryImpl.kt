@@ -104,6 +104,8 @@ class PlaylistsRepositoryImpl(private val appDatabase: AppDatabase,private val g
         }
     }
 
+
+
     private fun convertFromEntityToPlaylists(entitys:List<PlaylistEntity>):List<Playlist> {
         return entitys.map { playlist -> converter.map(playlist) }
     }
@@ -114,6 +116,10 @@ class PlaylistsRepositoryImpl(private val appDatabase: AppDatabase,private val g
 
 
     override fun getPlaylistByTrack(id:String):Flow<List<Int>>{
-        return appDatabase.playlistDao().getPlaylistsByTrack(id)
+        return appDatabase.playlistTrackJoinDao().getPlaylistIdsByTrackId(id)
+    }
+
+   override suspend fun insertJoin(playlistId: Int,trackId:String){
+        appDatabase.playlistTrackJoinDao().insertJoin(PlaylistTrackJoin(playlistId, trackId))
     }
 }
