@@ -11,16 +11,13 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class PlaylistsRepositoryImpl(private val appDatabase: AppDatabase,private val gson: Gson,private val converter: PlaylistDbConverter,private val converterTracks: TrackDbConverter):PlaylistsRepository {
+
     override suspend fun insertPlaylist(playlist: Playlist) {
-
-        val listoOfTracksGson = gson.toJson(playlist.listOfTracksId)
-
         val playlistEntity = PlaylistEntity(
             0,
             playlist.name,
             playlist.description,
             playlist.urlImage,
-            listoOfTracksGson,
             0)
 
         appDatabase.playlistDao().insertPlaylist(playlistEntity)
@@ -35,10 +32,13 @@ class PlaylistsRepositoryImpl(private val appDatabase: AppDatabase,private val g
         appDatabase.playlistDao().deletePlaylist(converter.map(playlist))
     }
 
+    /*
     override suspend fun updateListOfTracks(playlistId: Int, listOfTracks: List<String>) {
         val listoOfTracksGson = gson.toJson(listOfTracks)
         appDatabase.playlistDao().updateListOfTracks(playlistId,listoOfTracksGson)
     }
+
+     */
 
     override fun getAllPlaylists(): Flow<List<Playlist>> {
         return appDatabase.playlistDao().getAllPlaylists().map {
@@ -52,14 +52,11 @@ class PlaylistsRepositoryImpl(private val appDatabase: AppDatabase,private val g
 
     override suspend fun updatePlaylist(playlist: Playlist) {
 
-        val listoOfTracksGson = gson.toJson(playlist.listOfTracksId)
-
         val playlistEntity = PlaylistEntity(
             playlist.id,
             playlist.name,
             playlist.description,
             playlist.urlImage,
-            listoOfTracksGson,
             playlist.countOfTracks)
 
         appDatabase.playlistDao().insertPlaylist(playlistEntity)
@@ -68,18 +65,10 @@ class PlaylistsRepositoryImpl(private val appDatabase: AppDatabase,private val g
 
 
     override suspend fun isHereTrack(playlistId: Int,trackId: String):Boolean{
-        val listTracksType = object : TypeToken<List<String>>() {}.type
-        val list:List<String> = gson.fromJson( appDatabase.playlistDao().getListOfTracks(playlistId),listTracksType)
-
-        if (list.isEmpty()){
-            return false
-        }else{
-            return list.contains(trackId)
-        }
-
+       return appDatabase.playlistTrackJoinDao().isTrackInPlaylist(playlistId,trackId)
     }
 
-    override suspend fun insertTrackInPlaylistSave(track: Track,playlistId: Int){
+    override suspend fun insertTrackInPlaylistSave(track: Track){
         appDatabase.trackPlayDao().insertTrack(
             TrackPlayEntity(
                 trackId = track.trackId,
@@ -91,8 +80,7 @@ class PlaylistsRepositoryImpl(private val appDatabase: AppDatabase,private val g
                 previewUrl = track.previewUrl,
                 artworkUrl100 = track.artworkUrl100,
                 primaryGenreName = track.primaryGenreName,
-                releaseDate = track.releaseDate,
-                playlistId = playlistId
+                releaseDate = track.releaseDate
             )
         )
     }
@@ -121,5 +109,50 @@ class PlaylistsRepositoryImpl(private val appDatabase: AppDatabase,private val g
 
    override suspend fun insertJoin(playlistId: Int,trackId:String){
         appDatabase.playlistTrackJoinDao().insertJoin(PlaylistTrackJoin(playlistId, trackId))
+    }
+
+    override suspend fun deleteTrackFromTrackSave(trackId: String){
+        appDatabase.trackPlayDao().deleteTrack(
+            TrackPlayEntity(
+                trackId = trackId,
+                trackName = "",
+                trackTimeMillis = "",
+                artistName = "",
+                previewUrl = "",
+                primaryGenreName = "",
+                releaseDate = "",
+                collectionName = "",
+                country = "",
+                artworkUrl100 = ""
+            )
+        )
+    }
+
+    override suspend fun updateCountOfTracksInPlaylistEnt(playlistId: Int,boolean: Boolean){
+        if(boolean)updatePlusCountOfTracksInPlaylistEnt(playlistId)else updateMinusCountOfTracksInPlaylistEnt(playlistId)
+    }
+
+    private suspend fun updatePlusCountOfTracksInPlaylistEnt(playlistId: Int){
+        val oldCount = appDatabase.playlistDao().getCountOfTracksInPlaylistNoFlow(playlistId)
+            appDatabase.playlistDao().updatePlaylistTrackCount(playlistId, oldCount+1)
+
+    }
+
+    private suspend fun updateMinusCountOfTracksInPlaylistEnt(playlistId: Int){
+        val oldCount = appDatabase.playlistDao().getCountOfTracksInPlaylistNoFlow(playlistId)
+            appDatabase.playlistDao().updatePlaylistTrackCount(playlistId, oldCount-1)
+
+    }
+
+    override suspend fun deleteTrackFromJoin(playlistId: Int,trackId: String){
+        appDatabase.playlistTrackJoinDao().removeJoin(PlaylistTrackJoin(playlistId, trackId))
+    }
+
+    override suspend fun isTrackMoreOneTime(trackId: String):Boolean{
+        if(appDatabase.playlistTrackJoinDao().getPlaylistsByTrackId(trackId).size>1){
+            return true
+        }else{
+            return false
+        }
     }
 }

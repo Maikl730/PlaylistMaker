@@ -92,7 +92,7 @@ class AudioplayerViewModel(
         resetTimer()
     }
 
-
+/*
     suspend fun updateCountOfTracks(playlist: Playlist,list:List<String>){
         playlistsInteractor.updatePlaylist(
             playlist = Playlist(
@@ -107,6 +107,8 @@ class AudioplayerViewModel(
 
     }
 
+ */
+/*
     fun updateListOfTracks(playlist: Playlist,track: Track){
         viewModelScope.launch {
 
@@ -125,6 +127,14 @@ class AudioplayerViewModel(
             }
         }
 
+    }
+ */
+
+    fun addToPlaylist(playlist: Playlist,track:Track){
+        viewModelScope.launch {
+            if(!playlistsInteractor.addTrackInPlaylist(track, playlist.id))
+            updateMessageLiveEvent.postValue("Трек уже добавлен в плейлист ${playlist.name}")
+        }
     }
 
     fun onPlayButtonClicked() {

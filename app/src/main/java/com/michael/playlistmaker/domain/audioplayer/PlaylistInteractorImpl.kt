@@ -8,6 +8,7 @@ import com.michael.playlistmaker.domain.search.models.Track
 import kotlinx.coroutines.flow.Flow
 
 class PlaylistInteractorImpl(private val repository: PlaylistsRepository):PlaylistsInteractor {
+
     override suspend fun insertPlaylist(playlist: Playlist) {
      repository.insertPlaylist(playlist)
     }
@@ -15,10 +16,12 @@ class PlaylistInteractorImpl(private val repository: PlaylistsRepository):Playli
     override suspend fun deletePlaylist(playlist: Playlist) {
         repository.deletePlaylist(playlist)
     }
-
+/*
     override suspend fun updateListOfTracks(playlistId: Int, listOfTracks: List<String>) {
        repository.updateListOfTracks(playlistId, listOfTracks)
     }
+    
+ */
 
     override fun getAllPlaylists(): Flow<List<Playlist>> {
         return repository.getAllPlaylists()
@@ -36,8 +39,35 @@ class PlaylistInteractorImpl(private val repository: PlaylistsRepository):Playli
         repository.updatePlaylist(playlist)
     }
 
-    override suspend fun insertTrackInPlaylistSave(track: Track, playlistId: Int) {
-        repository.insertTrackInPlaylistSave(track,playlistId)
+    override suspend fun addTrackInPlaylist(track: Track,playlistId: Int):Boolean{
+        if (!repository.isHereTrack(playlistId, track.trackId)){
+            repository.insertTrackInPlaylistSave(track)
+            repository.insertJoin(playlistId,track.trackId)
+            repository.updateCountOfTracksInPlaylistEnt(playlistId,true)
+            return true
+        }else{
+            return false
+        }
+    }
+
+    override suspend fun deleteTrackFromPlaylist(trackId: String,playlistId: Int):Boolean{
+        if (repository.isHereTrack(playlistId, trackId)){
+            if (repository.isTrackMoreOneTime(trackId)){
+                repository.deleteTrackFromJoin(playlistId, trackId)
+                repository.updateCountOfTracksInPlaylistEnt(playlistId,false)
+            }else{
+                repository.deleteTrackFromJoin(playlistId, trackId)
+                repository.deleteTrackFromTrackSave(trackId)
+                repository.updateCountOfTracksInPlaylistEnt(playlistId,false)
+            }
+            return true
+            }else{
+                return false
+            }
+    }
+
+    override suspend fun insertTrackInPlaylistSave(track: Track) {
+        repository.insertTrackInPlaylistSave(track)
     }
 
     override suspend fun getOnePlaylist(id: Int): Playlist {

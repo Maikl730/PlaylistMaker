@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.michael.playlistmaker.R
 import com.michael.playlistmaker.databinding.FragmentPlaylistInsideBinding
 import com.michael.playlistmaker.domain.search.models.Track
@@ -53,6 +54,9 @@ class FragmentPlaylistInside : Fragment() {
         viewModel.getTimeOfTracks(playlistId)
         viewModel.getTracks(playlistId)
 
+
+
+
         viewModel.observeDelMessage().observe(viewLifecycleOwner) { message ->
             Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
         }
@@ -86,14 +90,28 @@ class FragmentPlaylistInside : Fragment() {
 
         viewModel.observeTracks().observe(viewLifecycleOwner) {
             listTracks = it.toMutableList()
-            val adapter = TrackAdapterForPlayInside(listTracks, viewModel) {
+            val adapter = TrackAdapterForPlayInside(listTracks, playlistId,viewModel) {
                 clickDebounce()
             }
             binding.recycle.adapter = adapter
             adapter.notifyDataSetChanged()
         }
+        viewModel.observeDialog().observe(viewLifecycleOwner){
+            val dialog = createDialog(it[0],it[1].toInt())
+            dialog.create().show()
+        }
 
     }
+
+
+    fun createDialog(trackId:String,playlistId:Int) =  MaterialAlertDialogBuilder(requireContext())
+        .setTitle("Хотите удалиь трек?")
+        .setNeutralButton("Нет") { dialog, which ->
+
+        }
+        .setPositiveButton("Да") { dialog, which ->
+            viewModel.deleteTrackFromPlaylist(trackId,playlistId)
+        }
 
     private fun clickDebounce(): Boolean {
         val current = isClickAllowed
@@ -106,4 +124,6 @@ class FragmentPlaylistInside : Fragment() {
         }
         return current
     }
+
+
 }

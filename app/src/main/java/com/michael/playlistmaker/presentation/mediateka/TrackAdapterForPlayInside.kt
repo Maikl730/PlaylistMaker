@@ -9,7 +9,7 @@ import com.michael.playlistmaker.ui.audioplayer.AudioplayerActivity
 import com.michael.playlistmaker.ui.search.INTENT_EXTRA_KEY
 import com.michael.playlistmaker.ui.search.TracksViewHolder
 
-class TrackAdapterForPlayInside(private val tracks: List<Track>,private val viewModel: FragmentPlaylistInsideViewModel, private val clickDebounce: () -> Boolean): RecyclerView.Adapter<TracksViewHolder>() {
+class TrackAdapterForPlayInside(private val tracks: List<Track>,private val playlistId:Int,private val viewModel: FragmentPlaylistInsideViewModel, private val clickDebounce: () -> Boolean): RecyclerView.Adapter<TracksViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TracksViewHolder = TracksViewHolder.from(parent)
 
@@ -29,7 +29,8 @@ class TrackAdapterForPlayInside(private val tracks: List<Track>,private val view
         }
 
         holder.itemView.setOnLongClickListener {
-            viewModel.deleteTrackFromPlaylist(tracks[position].trackId)
+           // viewModel.deleteTrackFromPlaylist(tracks[position].trackId,playlistId)
+            viewModel.goDialog(tracks[position].trackId,playlistId)
             return@setOnLongClickListener true
         }
     }

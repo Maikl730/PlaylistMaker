@@ -9,6 +9,6 @@ data class Playlist (
     val name:String,
     val description:String,
     val urlImage:String,
-    val listOfTracksId:List<String>,
+    //val listOfTracksId:List<String>,
     val countOfTracks:Int
 ):Parcelable

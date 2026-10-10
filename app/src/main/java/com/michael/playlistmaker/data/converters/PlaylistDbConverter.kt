@@ -7,7 +7,7 @@ import com.michael.playlistmaker.domain.audioplayer.models.Playlist
 
 class PlaylistDbConverter(private val gson: Gson) {
 
-    val listTracksType = object : TypeToken<List<String>>() {}.type
+   // val listTracksType = object : TypeToken<List<String>>() {}.type
 
     fun map(playlistEntity: PlaylistEntity):Playlist{
         return Playlist(
@@ -15,8 +15,8 @@ class PlaylistDbConverter(private val gson: Gson) {
             name =playlistEntity.name,
             description = playlistEntity.description,
             urlImage = playlistEntity.urlImage,
-            countOfTracks = playlistEntity.countOfTracks,
-            listOfTracksId = gson.fromJson(playlistEntity.listOfTracksId, listTracksType)
+            countOfTracks = playlistEntity.countOfTracks
+            //listOfTracksId = gson.fromJson(playlistEntity.listOfTracksId, listTracksType)
             )
     }
 
@@ -27,7 +27,8 @@ class PlaylistDbConverter(private val gson: Gson) {
             description = playlist.description,
             urlImage = playlist.urlImage,
             countOfTracks = playlist.countOfTracks,
-            listOfTracksId = gson.toJson(playlist.listOfTracksId))
+           // listOfTracksId = gson.toJson(playlist.listOfTracksId)
+        )
     }
 
 

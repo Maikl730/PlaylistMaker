@@ -100,7 +100,7 @@ class FragmentMakeNewPlaylist: Fragment() {
                 name = name,
                 description = binding.description.text.toString(),
                 countOfTracks = 0,
-                listOfTracksId = emptyList(),
+                //listOfTracksId = emptyList(),
                 urlImage = imageToSave,
                 id = 0
             )

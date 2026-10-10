@@ -32,6 +32,5 @@ data class TrackPlayEntity (
     val primaryGenreName:String,
     val country:String,
     val trackTimeMillis: String,
-    val previewUrl:String,
-    val playlistId:Int
+    val previewUrl:String
 )

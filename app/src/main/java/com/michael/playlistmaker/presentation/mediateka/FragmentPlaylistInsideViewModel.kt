@@ -1,11 +1,14 @@
 package com.michael.playlistmaker.presentation.mediateka
 
 import SingleLiveEvent
+import android.app.AlertDialog
 import android.content.Context
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.michael.playlistmaker.R
 import com.michael.playlistmaker.domain.audioplayer.models.Playlist
 import com.michael.playlistmaker.domain.db.PlaylistsInteractor
@@ -28,6 +31,9 @@ class FragmentPlaylistInsideViewModel(private val interactor: PlaylistsInteracto
     private val deleteMessageLiveEvent = SingleLiveEvent<String>()
     fun observeDelMessage(): SingleLiveEvent<String> = deleteMessageLiveEvent
 
+    private val dialogLiveData = SingleLiveEvent<List<String>>()
+    fun observeDialog(): LiveData<List<String>> = dialogLiveData
+
 
     fun getPlaylist(id:Int){
         viewModelScope.launch {
@@ -44,7 +50,7 @@ class FragmentPlaylistInsideViewModel(private val interactor: PlaylistsInteracto
                 var time:Long = 0
                 list.forEach{track -> time = time + track.trackTimeMillis.toLong()}
 
-                val timeString = if(time<10){
+                val timeString = if(SimpleDateFormat("mm", Locale.getDefault()).format(time).toInt()<10){
                     SimpleDateFormat("m", Locale.getDefault()).format(time)+" "+ context.resources.getQuantityString(
                         R.plurals.CountOfMinutes, time.toInt(), time.toInt())
                 }else{SimpleDateFormat("mm", Locale.getDefault()).format(time)+" "+ context.resources.getQuantityString(
@@ -64,13 +70,16 @@ class FragmentPlaylistInsideViewModel(private val interactor: PlaylistsInteracto
         }
     }
 
-    fun deleteTrackFromPlaylist(id:String){
-        //deleteMessageLiveEvent.postValue("Трек $id удален!")
+    fun deleteTrackFromPlaylist(trackId:String,playlistId:Int){
 
         viewModelScope.launch {
-            interactor.getPlaylistByTrack(id).collect{
-                deleteMessageLiveEvent.postValue(it.toString())
+            if(interactor.deleteTrackFromPlaylist(trackId,playlistId)) {
+                deleteMessageLiveEvent.postValue("Трек $trackId удален")
             }
         }
+    }
+
+    fun goDialog(trackId: String,playlistId: Int){
+        dialogLiveData.postValue(listOf(trackId,playlistId.toString()))
     }
 }

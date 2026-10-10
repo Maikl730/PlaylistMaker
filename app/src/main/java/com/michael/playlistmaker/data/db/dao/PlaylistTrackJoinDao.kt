@@ -26,6 +26,15 @@ interface PlaylistTrackJoinDao {
     """)
     suspend fun getPlaylistsByTrackId(trackId: String): List<PlaylistEntity>
 
+    @Query("""
+        SELECT EXISTS(
+            SELECT 1
+            FROM playlist_tracks_join
+            WHERE playlistId = :playlistId AND trackId = :trackId
+        )
+    """)
+    suspend fun isTrackInPlaylist(playlistId: Int, trackId: String): Boolean
+
 
     // Если нужны только ID плейлистов:
     @Query("SELECT DISTINCT playlistId FROM playlist_tracks_join WHERE trackId = :trackId")

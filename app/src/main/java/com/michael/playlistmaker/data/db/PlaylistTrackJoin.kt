@@ -8,8 +8,8 @@ import androidx.room.Index
 
 @Entity(
     tableName = "playlist_tracks_join"
-    , primaryKeys = ["playlistId", "trackId"]/*,
-    foreignKeys = [
+    , primaryKeys = ["playlistId", "trackId"],
+    /*foreignKeys = [
         ForeignKey(
             entity = PlaylistEntity::class,
             parentColumns = ["id"],
