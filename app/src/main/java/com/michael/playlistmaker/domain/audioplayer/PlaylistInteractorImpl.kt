@@ -1,11 +1,14 @@
 package com.michael.playlistmaker.domain.audioplayer
 
+import android.util.Log
 import com.michael.playlistmaker.data.db.PlaylistTrackJoin
 import com.michael.playlistmaker.domain.audioplayer.models.Playlist
 import com.michael.playlistmaker.domain.db.PlaylistsInteractor
 import com.michael.playlistmaker.domain.db.PlaylistsRepository
 import com.michael.playlistmaker.domain.search.models.Track
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.withContext
 
 class PlaylistInteractorImpl(private val repository: PlaylistsRepository):PlaylistsInteractor {
 
@@ -78,6 +81,10 @@ class PlaylistInteractorImpl(private val repository: PlaylistsRepository):Playli
         return repository.getTracksByPlaylist(id)
     }
 
+    override suspend fun getTracksByPlaylistNoFlow(id: Int): List<Track> {
+        return repository.getTracksByPlaylistNoFlow(id)
+    }
+
 
     override fun getPlaylistByTrack(id: String): Flow<List<Int>> {
         return repository.getPlaylistByTrack(id)
@@ -85,5 +92,21 @@ class PlaylistInteractorImpl(private val repository: PlaylistsRepository):Playli
 
     override suspend fun insertJoin(playlistId: Int,trackId:String){
        repository.insertJoin(playlistId, trackId)
+    }
+
+    override suspend fun deletePlaylistById(playlistId: Int){
+
+
+        withContext(Dispatchers.IO) {
+
+            repository.getTracksByPlaylistNoFlow(playlistId).forEach{
+                if(!repository.isTrackMoreOneTime(it.trackId)){
+                    repository.deleteTrackFromTrackSave(it.trackId)
+                }
+            }
+
+            repository.deleteJoinstByPlaylistId(playlistId)
+            repository.deletePlaylistById(playlistId)
+        }
     }
 }

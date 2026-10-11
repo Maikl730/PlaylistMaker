@@ -1,15 +1,18 @@
 package com.michael.playlistmaker.ui.mediateka
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.net.toUri
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.michael.playlistmaker.R
 import com.michael.playlistmaker.databinding.FragmentPlaylistInsideBinding
@@ -29,6 +32,7 @@ class FragmentPlaylistInside : Fragment() {
     private val viewModel by viewModel<FragmentPlaylistInsideViewModel>()
     var listTracks = emptyList<Track>()
     var isClickAllowed = true
+    var textForDialog =""
 
 
     override fun onDestroy() {
@@ -55,23 +59,66 @@ class FragmentPlaylistInside : Fragment() {
         viewModel.getTracks(playlistId)
 
 
+        val behavior = BottomSheetBehavior.from(
+            binding.settingBottomSheet
+        )
+        behavior.isHideable = true
+
+        behavior.state = BottomSheetBehavior.STATE_HIDDEN
+
+        binding.btnPoints.setOnClickListener {
+
+            behavior.state = BottomSheetBehavior.STATE_COLLAPSED
+            //binding.standardBottomSheet.isVisible = false
+            // binding.settingBottomSheet.isVisible = true
+        }
 
 
         viewModel.observeDelMessage().observe(viewLifecycleOwner) { message ->
             Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
         }
 
+        viewModel?.observeDoIntent()?.observe(viewLifecycleOwner) {
+            startActivity(it!!)
+        }
+
         viewModel.observePlaylist().observe(viewLifecycleOwner) { playlist ->
 
             with(binding) {
                 textName.text = playlist.name
+                playlistName.text = playlist.name
                 textYear.text = playlist.description
-                if (playlist.urlImage != "") imageView.setImageURI(playlist.urlImage.toUri())
+                if (playlist.urlImage != "") {
+                    imageView.setImageURI(playlist.urlImage.toUri())
+                    playlistImage.setImageURI(playlist.urlImage.toUri())
+                }
                 textCountOfTracks.text =
                     playlist.countOfTracks.toString() + " " + requireContext().resources.getQuantityString(
                         R.plurals.CountOfTracks, playlist.countOfTracks, playlist.countOfTracks
                     )
+
+                playlistCountTracks.text =
+                    playlist.countOfTracks.toString() + " " + requireContext().resources.getQuantityString(
+                    R.plurals.CountOfTracks, playlist.countOfTracks, playlist.countOfTracks
+                )
+
+                textForDialog = "Хотите удалить плейлист ${playlist.name}?"
             }
+        }
+
+
+        binding.btnDelete.setOnClickListener {
+            var dialog = createDialogForDeletePlaylist(playlistId)
+            dialog.show()
+
+        }
+
+        binding.btbShare.setOnClickListener {
+            viewModel.share(playlistId,requireContext())
+        }
+
+        binding.btnShare.setOnClickListener {
+            viewModel.share(playlistId,requireContext())
         }
 
         viewModel.observeTracksTime().observe(viewLifecycleOwner) { time ->
@@ -112,6 +159,18 @@ class FragmentPlaylistInside : Fragment() {
         .setPositiveButton("Да") { dialog, which ->
             viewModel.deleteTrackFromPlaylist(trackId,playlistId)
         }
+
+    fun createDialogForDeletePlaylist(playlistId: Int) = MaterialAlertDialogBuilder(requireContext())
+        .setTitle(textForDialog)
+        .setNeutralButton("Нет") { dialog, which ->
+
+        }
+        .setPositiveButton("Да") { dialog, which ->
+            viewModel.deletePlaylist(playlistId)
+            Log.d("MyLog","Its Work in Fragment")
+            findNavController().popBackStack()
+        }
+
 
     private fun clickDebounce(): Boolean {
         val current = isClickAllowed

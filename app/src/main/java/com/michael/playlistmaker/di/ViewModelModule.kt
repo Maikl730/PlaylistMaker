@@ -48,7 +48,7 @@ import org.koin.dsl.module
         }
 
         viewModel {
-            FragmentPlaylistInsideViewModel(get(),get())
+            FragmentPlaylistInsideViewModel(get(),get(),get())
         }
 
     }

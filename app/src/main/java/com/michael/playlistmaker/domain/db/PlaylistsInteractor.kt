@@ -32,6 +32,11 @@ interface PlaylistsInteractor {
     suspend fun insertJoin(playlistId: Int,trackId:String)
 
     //
+
+    suspend fun deletePlaylistById(playlistId: Int)
+
+    suspend fun getTracksByPlaylistNoFlow(id: Int): List<Track>
+
     suspend fun addTrackInPlaylist(track: Track,playlistId: Int):Boolean
 
     suspend fun deleteTrackFromPlaylist(trackId: String,playlistId: Int):Boolean

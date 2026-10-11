@@ -42,4 +42,10 @@ interface PlaylistsRepository {
 
     suspend fun updateCountOfTracksInPlaylistEnt(playlistId: Int,boolean: Boolean)
 
+    suspend fun deleteJoinstByPlaylistId(playlistId: Int)
+
+    suspend fun deletePlaylistById(playlistId:Int)
+
+    suspend fun getTracksByPlaylistNoFlow(playlistId: Int):List<Track>
+
 }

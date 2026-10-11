@@ -24,6 +24,11 @@ class PlaylistsRepositoryImpl(private val appDatabase: AppDatabase,private val g
 
     }
 
+    override suspend fun getTracksByPlaylistNoFlow(playlistId: Int):List<Track>{
+        return convertFromTrackPlayEntityToTrack(appDatabase.playlistDao().getTracksByPlaylistNoFlow(playlistId))
+
+    }
+
     override suspend fun getOnePlaylist(id:Int):Playlist{
        return converter.map(appDatabase.playlistDao().getOnePlaylist(id))
     }
@@ -154,5 +159,13 @@ class PlaylistsRepositoryImpl(private val appDatabase: AppDatabase,private val g
         }else{
             return false
         }
+    }
+
+    override suspend fun deleteJoinstByPlaylistId(playlistId: Int){
+        appDatabase.playlistTrackJoinDao().deleteJoinsByPlaylistId(playlistId)
+    }
+
+    override suspend fun deletePlaylistById(playlistId:Int){
+        appDatabase.playlistDao().deletePlaylistById(playlistId)
     }
 }

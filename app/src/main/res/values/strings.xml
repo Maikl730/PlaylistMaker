@@ -41,4 +41,7 @@
     <string name="minutes">минут</string>
     <string name="oneminute">минута</string>
     <string name="minuti">минуты</string>
+    <string name="shareone">Поделиться</string>
+    <string name="redactioninfo">Редактировать информацию</string>
+    <string name="delete_playlist">Удалить плейлист</string>
 </resources>

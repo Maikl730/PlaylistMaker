@@ -3,6 +3,8 @@ package com.michael.playlistmaker.presentation.mediateka
 import SingleLiveEvent
 import android.app.AlertDialog
 import android.content.Context
+import android.content.Intent
+import android.util.Log
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -13,11 +15,20 @@ import com.michael.playlistmaker.R
 import com.michael.playlistmaker.domain.audioplayer.models.Playlist
 import com.michael.playlistmaker.domain.db.PlaylistsInteractor
 import com.michael.playlistmaker.domain.search.models.Track
+import com.michael.playlistmaker.domain.settings.api.SharingInteractor
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class FragmentPlaylistInsideViewModel(private val interactor: PlaylistsInteractor,private val context: Context): ViewModel() {
+class FragmentPlaylistInsideViewModel(
+    private val sharingInteractor: SharingInteractor,
+    private val interactor: PlaylistsInteractor,
+    private val context: Context
+) : ViewModel() {
+
+
+    private val doIntent = SingleLiveEvent<Intent?>()
+    fun observeDoIntent(): LiveData<Intent?> = doIntent
 
     private val playlistLiveData = MutableLiveData<Playlist>()
     fun observePlaylist(): LiveData<Playlist> = playlistLiveData
@@ -34,27 +45,52 @@ class FragmentPlaylistInsideViewModel(private val interactor: PlaylistsInteracto
     private val dialogLiveData = SingleLiveEvent<List<String>>()
     fun observeDialog(): LiveData<List<String>> = dialogLiveData
 
+    fun share(playlistId: Int, context: Context) {
+        viewModelScope.launch {
+            val playlist = interactor.getOnePlaylist(playlistId)
+            val listTracks = interactor.getTracksByPlaylistNoFlow(playlistId)
+            var t = ""
+            listTracks.forEachIndexed() { ind, track -> t += "\n${ind + 1}.${track.toString()}" }
 
-    fun getPlaylist(id:Int){
+            t += "\n${playlist.toString()}" + " " + context.resources.getQuantityString(
+                R.plurals.CountOfTracks, playlist.countOfTracks, playlist.countOfTracks
+            )
+
+            doIntent.postValue(sharingInteractor.sharePlaylist(t))
+
+        }
+    }
+
+    fun getPlaylist(id: Int) {
         viewModelScope.launch {
             val playlist = interactor.getOnePlaylist(id)
             playlistLiveData.postValue(playlist)
         }
     }
 
-    fun getTimeOfTracks(id:Int) {
+    fun getTimeOfTracks(id: Int) {
         viewModelScope.launch {
 
-            interactor.getTracksByPlaylist(id).collect{
-                    list ->
-                var time:Long = 0
-                list.forEach{track -> time = time + track.trackTimeMillis.toLong()}
+            interactor.getTracksByPlaylist(id).collect { list ->
+                var time: Long = 0
+                list.forEach { track -> time = time + track.trackTimeMillis.toLong() }
 
-                val timeString = if(SimpleDateFormat("mm", Locale.getDefault()).format(time).toInt()<10){
-                    SimpleDateFormat("m", Locale.getDefault()).format(time)+" "+ context.resources.getQuantityString(
-                        R.plurals.CountOfMinutes, time.toInt(), time.toInt())
-                }else{SimpleDateFormat("mm", Locale.getDefault()).format(time)+" "+ context.resources.getQuantityString(
-                    R.plurals.CountOfMinutes, time.toInt(), time.toInt())}
+                val timeString =
+                    if (SimpleDateFormat("mm", Locale.getDefault()).format(time).toInt() < 10) {
+                        SimpleDateFormat(
+                            "m",
+                            Locale.getDefault()
+                        ).format(time) + " " + context.resources.getQuantityString(
+                            R.plurals.CountOfMinutes, time.toInt(), time.toInt()
+                        )
+                    } else {
+                        SimpleDateFormat(
+                            "mm",
+                            Locale.getDefault()
+                        ).format(time) + " " + context.resources.getQuantityString(
+                            R.plurals.CountOfMinutes, time.toInt(), time.toInt()
+                        )
+                    }
 
                 tracksTimeLiveData.postValue(timeString)
             }
@@ -62,24 +98,31 @@ class FragmentPlaylistInsideViewModel(private val interactor: PlaylistsInteracto
 
     }
 
-    fun getTracks(id:Int){
+    fun getTracks(id: Int) {
         viewModelScope.launch {
-            interactor.getTracksByPlaylist(id).collect{
-                tracks -> tracksLiveData.postValue(tracks)
+            interactor.getTracksByPlaylist(id).collect { tracks ->
+                tracksLiveData.postValue(tracks)
             }
         }
     }
 
-    fun deleteTrackFromPlaylist(trackId:String,playlistId:Int){
+    fun deleteTrackFromPlaylist(trackId: String, playlistId: Int) {
 
         viewModelScope.launch {
-            if(interactor.deleteTrackFromPlaylist(trackId,playlistId)) {
+            if (interactor.deleteTrackFromPlaylist(trackId, playlistId)) {
                 deleteMessageLiveEvent.postValue("Трек $trackId удален")
             }
         }
     }
 
-    fun goDialog(trackId: String,playlistId: Int){
-        dialogLiveData.postValue(listOf(trackId,playlistId.toString()))
+    fun goDialog(trackId: String, playlistId: Int) {
+        dialogLiveData.postValue(listOf(trackId, playlistId.toString()))
+    }
+
+    fun deletePlaylist(playlistId: Int) {
+
+        viewModelScope.launch {
+            interactor.deletePlaylistById(playlistId)
+        }
     }
 }

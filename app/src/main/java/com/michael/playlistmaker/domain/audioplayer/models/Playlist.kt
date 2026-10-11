@@ -9,6 +9,15 @@ data class Playlist (
     val name:String,
     val description:String,
     val urlImage:String,
-    //val listOfTracksId:List<String>,
     val countOfTracks:Int
-):Parcelable
+):Parcelable{
+    override fun toString(): String {
+
+        if (description!=""){
+            return "$name" + "\n$description" +"\n$countOfTracks"
+        }
+        else{
+            return "$name" +"\n$countOfTracks"
+        }
+    }
+}

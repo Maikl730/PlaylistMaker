@@ -39,4 +39,8 @@ interface PlaylistTrackJoinDao {
     // Если нужны только ID плейлистов:
     @Query("SELECT DISTINCT playlistId FROM playlist_tracks_join WHERE trackId = :trackId")
     fun getPlaylistIdsByTrackId(trackId: String): Flow<List<Int>>
+
+
+    @Query("DELETE FROM playlist_tracks_join WHERE playlistId = :playlistId")
+    fun deleteJoinsByPlaylistId(playlistId: Int)
 }

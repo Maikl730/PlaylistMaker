@@ -18,6 +18,9 @@ interface PlaylistsDao {
 
     @Delete(entity = PlaylistEntity::class)
     suspend fun deletePlaylist(playlist: PlaylistEntity)
+
+    @Query("DELETE FROM playlists WHERE id = :playlistId")
+    fun deletePlaylistById(playlistId:Int)
 /*
     @Query("UPDATE playlists SET listOfTracksId =:listOfTracks WHERE id = :playlistId")
     suspend fun updateListOfTracks(playlistId:Int,listOfTracks:String)
@@ -62,6 +65,14 @@ interface PlaylistsDao {
         WHERE pt.playlistId = :playlistId
     """)
     fun getTracksByPlaylist(playlistId: Int): Flow<List<TrackPlayEntity>>
+
+    @Query("""
+        SELECT t.*
+        FROM playlists_tracks t
+        JOIN playlist_tracks_join pt ON t.track_id = pt.trackId
+        WHERE pt.playlistId = :playlistId
+    """)
+    suspend fun getTracksByPlaylistNoFlow(playlistId: Int): List<TrackPlayEntity>
 
     /*
     @Query("SELECT DISTINCT playlistId FROM playlists_tracks WHERE track_id = :trackId")
