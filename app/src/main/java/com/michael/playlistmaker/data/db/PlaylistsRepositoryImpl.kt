@@ -63,8 +63,8 @@ class PlaylistsRepositoryImpl(private val appDatabase: AppDatabase,private val g
             playlist.description,
             playlist.urlImage,
             playlist.countOfTracks)
-
-        appDatabase.playlistDao().insertPlaylist(playlistEntity)
+//insert before
+        appDatabase.playlistDao().updatePlaylist(playlistEntity)
     }
 
 

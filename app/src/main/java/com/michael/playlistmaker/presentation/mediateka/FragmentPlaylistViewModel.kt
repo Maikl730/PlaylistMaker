@@ -15,11 +15,9 @@ class FragmentPlaylistViewModel(playlistsInteractor: PlaylistsInteractor): ViewM
 
     init {
 
-
         viewModelScope.launch {
             playlistsInteractor.getAllPlaylists().collect {
                 playlistLiveData.postValue(it)
-                //got
             }
         }
     }

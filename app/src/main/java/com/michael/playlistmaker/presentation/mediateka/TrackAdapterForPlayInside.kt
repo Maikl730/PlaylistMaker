@@ -29,7 +29,6 @@ class TrackAdapterForPlayInside(private val tracks: List<Track>,private val play
         }
 
         holder.itemView.setOnLongClickListener {
-           // viewModel.deleteTrackFromPlaylist(tracks[position].trackId,playlistId)
             viewModel.goDialog(tracks[position].trackId,playlistId)
             return@setOnLongClickListener true
         }

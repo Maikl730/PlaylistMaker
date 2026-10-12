@@ -1,16 +1,12 @@
 package com.michael.playlistmaker.presentation.mediateka
 
 import SingleLiveEvent
-import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
-import android.util.Log
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.michael.playlistmaker.R
 import com.michael.playlistmaker.domain.audioplayer.models.Playlist
 import com.michael.playlistmaker.domain.db.PlaylistsInteractor
@@ -47,17 +43,21 @@ class FragmentPlaylistInsideViewModel(
 
     fun share(playlistId: Int, context: Context) {
         viewModelScope.launch {
-            val playlist = interactor.getOnePlaylist(playlistId)
-            val listTracks = interactor.getTracksByPlaylistNoFlow(playlistId)
-            var t = ""
-            listTracks.forEachIndexed() { ind, track -> t += "\n${ind + 1}.${track.toString()}" }
 
-            t += "\n${playlist.toString()}" + " " + context.resources.getQuantityString(
-                R.plurals.CountOfTracks, playlist.countOfTracks, playlist.countOfTracks
-            )
+            if (interactor.getTracksByPlaylistNoFlow(playlistId).isNotEmpty()) {
+                val playlist = interactor.getOnePlaylist(playlistId)
+                val listTracks = interactor.getTracksByPlaylistNoFlow(playlistId)
+                var t = ""
+                listTracks.forEachIndexed() { ind, track -> t += "\n${ind + 1}.${track.toString()}" }
 
-            doIntent.postValue(sharingInteractor.sharePlaylist(t))
+                t += "\n${playlist.toString()}" + " " + context.resources.getQuantityString(
+                    R.plurals.CountOfTracks, playlist.countOfTracks, playlist.countOfTracks
+                )
 
+                doIntent.postValue(sharingInteractor.sharePlaylist(t))
+            }else{
+                deleteMessageLiveEvent.postValue(context.resources.getString(R.string.no_share_playlist))
+            }
         }
     }
 
@@ -75,23 +75,16 @@ class FragmentPlaylistInsideViewModel(
                 var time: Long = 0
                 list.forEach { track -> time = time + track.trackTimeMillis.toLong() }
 
-                val timeString =
-                    if (SimpleDateFormat("mm", Locale.getDefault()).format(time).toInt() < 10) {
-                        SimpleDateFormat(
-                            "m",
-                            Locale.getDefault()
-                        ).format(time) + " " + context.resources.getQuantityString(
-                            R.plurals.CountOfMinutes, time.toInt(), time.toInt()
-                        )
-                    } else {
-                        SimpleDateFormat(
-                            "mm",
-                            Locale.getDefault()
-                        ).format(time) + " " + context.resources.getQuantityString(
-                            R.plurals.CountOfMinutes, time.toInt(), time.toInt()
-                        )
-                    }
+                val minutes = SimpleDateFormat(
+                    "m",
+                    Locale.getDefault()
+                ).format(time).toInt()
 
+                val timeString = "$minutes " + context.resources.getQuantityString(
+                    R.plurals.CountOfMinutes,
+                    minutes,
+                    minutes
+                )
                 tracksTimeLiveData.postValue(timeString)
             }
         }

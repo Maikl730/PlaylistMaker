@@ -3,14 +3,14 @@
     <plurals name="CountOfTracks">
         <item quantity="one">@string/onetrack</item>
         <item quantity="few">@string/track</item>
-        <item quantity="zero">@string/tracks</item>
-        <item quantity="other">@string/tracks</item>
+        <item quantity="many">@string/tracks</item>
+        <item quantity="other">@string/track</item>
     </plurals>
 
     <plurals name="CountOfMinutes">
         <item quantity="one">@string/oneminute</item>
         <item quantity="few">@string/minuti</item>
-        <item quantity="zero">@string/minutes</item>
+        <item quantity="many">@string/minutes</item>
         <item quantity="other">@string/minutes</item>
     </plurals>
 </resources>

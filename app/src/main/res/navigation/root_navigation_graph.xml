@@ -34,5 +34,9 @@
     <fragment
         android:id="@+id/fragmentPlaylistInside"
         android:name="com.michael.playlistmaker.ui.mediateka.FragmentPlaylistInside"
-        android:label="FragmentPlaylistInside" />
+        android:label="FragmentPlaylistInside" >
+        <action
+            android:id="@+id/action_fragmentPlaylistInside_to_fragmentMakeNewPlaylist"
+            app:destination="@id/fragmentMakeNewPlaylist" />
+    </fragment>
 </navigation>

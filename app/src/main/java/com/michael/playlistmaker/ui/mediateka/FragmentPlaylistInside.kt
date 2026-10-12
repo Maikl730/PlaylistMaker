@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.net.toUri
+import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -69,8 +70,7 @@ class FragmentPlaylistInside : Fragment() {
         binding.btnPoints.setOnClickListener {
 
             behavior.state = BottomSheetBehavior.STATE_COLLAPSED
-            //binding.standardBottomSheet.isVisible = false
-            // binding.settingBottomSheet.isVisible = true
+
         }
 
 
@@ -121,6 +121,13 @@ class FragmentPlaylistInside : Fragment() {
             viewModel.share(playlistId,requireContext())
         }
 
+        binding.btnRedaction.setOnClickListener {
+            findNavController().navigate(
+                R.id.action_fragmentPlaylistInside_to_fragmentMakeNewPlaylist,
+                bundleOf("playlist" to playlistId)
+            )
+        }
+
         viewModel.observeTracksTime().observe(viewLifecycleOwner) { time ->
             binding.textMinutes.text = time
         }
@@ -158,6 +165,7 @@ class FragmentPlaylistInside : Fragment() {
         }
         .setPositiveButton("Да") { dialog, which ->
             viewModel.deleteTrackFromPlaylist(trackId,playlistId)
+            viewModel.getPlaylist(playlistId)
         }
 
     fun createDialogForDeletePlaylist(playlistId: Int) = MaterialAlertDialogBuilder(requireContext())
