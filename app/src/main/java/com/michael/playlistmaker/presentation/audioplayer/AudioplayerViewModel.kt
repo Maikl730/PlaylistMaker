@@ -92,7 +92,7 @@ class AudioplayerViewModel(
         resetTimer()
     }
 
-
+/*
     suspend fun updateCountOfTracks(playlist: Playlist,list:List<String>){
         playlistsInteractor.updatePlaylist(
             playlist = Playlist(
@@ -107,21 +107,34 @@ class AudioplayerViewModel(
 
     }
 
+ */
+/*
     fun updateListOfTracks(playlist: Playlist,track: Track){
         viewModelScope.launch {
 
             if (playlist.listOfTracksId.contains(track.trackId)){
                 updateMessageLiveEvent.postValue("Трек уже добавлен в плейлист ${playlist.name}")
             }else{
+
                 var newList = playlist.listOfTracksId.toMutableList()
                 newList.add(track.trackId)
                 updateCountOfTracks(playlist,newList)
                 playlistsInteractor.updateListOfTracks(playlist.id,newList)
                 playlistsInteractor.insertTrackInPlaylistSave(track,playlist.id)
+
+                playlistsInteractor.insertJoin(playlist.id,track.trackId)
                 updateMessageLiveEvent.postValue("Добавлено в плейлист ${playlist.name}")
             }
         }
 
+    }
+ */
+
+    fun addToPlaylist(playlist: Playlist,track:Track){
+        viewModelScope.launch {
+            if(!playlistsInteractor.addTrackInPlaylist(track, playlist.id))
+            updateMessageLiveEvent.postValue("Трек уже добавлен в плейлист ${playlist.name}")
+        }
     }
 
     fun onPlayButtonClicked() {

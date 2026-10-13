@@ -38,7 +38,7 @@ import java.io.File
 import java.io.FileOutputStream
 
 
-class FragmentMakeNewPlaylist: Fragment() {
+class FragmentMakeNewPlaylist : Fragment() {
 
     private var _binding: FragmentMakeNewPlaylistBinding? = null
     private val binding get() = _binding!!
@@ -46,6 +46,9 @@ class FragmentMakeNewPlaylist: Fragment() {
 
     var imageUri: String = ""
     var imageToSave = ""
+    var countOfTracks = 0
+    var playlistIdId = 0
+    var isOriginal = true
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -59,6 +62,27 @@ class FragmentMakeNewPlaylist: Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+
+        val playlistId: Int = arguments?.getInt("playlist", -1) ?: -1
+
+        if (playlistId != -1) {
+            isOriginal = false
+            viewModel.getPlaylist(playlistId)
+            playlistIdId = playlistId
+            binding.toolBar.title = getString(R.string.redaction_playlist)
+            binding.appCompatButton.setText(getString(R.string.save))
+        }
+
+
+
+        viewModel.observePlaylist().observe(viewLifecycleOwner) {
+            binding.name.setText(it.name)
+            binding.description.setText(it.description)
+            binding.imageButton.setImageURI(it.urlImage.toUri())
+            countOfTracks = it.countOfTracks
+            imageToSave = it.urlImage
+        }
+
         binding.toolBar.setNavigationOnClickListener {
             requireActivity().onBackPressed()
 
@@ -66,9 +90,9 @@ class FragmentMakeNewPlaylist: Fragment() {
 
         binding.name.doOnTextChanged { s, start, before, count ->
 
-            if ( s?.isEmpty() == false) {
-               binding.appCompatButton.isEnabled = true
-            }else{
+            if (s?.isEmpty() == false) {
+                binding.appCompatButton.isEnabled = true
+            } else {
                 binding.appCompatButton.isEnabled = false
             }
         }
@@ -79,7 +103,7 @@ class FragmentMakeNewPlaylist: Fragment() {
                     binding.imageButton.setImageURI(uri)
                     imageUri = uri.toString()
                 } else {
-                   //Ничего
+                    //Ничего
                 }
             }
 
@@ -87,37 +111,36 @@ class FragmentMakeNewPlaylist: Fragment() {
             pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
         }
 
-        binding.appCompatButton.setOnClickListener{
+        binding.appCompatButton.setOnClickListener {
 
             val name = binding.name.text.toString()
 
 
-            if (imageUri!=""){
-                saveImage(imageUri.toUri(),name)
+            if (imageUri != "") {
+                saveImage(imageUri.toUri(), name)
             }
 
             val newPlaylist = Playlist(
                 name = name,
                 description = binding.description.text.toString(),
-                countOfTracks = 0,
-                listOfTracksId = emptyList(),
+                countOfTracks = countOfTracks,
                 urlImage = imageToSave,
-                id = 0
+                id = playlistIdId
             )
 
-            viewModel.makeNewPlaylist(newPlaylist)
+            viewModel.makeNewPlaylist(newPlaylist, isOriginal)
 
             var g = true
             try {
                 findNavController().popBackStack()
                 g = false
-            }catch (e: Exception){
+            } catch (e: Exception) {
                 if (g == true) {
                     parentFragmentManager.popBackStack()
                 }
             }
 
-            Toast.makeText(context,"Плейлист "+name+" создан",Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Плейлист " + name + " создан", Toast.LENGTH_SHORT).show()
             /*
             val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog, null)
 
@@ -130,14 +153,10 @@ class FragmentMakeNewPlaylist: Fragment() {
             lp?.gravity = Gravity.BOTTOM
             window?.attributes = lp
             dialog.show()
-
-
              */
-
-            
         }
 
-        val confirmDialog =  MaterialAlertDialogBuilder(requireContext())
+        val confirmDialog = MaterialAlertDialogBuilder(requireContext())
             .setTitle("Завершить создание плейлиста?")
             .setMessage("Все несохраненные данные будут потеряны")
             .setNeutralButton("Отмена") { dialog, which ->
@@ -148,7 +167,7 @@ class FragmentMakeNewPlaylist: Fragment() {
                 try {
                     findNavController().popBackStack()
                     g = false
-                }catch (e: Exception){
+                } catch (e: Exception) {
                     if (g == true) {
                         parentFragmentManager.popBackStack()
                     }
@@ -160,37 +179,40 @@ class FragmentMakeNewPlaylist: Fragment() {
 
 
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner)
-            {
-                if(!binding.name.text.isEmpty()) {
-                    confirmDialog.show()
-                }else{
+        {
+            if (!binding.name.text.isEmpty()) {
+                confirmDialog.show()
+            } else {
 
-                    var g = true
-                    try {
-                        findNavController().popBackStack()
-                        g = false
-                    }catch (e: Exception){
-                        if (g == true) {
-                            parentFragmentManager.popBackStack()
-                        }
+                var g = true
+                try {
+                    findNavController().popBackStack()
+                    g = false
+                } catch (e: Exception) {
+                    if (g == true) {
+                        parentFragmentManager.popBackStack()
                     }
-
                 }
+
             }
+        }
 
     }
 
-    private fun saveImage(uri: Uri,name:String){
-        val filePath = File(requireActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES), "myplaylists")
+    private fun saveImage(uri: Uri, name: String) {
+        val filePath = File(
+            requireActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES),
+            "myplaylists"
+        )
 
-        if (!filePath.exists()){
+        if (!filePath.exists()) {
             filePath.mkdirs()
         }
 
         val file = File(filePath, "$name.jpg")
-        imageToSave =file.toURI().toString()
+        imageToSave = file.toURI().toString()
 
-        viewModel.saveImageToPrivateStorage(uri,file,requireActivity())
+        viewModel.saveImageToPrivateStorage(uri, file, requireActivity())
     }
 
 }
