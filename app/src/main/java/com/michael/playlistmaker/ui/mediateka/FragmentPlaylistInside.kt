@@ -110,6 +110,7 @@ class FragmentPlaylistInside : Fragment() {
         binding.btnDelete.setOnClickListener {
             var dialog = createDialogForDeletePlaylist(playlistId)
             dialog.show()
+            behavior.state = BottomSheetBehavior.STATE_HIDDEN
 
         }
 
@@ -119,6 +120,7 @@ class FragmentPlaylistInside : Fragment() {
 
         binding.btnShare.setOnClickListener {
             viewModel.share(playlistId,requireContext())
+            behavior.state = BottomSheetBehavior.STATE_HIDDEN
         }
 
         binding.btnRedaction.setOnClickListener {

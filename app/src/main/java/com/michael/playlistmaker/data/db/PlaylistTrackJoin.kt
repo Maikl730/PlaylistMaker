@@ -35,5 +35,6 @@ import androidx.room.Index
 )
 data class PlaylistTrackJoin(
     @ColumnInfo(name = "playlistId") val playlistId: Int,
-    @ColumnInfo(name = "trackId") val trackId: String
+    @ColumnInfo(name = "trackId") val trackId: String,
+    val position:Int
 )

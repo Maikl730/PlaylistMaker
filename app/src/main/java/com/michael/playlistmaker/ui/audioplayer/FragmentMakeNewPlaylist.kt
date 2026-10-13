@@ -69,6 +69,8 @@ class FragmentMakeNewPlaylist : Fragment() {
             isOriginal = false
             viewModel.getPlaylist(playlistId)
             playlistIdId = playlistId
+            binding.toolBar.title = getString(R.string.redaction_playlist)
+            binding.appCompatButton.setText(getString(R.string.save))
         }
 
 
@@ -78,6 +80,7 @@ class FragmentMakeNewPlaylist : Fragment() {
             binding.description.setText(it.description)
             binding.imageButton.setImageURI(it.urlImage.toUri())
             countOfTracks = it.countOfTracks
+            imageToSave = it.urlImage
         }
 
         binding.toolBar.setNavigationOnClickListener {

@@ -43,4 +43,11 @@ interface PlaylistTrackJoinDao {
 
     @Query("DELETE FROM playlist_tracks_join WHERE playlistId = :playlistId")
     fun deleteJoinsByPlaylistId(playlistId: Int)
+
+    @Query("""
+    SELECT COALESCE(MAX(position), -1) + 1
+    FROM playlist_tracks_join
+    WHERE playlistId = :playlistId
+""")
+    suspend fun getNextPosition(playlistId: Int): Int
 }

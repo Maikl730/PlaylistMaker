@@ -15,6 +15,7 @@ import com.michael.playlistmaker.domain.settings.api.SharingInteractor
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
+import java.util.concurrent.TimeUnit
 
 class FragmentPlaylistInsideViewModel(
     private val sharingInteractor: SharingInteractor,
@@ -75,10 +76,14 @@ class FragmentPlaylistInsideViewModel(
                 var time: Long = 0
                 list.forEach { track -> time = time + track.trackTimeMillis.toLong() }
 
-                val minutes = SimpleDateFormat(
+                val minutes = TimeUnit.MILLISECONDS.toMinutes(time).toInt()
+
+               /* val minutes = SimpleDateFormat(
                     "m",
                     Locale.getDefault()
                 ).format(time).toInt()
+
+                */
 
                 val timeString = "$minutes " + context.resources.getQuantityString(
                     R.plurals.CountOfMinutes,
@@ -94,7 +99,7 @@ class FragmentPlaylistInsideViewModel(
     fun getTracks(id: Int) {
         viewModelScope.launch {
             interactor.getTracksByPlaylist(id).collect { tracks ->
-                tracksLiveData.postValue(tracks)
+                tracksLiveData.postValue(tracks.reversed())
             }
         }
     }
