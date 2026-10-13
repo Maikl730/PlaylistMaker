@@ -113,7 +113,8 @@ class PlaylistsRepositoryImpl(private val appDatabase: AppDatabase,private val g
     }
 
    override suspend fun insertJoin(playlistId: Int,trackId:String){
-        appDatabase.playlistTrackJoinDao().insertJoin(PlaylistTrackJoin(playlistId, trackId))
+       val position = appDatabase.playlistTrackJoinDao().getNextPosition(playlistId)
+        appDatabase.playlistTrackJoinDao().insertJoin(PlaylistTrackJoin(playlistId, trackId,position))
     }
 
     override suspend fun deleteTrackFromTrackSave(trackId: String){
@@ -150,7 +151,7 @@ class PlaylistsRepositoryImpl(private val appDatabase: AppDatabase,private val g
     }
 
     override suspend fun deleteTrackFromJoin(playlistId: Int,trackId: String){
-        appDatabase.playlistTrackJoinDao().removeJoin(PlaylistTrackJoin(playlistId, trackId))
+        appDatabase.playlistTrackJoinDao().deleteJoinsByIds(playlistId, trackId)
     }
 
     override suspend fun isTrackMoreOneTime(trackId: String):Boolean{

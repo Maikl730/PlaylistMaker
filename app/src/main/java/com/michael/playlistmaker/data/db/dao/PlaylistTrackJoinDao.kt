@@ -18,6 +18,9 @@ interface PlaylistTrackJoinDao {
     @Delete
     suspend fun removeJoin(join: PlaylistTrackJoin)
 
+    @Query("DELETE FROM playlist_tracks_join WHERE playlistId = :playlistId AND trackId= :trackId")
+    fun deleteJoinsByIds(playlistId: Int,trackId: String)
+
     @Query("""
         SELECT DISTINCT p.*
         FROM playlists AS p

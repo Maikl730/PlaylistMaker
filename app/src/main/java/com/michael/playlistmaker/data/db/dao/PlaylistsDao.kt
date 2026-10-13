@@ -63,6 +63,7 @@ interface PlaylistsDao {
         FROM playlists_tracks t
         JOIN playlist_tracks_join pt ON t.track_id = pt.trackId
         WHERE pt.playlistId = :playlistId
+        ORDER BY pt.position ASC
     """)
     fun getTracksByPlaylist(playlistId: Int): Flow<List<TrackPlayEntity>>
 
@@ -71,6 +72,7 @@ interface PlaylistsDao {
         FROM playlists_tracks t
         JOIN playlist_tracks_join pt ON t.track_id = pt.trackId
         WHERE pt.playlistId = :playlistId
+        ORDER BY pt.position ASC
     """)
     suspend fun getTracksByPlaylistNoFlow(playlistId: Int): List<TrackPlayEntity>
 
