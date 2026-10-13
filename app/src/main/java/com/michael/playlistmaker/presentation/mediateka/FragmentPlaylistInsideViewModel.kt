@@ -78,13 +78,6 @@ class FragmentPlaylistInsideViewModel(
 
                 val minutes = TimeUnit.MILLISECONDS.toMinutes(time).toInt()
 
-               /* val minutes = SimpleDateFormat(
-                    "m",
-                    Locale.getDefault()
-                ).format(time).toInt()
-
-                */
-
                 val timeString = "$minutes " + context.resources.getQuantityString(
                     R.plurals.CountOfMinutes,
                     minutes,

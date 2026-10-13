@@ -132,10 +132,22 @@
             android:layout_marginTop="8dp"
             android:background="@drawable/rounder" />
 
+        <TextView
+            android:id="@+id/textMessage"
+            style="@style/DialogStyle"
+            android:layout_marginVertical="150dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:fontFamily="@font/ys_display_regular"
+            android:text="@string/no_tracks_play"
+            android:gravity="center_horizontal"
+            android:layout_gravity="center_vertical"
+            android:textSize="18sp" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycle"
             android:layout_marginTop="24dp"
-            android:visibility="visible"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             />

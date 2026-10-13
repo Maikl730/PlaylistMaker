@@ -59,7 +59,6 @@ class FragmentPlaylistInside : Fragment() {
         viewModel.getTimeOfTracks(playlistId)
         viewModel.getTracks(playlistId)
 
-
         val behavior = BottomSheetBehavior.from(
             binding.settingBottomSheet
         )
@@ -146,12 +145,20 @@ class FragmentPlaylistInside : Fragment() {
 
         viewModel.observeTracks().observe(viewLifecycleOwner) {
             listTracks = it.toMutableList()
-            val adapter = TrackAdapterForPlayInside(listTracks, playlistId,viewModel) {
-                clickDebounce()
+            if (listTracks.isEmpty()){
+                binding.recycle.isVisible = false
+                binding.textMessage.isVisible = true
+            }else{
+                val adapter = TrackAdapterForPlayInside(listTracks, playlistId,viewModel) {
+                    clickDebounce()
+                }
+                binding.recycle.adapter = adapter
+                binding.recycle.isVisible = true
+                binding.textMessage.isVisible = false
+                adapter.notifyDataSetChanged()
             }
-            binding.recycle.adapter = adapter
-            adapter.notifyDataSetChanged()
         }
+
         viewModel.observeDialog().observe(viewLifecycleOwner){
             val dialog = createDialog(it[0],it[1].toInt())
             dialog.create().show()

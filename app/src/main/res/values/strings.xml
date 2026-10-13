@@ -37,6 +37,7 @@
     <string name="save">Сохранить</string>
     <string name="redaction_playlist">Редактировать</string>
     <string name="make">Создать</string>
+    <string name="no_tracks_play">В этом плейлисте пока нет треков</string>
     <string name="track">трека</string>
     <string name="tracks">треков</string>
     <string name="onetrack">трек</string>
