@@ -7,4 +7,5 @@
     <dimen name="main_padding">16dp</dimen>
     <dimen name="allmost_big_text">19sp</dimen>
     <dimen name="setting_variant_padding_vertical">20dp</dimen>
+    <dimen name="play_button_view_min_size">100dp</dimen>
 </resources>

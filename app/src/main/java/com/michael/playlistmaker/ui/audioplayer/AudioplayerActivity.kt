@@ -42,10 +42,10 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 class AudioplayerActivity : AppCompatActivity() {
-    private lateinit var binding:ActivityAudioplayerBinding
-   lateinit var thisTrack:Track
-   var listPlaylist = mutableListOf<Playlist>()
-    private val viewModel:AudioplayerViewModel by viewModel{( parametersOf (thisTrack))}
+    private lateinit var binding: ActivityAudioplayerBinding
+    lateinit var thisTrack: Track
+    var listPlaylist = mutableListOf<Playlist>()
+    private val viewModel: AudioplayerViewModel by viewModel { (parametersOf(thisTrack)) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -73,17 +73,23 @@ class AudioplayerActivity : AppCompatActivity() {
 
         }
 
-        bottomSheetBehavior.addBottomSheetCallback(object :BottomSheetBehavior.BottomSheetCallback(){
+        bottomSheetBehavior.addBottomSheetCallback(object :
+            BottomSheetBehavior.BottomSheetCallback() {
 
             override fun onStateChanged(p0: View, newState: Int) {
-                when(newState){
-                    BottomSheetBehavior.STATE_HIDDEN -> { binding.overlay.visibility = View.GONE}
-                    else -> { binding.overlay.visibility = View.VISIBLE}
+                when (newState) {
+                    BottomSheetBehavior.STATE_HIDDEN -> {
+                        binding.overlay.visibility = View.GONE
+                    }
+
+                    else -> {
+                        binding.overlay.visibility = View.VISIBLE
+                    }
                 }
             }
 
             override fun onSlide(p0: View, slideOffset: Float) {
-                binding.overlay.alpha = (slideOffset + 1)/2
+                binding.overlay.alpha = (slideOffset + 1) / 2
             }
 
         })
@@ -96,10 +102,10 @@ class AudioplayerActivity : AppCompatActivity() {
 
         thisTrack = (intent.getSerializableExtra(INTENT_EXTRA_KEY) as Track?)!!
 
-        viewModel.observeIsFavorite().observe(this){
-            if(it==true){
+        viewModel.observeIsFavorite().observe(this) {
+            if (it == true) {
                 binding.likeButton.setBackgroundResource(R.drawable.truelikebutton)
-            }else{
+            } else {
                 binding.likeButton.setBackgroundResource(R.drawable.likebutton)
             }
         }
@@ -109,7 +115,7 @@ class AudioplayerActivity : AppCompatActivity() {
         }
 
         viewModel.observePlayerState().observe(this) {
-            changeButtonText(it.state == AudioplayerViewModel.STATE_PLAYING)
+            binding.playButton.change(it.state == AudioplayerViewModel.STATE_PLAYING)
             enableButton(it.state != AudioplayerViewModel.STATE_DEFAULT)
         }
 
@@ -118,24 +124,29 @@ class AudioplayerActivity : AppCompatActivity() {
         }
 
         binding.apply {
-    trackName.text = thisTrack.trackName
-    trackBand.text = thisTrack.artistName
-    trackAlbumTextSet.text = thisTrack.collectionName
-    trackYearTextSet.text = thisTrack.releaseDate.take(4)
-    trackGenreTextSet.text = thisTrack.primaryGenreName
-    trackCountryTextSet.text = thisTrack.country
-    val time:Long = if (thisTrack.trackTimeMillis.isNullOrEmpty()){201900L}else{thisTrack.trackTimeMillis.toLong()}
-    trackLongTextSet.text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(time) }
+            trackName.text = thisTrack.trackName
+            trackBand.text = thisTrack.artistName
+            trackAlbumTextSet.text = thisTrack.collectionName
+            trackYearTextSet.text = thisTrack.releaseDate.take(4)
+            trackGenreTextSet.text = thisTrack.primaryGenreName
+            trackCountryTextSet.text = thisTrack.country
+            val time: Long = if (thisTrack.trackTimeMillis.isNullOrEmpty()) {
+                201900L
+            } else {
+                thisTrack.trackTimeMillis.toLong()
+            }
+            trackLongTextSet.text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(time)
+        }
 
-            Glide.with(this)
-                .load(thisTrack.getCoverArtwork())
-                .fitCenter()
-                .transform(RoundedCorners(dpToPx(2f,this)))
-                .placeholder(R.drawable.bigplaceholder)
-                .into(binding.album)
+        Glide.with(this)
+            .load(thisTrack.getCoverArtwork())
+            .fitCenter()
+            .transform(RoundedCorners(dpToPx(2f, this)))
+            .placeholder(R.drawable.bigplaceholder)
+            .into(binding.album)
 
 
-        binding.toolBar.setNavigationOnClickListener{
+        binding.toolBar.setNavigationOnClickListener {
             finish()
         }
 
@@ -144,9 +155,9 @@ class AudioplayerActivity : AppCompatActivity() {
         }
 
 
-        viewModel.observeUpdate().observe(this){
+        viewModel.observeUpdate().observe(this) {
 
-            Toast.makeText(this,it,Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
 
             /*
             val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog, null)
@@ -164,32 +175,38 @@ class AudioplayerActivity : AppCompatActivity() {
              */
         }
 
-        binding.playlistRecycle.layoutManager = LinearLayoutManager(this,
-            LinearLayoutManager.VERTICAL,false)
+        binding.playlistRecycle.layoutManager = LinearLayoutManager(
+            this,
+            LinearLayoutManager.VERTICAL, false
+        )
 
-       viewModel.observePlaylist().observe(this){
-           listPlaylist = it.toMutableList()
-           val adapter = PlaylistAdapter(listPlaylist,thisTrack,viewModel)
-           binding.playlistRecycle.adapter = adapter
-           adapter.notifyDataSetChanged()
-       }
+        viewModel.observePlaylist().observe(this) {
+            listPlaylist = it.toMutableList()
+            val adapter = PlaylistAdapter(listPlaylist, thisTrack, viewModel)
+            binding.playlistRecycle.adapter = adapter
+            adapter.notifyDataSetChanged()
+        }
     }
-
 
 
     private fun enableButton(isEnabled: Boolean) {
         binding.playButton.isEnabled = isEnabled
     }
 
+    /*
     private fun changeButtonText(isPlaying: Boolean) {
-         if (isPlaying)  binding.playButton.setBackgroundResource(R.drawable.stopbutton) else binding.playButton.setBackgroundResource(R.drawable.playbutton)
+        if (isPlaying) binding.playButton.setBackgroundResource(R.drawable.stopbutton) else binding.playButton.setBackgroundResource(
+            R.drawable.playbutton
+        )
     }
+     */
 
     fun dpToPx(dp: Float, context: Context): Int {
         return TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP,
             dp,
-            context.resources.displayMetrics).toInt()
+            context.resources.displayMetrics
+        ).toInt()
     }
 
     override fun onPause() {
