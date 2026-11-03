@@ -20,14 +20,24 @@ import java.io.FileOutputStream
 
 class FragmentMakeNewPlaylistViewModel(private val interactor: PlaylistsInteractor):ViewModel() {
 
+    private val playlistLiveData = MutableLiveData<Playlist>()
+    fun observePlaylist(): LiveData<Playlist> = playlistLiveData
 
-    fun makeNewPlaylist(playlist: Playlist){
+    fun makeNewPlaylist(playlist: Playlist,original:Boolean){
         viewModelScope.launch {
-            interactor.insertPlaylist(playlist)
+            if (original) {
+                interactor.insertPlaylist(playlist)
+            }else{
+                interactor.updatePlaylist(playlist)
+            }
         }
     }
 
-
+    fun getPlaylist(playlistId:Int){
+        viewModelScope.launch {
+            playlistLiveData.postValue(interactor.getOnePlaylist(playlistId))
+        }
+    }
 
 
     fun saveImageToPrivateStorage(uri: Uri, file: File,context: Context) {

@@ -17,4 +17,8 @@ class SharingInteractorImpl(private val externalNavigator: ExternalNavigator): S
         return externalNavigator.shareApp()
     }
 
+    override fun sharePlaylist(text:String):Intent {
+        return externalNavigator.sharePlaylist(text)
+    }
+
 }

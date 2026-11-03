@@ -6,4 +6,5 @@ interface ExternalNavigator {
     fun shareApp():Intent
     fun openTerms():Intent
     fun openSupport():Intent
+    fun sharePlaylist(text:String):Intent
 }

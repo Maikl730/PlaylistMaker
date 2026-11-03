@@ -11,9 +11,7 @@
     </style>
 
     <style name="DialogStyle" parent="@android:style/Theme.Dialog">
-        <!-- Фон диалога — белый -->
         <item name="android:windowBackground">@color/white</item>
-        <!-- Цвет текста (чёрный) -->
         <item name="android:textColor">@color/YPblack</item>
     </style>
 

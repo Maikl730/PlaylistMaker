@@ -19,22 +19,72 @@ interface PlaylistsDao {
     @Delete(entity = PlaylistEntity::class)
     suspend fun deletePlaylist(playlist: PlaylistEntity)
 
+    @Query("DELETE FROM playlists WHERE id = :playlistId")
+    fun deletePlaylistById(playlistId:Int)
+/*
     @Query("UPDATE playlists SET listOfTracksId =:listOfTracks WHERE id = :playlistId")
     suspend fun updateListOfTracks(playlistId:Int,listOfTracks:String)
-
-    @Query("SELECT * FROM playlists")
-    fun getAllPlaylists(): Flow<List<PlaylistEntity>>
 
     @Query("SELECT listOfTracksId FROM playlists WHERE id =:playlistId ")
     suspend fun getListOfTracks(playlistId: Int):String
 
+ */
+
+    @Query("SELECT * FROM playlists")
+    fun getAllPlaylists(): Flow<List<PlaylistEntity>>
+
+    @Query("SELECT * FROM playlists WHERE id =:id")
+    suspend fun getOnePlaylist(id:Int):PlaylistEntity
+
+
     @Query("SELECT countOfTracks FROM playlists WHERE id = :playlistId")
     fun getCountOfTracksInPlaylist(playlistId: Int): Flow<Int>
+
+    @Query("SELECT countOfTracks FROM playlists WHERE id = :playlistId")
+    suspend fun getCountOfTracksInPlaylistNoFlow(playlistId: Int): Int
+
 
     @Update(entity = PlaylistEntity::class)
     suspend fun updatePlaylist(playlist: PlaylistEntity)
 
+
+    // Частичное обновление: только name
+    @Query("UPDATE playlists SET countOfTracks = :newCount WHERE id = :playlistId")
+    suspend fun updatePlaylistTrackCount(playlistId: Int, newCount: Int)
+
+/*
     @Query("SELECT * FROM playlists_tracks WHERE playlistId = :playlistId")
-    suspend fun getTracksByPlaylist(playlistId: Long): List<TrackPlayEntity>
+    fun getTracksByPlaylist(playlistId: Int): Flow<List<TrackPlayEntity>>
+
+ */
+
+    @Query("""
+        SELECT t.*
+        FROM playlists_tracks t
+        JOIN playlist_tracks_join pt ON t.track_id = pt.trackId
+        WHERE pt.playlistId = :playlistId
+        ORDER BY pt.position ASC
+    """)
+    fun getTracksByPlaylist(playlistId: Int): Flow<List<TrackPlayEntity>>
+
+    @Query("""
+        SELECT t.*
+        FROM playlists_tracks t
+        JOIN playlist_tracks_join pt ON t.track_id = pt.trackId
+        WHERE pt.playlistId = :playlistId
+        ORDER BY pt.position ASC
+    """)
+    suspend fun getTracksByPlaylistNoFlow(playlistId: Int): List<TrackPlayEntity>
+
+    /*
+    @Query("SELECT DISTINCT playlistId FROM playlists_tracks WHERE track_id = :trackId")
+    fun getPlaylistsByTrack(trackId:String): Flow<List<Int>>
+
+     */
+
+    @Query("SELECT DISTINCT playlistId FROM playlist_tracks_join WHERE trackId = :trackId")
+    fun getPlaylistsByTrack(trackId:String): Flow<List<Int>>
+
+
 
 }

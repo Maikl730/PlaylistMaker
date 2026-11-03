@@ -15,6 +15,8 @@ class ExternalNavigatorImpl(var context: Context): ExternalNavigator {
     }
 
 
+
+
     val supportIntent = Intent().apply {
         action = Intent.ACTION_SENDTO
         data = Uri.parse("mailto:")
@@ -41,5 +43,17 @@ class ExternalNavigatorImpl(var context: Context): ExternalNavigator {
     override fun shareApp():Intent {
         val share = Intent.createChooser(shareIntent, null)
         return share
+    }
+
+    override fun sharePlaylist(text:String):Intent {
+
+        val shareIntentInPlaylist = Intent().apply {
+            action = Intent.ACTION_SEND
+            setType("text/plain")
+            putExtra(Intent.EXTRA_TEXT, text)
+        }
+
+        val share = Intent.createChooser(shareIntentInPlaylist, null)
+        return  share
     }
 }

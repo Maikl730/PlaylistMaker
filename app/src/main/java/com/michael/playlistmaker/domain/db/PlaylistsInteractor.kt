@@ -11,7 +11,7 @@ interface PlaylistsInteractor {
 
     suspend fun deletePlaylist(playlist: Playlist)
 
-    suspend fun updateListOfTracks(playlistId:Int,listOfTracks:List<String>)
+    //suspend fun updateListOfTracks(playlistId:Int,listOfTracks:List<String>)
 
     fun getAllPlaylists(): Flow<List<Playlist>>
 
@@ -21,6 +21,24 @@ interface PlaylistsInteractor {
 
     suspend fun updatePlaylist(playlist: Playlist)
 
-    suspend fun insertTrackInPlaylistSave(track: Track, playlistId: Int)
+    suspend fun insertTrackInPlaylistSave(track: Track)
+
+    suspend fun getOnePlaylist(id:Int):Playlist
+
+    fun getTracksByPlaylist(id:Int):Flow<List<Track>>
+
+    fun getPlaylistByTrack(id:String):Flow<List<Int>>
+
+    suspend fun insertJoin(playlistId: Int,trackId:String)
+
+    //
+
+    suspend fun deletePlaylistById(playlistId: Int)
+
+    suspend fun getTracksByPlaylistNoFlow(id: Int): List<Track>
+
+    suspend fun addTrackInPlaylist(track: Track,playlistId: Int):Boolean
+
+    suspend fun deleteTrackFromPlaylist(trackId: String,playlistId: Int):Boolean
 
 }

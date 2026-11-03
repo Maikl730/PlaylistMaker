@@ -12,7 +12,7 @@ interface PlaylistsRepository {
 
     suspend fun deletePlaylist(playlist: Playlist)
 
-    suspend fun updateListOfTracks(playlistId:Int,listOfTracks:List<String>)
+   //suspend fun updateListOfTracks(playlistId:Int,listOfTracks:List<String>)
 
     fun getAllPlaylists(): Flow<List<Playlist>>
 
@@ -22,6 +22,30 @@ interface PlaylistsRepository {
 
     suspend fun updatePlaylist(playlist: Playlist)
 
-    suspend fun insertTrackInPlaylistSave(track: Track, playlistId: Int)
+    suspend fun insertTrackInPlaylistSave(track: Track)
+
+    suspend fun getOnePlaylist(id:Int):Playlist
+
+    fun getTracksByPlaylist(id:Int):Flow<List<Track>>
+
+    fun getPlaylistByTrack(id:String):Flow<List<Int>>
+
+    suspend fun insertJoin(playlistId: Int,trackId:String)
+
+    ////
+
+    suspend fun deleteTrackFromJoin(playlistId: Int,trackId: String)
+
+    suspend fun isTrackMoreOneTime(trackId: String):Boolean
+
+    suspend fun deleteTrackFromTrackSave(trackId: String)
+
+    suspend fun updateCountOfTracksInPlaylistEnt(playlistId: Int,boolean: Boolean)
+
+    suspend fun deleteJoinstByPlaylistId(playlistId: Int)
+
+    suspend fun deletePlaylistById(playlistId:Int)
+
+    suspend fun getTracksByPlaylistNoFlow(playlistId: Int):List<Track>
 
 }

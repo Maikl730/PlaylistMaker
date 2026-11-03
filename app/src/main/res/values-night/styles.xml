@@ -18,9 +18,8 @@
     </style>
 
     <style name="DialogStyle" parent="@android:style/Theme.Dialog">
-        <!-- Фон диалога — белый -->
+
         <item name="android:windowBackground">@color/YPblack</item>
-        <!-- Цвет текста (чёрный) -->
         <item name="android:textColor">@color/white</item>
     </style>
     <style name="MainButton" parent="Widget.MaterialComponents.Button.UnelevatedButton">

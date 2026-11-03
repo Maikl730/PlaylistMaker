@@ -2,6 +2,7 @@ package com.michael.playlistmaker.ui.root
 
 import android.graphics.Rect
 import android.os.Bundle
+import android.view.View
 import android.view.ViewTreeObserver
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -31,9 +32,20 @@ class RootActivity : AppCompatActivity() {
         val navController = navHostFragment.navController
 
 
+
+
+
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
         bottomNavigationView.setupWithNavController(navController)
-        
+
+
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            val hideBottomNav = setOf(
+                R.id.fragmentPlaylistInside
+            ).contains(destination.id)
+
+            bottomNavigationView.visibility = if (hideBottomNav) View.GONE else View.VISIBLE
+        }
 
     }
 }
