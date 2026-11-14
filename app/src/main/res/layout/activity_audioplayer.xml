@@ -86,12 +86,24 @@
             android:textSize="14sp"
             />
 
-        <ImageButton
+
+        <!--<ImageView
             android:id="@+id/play_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="40dp"
             android:background="@drawable/playbutton"
+            app:layout_constraintEnd_toEndOf="@id/album"
+            app:layout_constraintStart_toStartOf="@id/album"
+            app:layout_constraintTop_toBottomOf="@id/track_band"/>-->
+
+        <com.michael.playlistmaker.util.PlaybackButtonView
+            android:id="@+id/play_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            app:imageResId="@drawable/playbutton"
+            app:imageResId2="@drawable/stopbutton"
             app:layout_constraintEnd_toEndOf="@id/album"
             app:layout_constraintStart_toStartOf="@id/album"
             app:layout_constraintTop_toBottomOf="@id/track_band" />
@@ -258,6 +270,7 @@
         android:visibility="gone"/>
 
     <LinearLayout
+        android:visibility="gone"
         android:id="@+id/standard_bottom_sheet"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
