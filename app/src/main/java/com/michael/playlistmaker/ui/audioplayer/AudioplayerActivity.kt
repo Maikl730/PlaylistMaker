@@ -1,10 +1,14 @@
 package com.michael.playlistmaker.ui.audioplayer
 
+import android.Manifest
 import android.app.AlertDialog
+import android.app.Service
+import android.app.Service.STOP_FOREGROUND_REMOVE
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
@@ -15,7 +19,11 @@ import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ServiceCompat
+import androidx.core.app.ServiceCompat.stopForeground
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
@@ -43,6 +51,7 @@ import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 import org.koin.java.KoinJavaComponent.getKoin
+import java.security.Provider
 
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -51,18 +60,46 @@ class AudioplayerActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAudioplayerBinding
     lateinit var thisTrack: Track
     var listPlaylist = mutableListOf<Playlist>()
+    private var audioService: AudioplayerService? = null
     private val viewModel: AudioplayerViewModel by viewModel { (parametersOf(thisTrack)) }
 
+
+    // Описали обработчик разрешения
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            // Если выдали разрешение — запускаем сервис.
+           // startNotification()
+        } else {
+            // Иначе просто покажем ошибку
+            Toast.makeText(this, "Can't start foreground service!", Toast.LENGTH_LONG).show()
+        }
+    }
 
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             val binder = service as AudioplayerService.AudioplayerServiceBinder
+            audioService = binder.getService()
             viewModel.setAudioPlayerControl(binder.getService())
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
             viewModel.removeAudioPlayerControl()
         }
+    }
+
+    fun startNotification() {
+
+        // Создаём intent для запуска сервиса
+        val intent = Intent(this, AudioplayerService::class.java).apply {
+            putExtra("song_url", thisTrack.previewUrl)
+            putExtra("artist_name", thisTrack.artistName)
+            putExtra("track_name", thisTrack.trackName)
+        }
+
+        // Стартуем сервис
+        ContextCompat.startForegroundService(this, intent)
     }
 
 
@@ -132,6 +169,14 @@ class AudioplayerActivity : AppCompatActivity() {
 
         ////////////////////////////////////
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        } else {
+            // На версиях ниже Android 13 —
+            // можно сразу стартовать сервис.
+            //startNotification()
+        }
+
         viewModel.observePlayerState().observe(this) {
             updateButtonAndProgress(it)
         }
@@ -155,12 +200,12 @@ class AudioplayerActivity : AppCompatActivity() {
             binding.playButton.change(it.state == AudioplayerViewModel.STATE_PLAYING)
             enableButton(it.state != AudioplayerViewModel.STATE_DEFAULT)
         }
-/*
-        binding.playButton.setOnClickListener {
-            viewModel.onPlayButtonClicked()
-        }
+        /*
+                binding.playButton.setOnClickListener {
+                    viewModel.onPlayButtonClicked()
+                }
 
- */
+         */
 
         binding.apply {
             trackName.text = thisTrack.trackName
@@ -226,7 +271,14 @@ class AudioplayerActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
+        // На версии Android 13 и выше — сначала запросим разрешение
+       //startNotification()
         //viewModel.onPause()
+    }
+
+    override fun onResume() {
+        super.onResume()
+       // stopNotification()
     }
 
     override fun onDestroy() {
@@ -234,9 +286,18 @@ class AudioplayerActivity : AppCompatActivity() {
         super.onDestroy()
     }
 
+    private fun stopNotification() {
+        val stopIntent = Intent(this, AudioplayerService::class.java)
+        stopIntent.action = AudioplayerService.ACTION_STOP_FOREGROUND_SERVICE
+        startService(stopIntent)
+
+    }
+
     private fun bindMusicService() {
         val intent = Intent(this, AudioplayerService::class.java).apply {
             putExtra("song_url", thisTrack.previewUrl)
+            putExtra("artist_name", thisTrack.artistName)
+            putExtra("track_name", thisTrack.trackName)
         }
 
         bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
@@ -255,5 +316,15 @@ class AudioplayerActivity : AppCompatActivity() {
         }
 
         binding.trackLong.text = playerState.timer
+    }
+
+    override fun onStop() {
+        audioService?.showNotification()
+        super.onStop()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        audioService?.hideNotification()
     }
 }

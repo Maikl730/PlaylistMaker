@@ -48,9 +48,9 @@ class AudioplayerViewModel(
 
 
     private var isFavorite = false
-    private var timerJob: Job? = null
-    private var state = STATE_DEFAULT
-    private var timer = "00:00"
+    //private var timerJob: Job? = null
+    //private var state = STATE_DEFAULT
+    //private var timer = "00:00"
 
     private val updateMessageLiveEvent = SingleLiveEvent<String>()
     fun observeUpdate(): LiveData<String> = updateMessageLiveEvent
@@ -72,7 +72,6 @@ class AudioplayerViewModel(
     init {
         //preparePlayer()
         viewModelScope.launch {
-
             favoriteInteractor.getAllFavorite().collect {
                 isFavorite = it.contains(track)
                 isFavoriteLiveData.postValue(isFavorite)
