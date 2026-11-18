@@ -39,6 +39,7 @@ class AudioplayerViewModel(
     private val track: Track, private val favoriteInteractor: FavoriteInteractor,private val playlistsInteractor: PlaylistsInteractor
 ): ViewModel() {
 
+
     companion object {
        const val STATE_DEFAULT= 0
         const val STATE_PREPARED = 1
@@ -48,9 +49,6 @@ class AudioplayerViewModel(
 
 
     private var isFavorite = false
-    //private var timerJob: Job? = null
-    //private var state = STATE_DEFAULT
-    //private var timer = "00:00"
 
     private val updateMessageLiveEvent = SingleLiveEvent<String>()
     fun observeUpdate(): LiveData<String> = updateMessageLiveEvent
@@ -66,11 +64,8 @@ class AudioplayerViewModel(
     fun observeIsFavorite():LiveData<Boolean> = isFavoriteLiveData
 
 
-   // private var mediaPlayer = MediaPlayer()
-
 
     init {
-        //preparePlayer()
         viewModelScope.launch {
             favoriteInteractor.getAllFavorite().collect {
                 isFavorite = it.contains(track)
@@ -85,86 +80,12 @@ class AudioplayerViewModel(
         }
     }
 
-/*
-    override fun onCleared() {
-        super.onCleared()
-        mediaPlayer.release()
-        resetTimer()
-    }
-
- */
-
     fun addToPlaylist(playlist: Playlist,track:Track){
         viewModelScope.launch {
             if(!playlistsInteractor.addTrackInPlaylist(track, playlist.id))
             updateMessageLiveEvent.postValue("Трек уже добавлен в плейлист ${playlist.name}")
         }
     }
-
-    /*
-    fun onPlayButtonClicked() {
-        when(playerStateLiveData.value!!.state) {
-            STATE_PLAYING -> pausePlayer()
-            STATE_PREPARED , STATE_PAUSED -> startPlayer()
-            else -> null
-        }
-    }
-     */
-
-    /*
-    private fun preparePlayer() {
-        mediaPlayer.setDataSource(track.previewUrl)
-        mediaPlayer.prepareAsync()
-        mediaPlayer.setOnPreparedListener {
-            playerStateLiveData.postValue(AudioState(STATE_PREPARED,"00:00"))
-        }
-        mediaPlayer.setOnCompletionListener {
-            playerStateLiveData.postValue(AudioState(STATE_PREPARED,"00:00"))
-            resetTimer()
-        }
-    }
-
-
-    private fun startPlayer() {
-        mediaPlayer.start()
-        playerStateLiveData.postValue(AudioState(STATE_PLAYING,"00:00"))
-        startTimerUpdate()
-    }
-
-    private fun pausePlayer() {
-        pauseTimer()
-        mediaPlayer.pause()
-        playerStateLiveData.postValue(AudioState(STATE_PAUSED,timer))
-    }
-
-     */
-
-    /*
-    private fun startTimerUpdate() {
-        playerStateLiveData.postValue(AudioState(STATE_PLAYING,SimpleDateFormat("mm:ss", Locale.getDefault()).format(mediaPlayer.currentPosition)))
-        timer = SimpleDateFormat("mm:ss", Locale.getDefault()).format(mediaPlayer.currentPosition)
-
-        timerJob = viewModelScope.launch {
-                delay(300)
-                startTimerUpdate()
-        }
-    }
-
-    private fun pauseTimer() {
-        timerJob?.cancel()
-    }
-
-
-    private fun resetTimer() {
-        timerJob?.cancel()
-        playerStateLiveData.postValue(AudioState(STATE_PAUSED,"00:00"))
-    }
-
-    fun onPause() {
-        pausePlayer()
-    }
-
-     */
 
     fun onFavoriteClicked(){
         viewModelScope.launch {
@@ -181,11 +102,7 @@ class AudioplayerViewModel(
         }
     }
 
-
-
     ///////////////////////
-
-
     private var audioPlayerControl: AudioPlayerControl? = null
 
     fun setAudioPlayerControl(audioPlayerControl: AudioPlayerControl) {
@@ -213,6 +130,15 @@ class AudioplayerViewModel(
     override fun onCleared() {
         super.onCleared()
         audioPlayerControl = null
+    }
+
+    fun hideNotification(){
+        audioPlayerControl?.hideNotification()
+    }
+
+    fun showNotification(){
+        if (playerStateLiveData.value?.state == STATE_PLAYING){
+        audioPlayerControl?.showNotification()}
     }
 
 }

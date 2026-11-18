@@ -74,7 +74,6 @@ class AudioplayerService : Service(), AudioPlayerControl {
         artistName = intent?.getStringExtra("artist_name") ?: ""
         trackName = intent?.getStringExtra("track_name") ?: ""
         initMediaPlayer()
-        //updateNotification()
         return binder
     }
 
@@ -84,7 +83,7 @@ class AudioplayerService : Service(), AudioPlayerControl {
         createNotificationChannel()
     }
 
-    fun showNotification() {
+    override fun showNotification() {
         ServiceCompat.startForeground(
             this,
             SERVICE_NOTIFICATION_ID,
@@ -93,7 +92,7 @@ class AudioplayerService : Service(), AudioPlayerControl {
         )
     }
 
-    fun hideNotification() {
+    override fun hideNotification() {
         ServiceCompat.stopForeground(
             this,
             ServiceCompat.STOP_FOREGROUND_REMOVE
@@ -114,23 +113,8 @@ class AudioplayerService : Service(), AudioPlayerControl {
         return super.onUnbind(intent)
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-    }
-
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        return super.onStartCommand(intent, flags, startId)
-
-        /*
-        if (intent?.action == ACTION_STOP_FOREGROUND_SERVICE) {
-            ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE) // Скрываем уведомление
-        }
-
-         */
-    }
 
     // Методы управления Media Player
-
     private fun initMediaPlayer() {
         if (songUrl.isEmpty()) return
 
@@ -140,7 +124,9 @@ class AudioplayerService : Service(), AudioPlayerControl {
             _playerState.value = AudioState(STATE_PREPARED, "00:00")
         }
         mediaPlayer?.setOnCompletionListener {
-            _playerState.value = AudioState(STATE_PREPARED, "00:00")
+            timerJob?.cancel()
+            mediaPlayer?.seekTo(0)
+            _playerState.value = AudioState(STATE_PAUSED, "00:00")
         }
     }
 
@@ -178,7 +164,6 @@ class AudioplayerService : Service(), AudioPlayerControl {
     }
 
     private fun createNotificationChannel() {
-        // Создание каналов доступно только с Android 8.0
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             return
         }
@@ -190,7 +175,6 @@ class AudioplayerService : Service(), AudioPlayerControl {
         )
         channel.description = "Service for playing music"
 
-        // Регистрируем канал уведомлений
         val notificationManager =
             getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(channel)
@@ -204,11 +188,4 @@ class AudioplayerService : Service(), AudioPlayerControl {
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
             .build()
     }
-
-    private fun updateNotification() {
-        getSystemService(NotificationManager::class.java)
-            .notify(SERVICE_NOTIFICATION_ID, createServiceNotification())
-    }
-
-
 }

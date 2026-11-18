@@ -60,46 +60,25 @@ class AudioplayerActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAudioplayerBinding
     lateinit var thisTrack: Track
     var listPlaylist = mutableListOf<Playlist>()
-    private var audioService: AudioplayerService? = null
     private val viewModel: AudioplayerViewModel by viewModel { (parametersOf(thisTrack)) }
 
-
-    // Описали обработчик разрешения
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
         if (isGranted) {
-            // Если выдали разрешение — запускаем сервис.
-           // startNotification()
         } else {
-            // Иначе просто покажем ошибку
-            Toast.makeText(this, "Can't start foreground service!", Toast.LENGTH_LONG).show()
         }
     }
 
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             val binder = service as AudioplayerService.AudioplayerServiceBinder
-            audioService = binder.getService()
             viewModel.setAudioPlayerControl(binder.getService())
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
             viewModel.removeAudioPlayerControl()
         }
-    }
-
-    fun startNotification() {
-
-        // Создаём intent для запуска сервиса
-        val intent = Intent(this, AudioplayerService::class.java).apply {
-            putExtra("song_url", thisTrack.previewUrl)
-            putExtra("artist_name", thisTrack.artistName)
-            putExtra("track_name", thisTrack.trackName)
-        }
-
-        // Стартуем сервис
-        ContextCompat.startForegroundService(this, intent)
     }
 
 
@@ -172,9 +151,7 @@ class AudioplayerActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         } else {
-            // На версиях ниже Android 13 —
-            // можно сразу стартовать сервис.
-            //startNotification()
+
         }
 
         viewModel.observePlayerState().observe(this) {
@@ -189,23 +166,11 @@ class AudioplayerActivity : AppCompatActivity() {
 
         ///////////////////////////////////
 
-        /*
-        viewModel.observePlayerState().observe(this) {
-            binding.trackLong.text = it.timer
-        }
-         */
-
         viewModel.observePlayerState().observe(this) {
             binding.trackLong.text = it.timer
             binding.playButton.change(it.state == AudioplayerViewModel.STATE_PLAYING)
             enableButton(it.state != AudioplayerViewModel.STATE_DEFAULT)
         }
-        /*
-                binding.playButton.setOnClickListener {
-                    viewModel.onPlayButtonClicked()
-                }
-
-         */
 
         binding.apply {
             trackName.text = thisTrack.trackName
@@ -269,28 +234,11 @@ class AudioplayerActivity : AppCompatActivity() {
         ).toInt()
     }
 
-    override fun onPause() {
-        super.onPause()
-        // На версии Android 13 и выше — сначала запросим разрешение
-       //startNotification()
-        //viewModel.onPause()
-    }
 
-    override fun onResume() {
-        super.onResume()
-       // stopNotification()
-    }
 
     override fun onDestroy() {
         unbindMusicService()
         super.onDestroy()
-    }
-
-    private fun stopNotification() {
-        val stopIntent = Intent(this, AudioplayerService::class.java)
-        stopIntent.action = AudioplayerService.ACTION_STOP_FOREGROUND_SERVICE
-        startService(stopIntent)
-
     }
 
     private fun bindMusicService() {
@@ -319,12 +267,12 @@ class AudioplayerActivity : AppCompatActivity() {
     }
 
     override fun onStop() {
-        audioService?.showNotification()
+        viewModel.showNotification()
         super.onStop()
     }
 
     override fun onStart() {
+        viewModel.hideNotification()
         super.onStart()
-        audioService?.hideNotification()
     }
 }
