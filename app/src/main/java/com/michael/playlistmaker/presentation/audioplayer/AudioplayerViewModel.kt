@@ -48,6 +48,7 @@ class AudioplayerViewModel(
     }
 
 
+    private var apcJob: Job? = null
     private var isFavorite = false
 
     private val updateMessageLiveEvent = SingleLiveEvent<String>()
@@ -108,7 +109,9 @@ class AudioplayerViewModel(
     fun setAudioPlayerControl(audioPlayerControl: AudioPlayerControl) {
         this.audioPlayerControl = audioPlayerControl
 
-        viewModelScope.launch {
+        apcJob?.cancel()
+        apcJob = viewModelScope.launch {
+
             audioPlayerControl.getPlayerStateFun().collect {
                 playerStateLiveData.postValue(it)
             }

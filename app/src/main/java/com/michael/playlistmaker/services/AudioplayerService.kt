@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -118,7 +119,14 @@ class AudioplayerService : Service(), AudioPlayerControl {
     private fun initMediaPlayer() {
         if (songUrl.isEmpty()) return
 
-        mediaPlayer?.setDataSource(songUrl)
+
+
+        try {
+            mediaPlayer?.setDataSource(songUrl)
+        } catch (e: IOException) {
+            _playerState.value = AudioState(STATE_DEFAULT, "00:00")
+            return
+        }
         mediaPlayer?.prepareAsync()
         mediaPlayer?.setOnPreparedListener {
             _playerState.value = AudioState(STATE_PREPARED, "00:00")
@@ -127,6 +135,7 @@ class AudioplayerService : Service(), AudioPlayerControl {
             timerJob?.cancel()
             mediaPlayer?.seekTo(0)
             _playerState.value = AudioState(STATE_PAUSED, "00:00")
+            hideNotification()
         }
     }
 
@@ -182,6 +191,7 @@ class AudioplayerService : Service(), AudioPlayerControl {
 
     private fun createServiceNotification(): Notification {
         return NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
+            .setContentTitle(getString(R.string.app_name))
             .setContentText("$artistName - $trackName")
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
