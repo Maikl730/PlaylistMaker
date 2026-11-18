@@ -1,8 +1,16 @@
 package com.michael.playlistmaker.ui.audioplayer
 
+import android.Manifest
 import android.app.AlertDialog
+import android.app.Service
+import android.app.Service.STOP_FOREGROUND_REMOVE
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
+import android.os.Build
 import android.os.Bundle
+import android.os.IBinder
 import android.util.Log
 import android.util.TypedValue
 import android.view.Gravity
@@ -11,7 +19,11 @@ import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ServiceCompat
+import androidx.core.app.ServiceCompat.stopForeground
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
@@ -30,13 +42,16 @@ import com.michael.playlistmaker.data.db.AppDatabase
 import com.michael.playlistmaker.databinding.ActivityAudioplayerBinding
 import com.michael.playlistmaker.domain.audioplayer.models.Playlist
 import com.michael.playlistmaker.domain.search.models.Track
+import com.michael.playlistmaker.presentation.audioplayer.AudioState
 import com.michael.playlistmaker.presentation.audioplayer.AudioplayerViewModel
 import com.michael.playlistmaker.presentation.search.TracksViewModel
+import com.michael.playlistmaker.services.AudioplayerService
 import com.michael.playlistmaker.ui.search.INTENT_EXTRA_KEY
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 import org.koin.java.KoinJavaComponent.getKoin
+import java.security.Provider
 
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -46,6 +61,26 @@ class AudioplayerActivity : AppCompatActivity() {
     lateinit var thisTrack: Track
     var listPlaylist = mutableListOf<Playlist>()
     private val viewModel: AudioplayerViewModel by viewModel { (parametersOf(thisTrack)) }
+
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+        } else {
+        }
+    }
+
+    private val serviceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            val binder = service as AudioplayerService.AudioplayerServiceBinder
+            viewModel.setAudioPlayerControl(binder.getService())
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+            viewModel.removeAudioPlayerControl()
+        }
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -58,6 +93,7 @@ class AudioplayerActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
 
         val bottomSheetBehavior = BottomSheetBehavior.from(binding.standardBottomSheet).apply {
             state = BottomSheetBehavior.STATE_HIDDEN
@@ -110,17 +146,30 @@ class AudioplayerActivity : AppCompatActivity() {
             }
         }
 
-        viewModel.observePlayerState().observe(this) {
-            binding.trackLong.text = it.timer
+        ////////////////////////////////////
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        } else {
+
         }
 
         viewModel.observePlayerState().observe(this) {
-            binding.playButton.change(it.state == AudioplayerViewModel.STATE_PLAYING)
-            enableButton(it.state != AudioplayerViewModel.STATE_DEFAULT)
+            updateButtonAndProgress(it)
         }
+
+        bindMusicService()
 
         binding.playButton.setOnClickListener {
-            viewModel.onPlayButtonClicked()
+            viewModel.onPlayerButtonClicked()
+        }
+
+        ///////////////////////////////////
+
+        viewModel.observePlayerState().observe(this) {
+            binding.trackLong.text = it.timer
+            binding.playButton.change(it.state == AudioplayerViewModel.STATE_PLAYING)
+            enableButton(it.state != AudioplayerViewModel.STATE_DEFAULT)
         }
 
         binding.apply {
@@ -156,23 +205,7 @@ class AudioplayerActivity : AppCompatActivity() {
 
 
         viewModel.observeUpdate().observe(this) {
-
             Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
-
-            /*
-            val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog, null)
-
-            val titleView = dialogView.findViewById<TextView>(R.id.dialog_title)
-            titleView.text = it
-
-            val dialog = AlertDialog.Builder(this).setView(dialogView).create()
-            val window = dialog.window
-            val lp = window?.attributes
-            lp?.gravity = Gravity.BOTTOM
-            window?.attributes = lp
-            dialog.show()
-
-             */
         }
 
         binding.playlistRecycle.layoutManager = LinearLayoutManager(
@@ -193,14 +226,6 @@ class AudioplayerActivity : AppCompatActivity() {
         binding.playButton.isEnabled = isEnabled
     }
 
-    /*
-    private fun changeButtonText(isPlaying: Boolean) {
-        if (isPlaying) binding.playButton.setBackgroundResource(R.drawable.stopbutton) else binding.playButton.setBackgroundResource(
-            R.drawable.playbutton
-        )
-    }
-     */
-
     fun dpToPx(dp: Float, context: Context): Int {
         return TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP,
@@ -209,8 +234,45 @@ class AudioplayerActivity : AppCompatActivity() {
         ).toInt()
     }
 
-    override fun onPause() {
-        super.onPause()
-        viewModel.onPause()
+
+
+    override fun onDestroy() {
+        unbindMusicService()
+        super.onDestroy()
+    }
+
+    private fun bindMusicService() {
+        val intent = Intent(this, AudioplayerService::class.java).apply {
+            putExtra("song_url", thisTrack.previewUrl)
+            putExtra("artist_name", thisTrack.artistName)
+            putExtra("track_name", thisTrack.trackName)
+        }
+
+        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
+    }
+
+    private fun unbindMusicService() {
+        unbindService(serviceConnection)
+    }
+
+    private fun updateButtonAndProgress(playerState: AudioState) {
+
+        binding.playButton.apply {
+            binding.playButton.change(playerState.state == AudioplayerViewModel.STATE_PLAYING)
+            enableButton(playerState.state != AudioplayerViewModel.STATE_DEFAULT)
+
+        }
+
+        binding.trackLong.text = playerState.timer
+    }
+
+    override fun onStop() {
+        viewModel.showNotification()
+        super.onStop()
+    }
+
+    override fun onStart() {
+        viewModel.hideNotification()
+        super.onStart()
     }
 }
