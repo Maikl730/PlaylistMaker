@@ -26,6 +26,7 @@ import com.michael.playlistmaker.domain.db.PlaylistsInteractor
 import com.michael.playlistmaker.domain.mediateka.Impl.FavoriteInteractorImpl
 import com.michael.playlistmaker.domain.search.api.TrackHistoryRepository
 import com.michael.playlistmaker.domain.search.models.Track
+import com.michael.playlistmaker.services.AudioPlayerControl
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -38,6 +39,7 @@ class AudioplayerViewModel(
     private val track: Track, private val favoriteInteractor: FavoriteInteractor,private val playlistsInteractor: PlaylistsInteractor
 ): ViewModel() {
 
+
     companion object {
        const val STATE_DEFAULT= 0
         const val STATE_PREPARED = 1
@@ -46,10 +48,8 @@ class AudioplayerViewModel(
     }
 
 
+    private var apcJob: Job? = null
     private var isFavorite = false
-    private var timerJob: Job? = null
-    private var state = STATE_DEFAULT
-    private var timer = "00:00"
 
     private val updateMessageLiveEvent = SingleLiveEvent<String>()
     fun observeUpdate(): LiveData<String> = updateMessageLiveEvent
@@ -65,13 +65,9 @@ class AudioplayerViewModel(
     fun observeIsFavorite():LiveData<Boolean> = isFavoriteLiveData
 
 
-    private var mediaPlayer = MediaPlayer()
-
 
     init {
-        preparePlayer()
         viewModelScope.launch {
-
             favoriteInteractor.getAllFavorite().collect {
                 isFavorite = it.contains(track)
                 isFavoriteLiveData.postValue(isFavorite)
@@ -85,113 +81,11 @@ class AudioplayerViewModel(
         }
     }
 
-
-    override fun onCleared() {
-        super.onCleared()
-        mediaPlayer.release()
-        resetTimer()
-    }
-
-/*
-    suspend fun updateCountOfTracks(playlist: Playlist,list:List<String>){
-        playlistsInteractor.updatePlaylist(
-            playlist = Playlist(
-                id = playlist.id,
-                name = playlist.name,
-                description = playlist.description,
-                urlImage = playlist.urlImage,
-                countOfTracks = list.size,
-                listOfTracksId = list
-            )
-        )
-
-    }
-
- */
-/*
-    fun updateListOfTracks(playlist: Playlist,track: Track){
-        viewModelScope.launch {
-
-            if (playlist.listOfTracksId.contains(track.trackId)){
-                updateMessageLiveEvent.postValue("Трек уже добавлен в плейлист ${playlist.name}")
-            }else{
-
-                var newList = playlist.listOfTracksId.toMutableList()
-                newList.add(track.trackId)
-                updateCountOfTracks(playlist,newList)
-                playlistsInteractor.updateListOfTracks(playlist.id,newList)
-                playlistsInteractor.insertTrackInPlaylistSave(track,playlist.id)
-
-                playlistsInteractor.insertJoin(playlist.id,track.trackId)
-                updateMessageLiveEvent.postValue("Добавлено в плейлист ${playlist.name}")
-            }
-        }
-
-    }
- */
-
     fun addToPlaylist(playlist: Playlist,track:Track){
         viewModelScope.launch {
             if(!playlistsInteractor.addTrackInPlaylist(track, playlist.id))
             updateMessageLiveEvent.postValue("Трек уже добавлен в плейлист ${playlist.name}")
         }
-    }
-
-    fun onPlayButtonClicked() {
-        when(playerStateLiveData.value!!.state) {
-            STATE_PLAYING -> pausePlayer()
-            STATE_PREPARED , STATE_PAUSED -> startPlayer()
-            else -> null
-        }
-    }
-
-    private fun preparePlayer() {
-        mediaPlayer.setDataSource(track.previewUrl)
-        mediaPlayer.prepareAsync()
-        mediaPlayer.setOnPreparedListener {
-            playerStateLiveData.postValue(AudioState(STATE_PREPARED,"00:00"))
-        }
-        mediaPlayer.setOnCompletionListener {
-            playerStateLiveData.postValue(AudioState(STATE_PREPARED,"00:00"))
-            resetTimer()
-        }
-    }
-
-
-    private fun startPlayer() {
-        mediaPlayer.start()
-        playerStateLiveData.postValue(AudioState(STATE_PLAYING,"00:00"))
-        startTimerUpdate()
-    }
-
-    private fun pausePlayer() {
-        pauseTimer()
-        mediaPlayer.pause()
-        playerStateLiveData.postValue(AudioState(STATE_PAUSED,timer))
-    }
-
-    private fun startTimerUpdate() {
-        playerStateLiveData.postValue(AudioState(STATE_PLAYING,SimpleDateFormat("mm:ss", Locale.getDefault()).format(mediaPlayer.currentPosition)))
-        timer=SimpleDateFormat("mm:ss", Locale.getDefault()).format(mediaPlayer.currentPosition)
-
-        timerJob = viewModelScope.launch {
-                delay(300)
-                startTimerUpdate()
-        }
-    }
-
-    private fun pauseTimer() {
-        timerJob?.cancel()
-    }
-
-
-    private fun resetTimer() {
-        timerJob?.cancel()
-        playerStateLiveData.postValue(AudioState(STATE_PAUSED,"00:00"))
-    }
-
-    fun onPause() {
-        pausePlayer()
     }
 
     fun onFavoriteClicked(){
@@ -207,8 +101,47 @@ class AudioplayerViewModel(
                 isFavoriteLiveData.postValue(isFavorite)
             }
         }
-
     }
 
+    ///////////////////////
+    private var audioPlayerControl: AudioPlayerControl? = null
+
+    fun setAudioPlayerControl(audioPlayerControl: AudioPlayerControl) {
+        this.audioPlayerControl = audioPlayerControl
+
+        apcJob?.cancel()
+        apcJob = viewModelScope.launch {
+
+            audioPlayerControl.getPlayerStateFun().collect {
+                playerStateLiveData.postValue(it)
+            }
+        }
+    }
+
+    fun onPlayerButtonClicked() {
+        if (playerStateLiveData.value?.state == STATE_PLAYING) {
+            audioPlayerControl?.pausePlayer()
+        } else {
+            audioPlayerControl?.startPlayer()
+        }
+    }
+
+    fun removeAudioPlayerControl() {
+        audioPlayerControl = null
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        audioPlayerControl = null
+    }
+
+    fun hideNotification(){
+        audioPlayerControl?.hideNotification()
+    }
+
+    fun showNotification(){
+        if (playerStateLiveData.value?.state == STATE_PLAYING){
+        audioPlayerControl?.showNotification()}
+    }
 
 }
